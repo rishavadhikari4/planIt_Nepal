@@ -1,0 +1,39 @@
+
+.venues__title {
+  text-align: center;
+  margin: 40px 0;
+  color: var(--secondary-color);
+}
+
+.venue-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.venue-card__image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.venue-card__content {
+  padding: 15px 0;
+}
+
+.venue-card__title {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: var(--secondary-color);
+}
+
+.venue-card__location {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.venue-card__description {
+  font-size: 16px;
+  margin-bottom: 15px;
+}

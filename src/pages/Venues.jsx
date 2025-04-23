@@ -1,0 +1,47 @@
+import React, { useEffect, useState } from 'react';
+import { getAllVenues,handleVenueSelection} from '../api/services';
+import '../styles/Venues.css';
+
+const Venues = () => {
+  const [venues, setVenues] = useState([]);
+  const [selectedVenue, setSelectedVenue] = useState(null);
+
+  useEffect(() => {
+    const fetchVenues = async () => {
+      const data = await getAllVenues();
+      setVenues(data);
+    };
+
+    fetchVenues();
+  }, []);
+
+  const handleSelect = async()=>{
+    if(selectedVenue){
+      await handleVenueSelection(selectedVenue);
+  }};
+  return (
+    <div className="container">
+      <h2 className="venues__title">Our Wedding Venues</h2>
+      <div className="grid">
+        {venues.map((venue) => (
+          <div key={venue._id} className="card venue-card">
+            <img src={venue.image} alt={venue.name} className="venue-card__image" />
+            <div className="venue-card__content">
+              <h3 className="venue-card__title">{venue.name}</h3>
+              <p className="venue-card__location">{venue.location}</p>
+              <p className="venue-card__description">{venue.description}</p>
+              <button 
+                className="button button--primary"
+                onClick={() =>{setSelectedVenue(venue._id);handleSelect();} }
+              >
+                Select Venue
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default Venues;
