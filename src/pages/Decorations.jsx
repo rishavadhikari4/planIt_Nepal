@@ -8,8 +8,14 @@ const Decorations = () => {
 
   useEffect(() => {
     const fetchDecorations = async () => {
+     try{
       const data = await getAllDecorations();
       setDecorations(data);
+    }catch(err){
+      console.error('Failed to fetch decorations:', err);
+    }finally{
+      setLoading(false);
+    }
     };
     fetchDecorations();
   }, []);
@@ -19,7 +25,7 @@ const Decorations = () => {
       await chooseDecoration(selectedDecoration);
     }
   };
-
+  if(loading) return <div>Loading...</div>;
   return (
     <div className="container">
       <h2 className="decorations__title">Wedding Decoration Themes</h2>
