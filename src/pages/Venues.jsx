@@ -5,11 +5,19 @@ import '../styles/Venues.css';
 const Venues = () => {
   const [venues, setVenues] = useState([]);
   const [selectedVenue, setSelectedVenue] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchVenues = async () => {
-      const data = await getAllVenues();
+      try{     
+        const data = await getAllVenues();
       setVenues(data);
+    }catch(err){
+      console.error('Failed to fetch venues:', err);
+    }finally{
+      setLoading(false);
+    }
+
     };
 
     fetchVenues();
@@ -19,6 +27,9 @@ const Venues = () => {
     if(selectedVenue){
       await handleVenueSelection(selectedVenue);
   }};
+  if(loading) return <div className="loader-container">
+    <div className="loader"></div>
+  </div>
   return (
     <div className="container">
       <h2 className="venues__title">Our Wedding Venues</h2>
