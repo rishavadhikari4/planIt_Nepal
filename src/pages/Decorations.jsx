@@ -5,6 +5,7 @@ import '../styles/Decorations.css';
 const Decorations = () => {
   const [decorations, setDecorations] = useState([]);
   const [selectedDecoration, setSelectedDecoration] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDecorations = async () => {
@@ -25,7 +26,9 @@ const Decorations = () => {
       await chooseDecoration(selectedDecoration);
     }
   };
-  if(loading) return <div>Loading...</div>;
+  if(loading) return <div className="loader-container">
+  <div className="loader"></div>
+</div>
   return (
     <div className="container">
       <h2 className="decorations__title">Wedding Decoration Themes</h2>
