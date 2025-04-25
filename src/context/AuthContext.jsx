@@ -50,9 +50,9 @@ export const AuthProvider = ({ children }) => {
     const signup = async (name, email, password, confirmPassword) => {
         try {
             const { data } = await API.post("/api/auth/register", { name, email, password, confirmPassword });
-            sessionStorage.setItem("token", data.token);
             const decodedToken = jwtDecode(data.token);
             const user = { id: decodedToken.id, name: decodedToken.name, email: decodedToken.email };
+            localStorage.setItem("token", data.token);
             localStorage.setItem("user", JSON.stringify(user));
             setUser(user); 
             setIsAuthenticated(true); // <-- update state

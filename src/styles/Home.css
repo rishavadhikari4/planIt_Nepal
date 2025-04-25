@@ -135,7 +135,8 @@
 }
 
 .contact-form button:hover {
-  background-color: #e65a50;
+      background-color: var(--secondary-color);
+  color: white;
 }
 .reviews-grid {
   display: grid;

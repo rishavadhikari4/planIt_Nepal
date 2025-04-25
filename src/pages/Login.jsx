@@ -21,6 +21,7 @@ const Login = () => {
     };
 
     return (
+
         <div className="auth-container">
             <div className="auth-box">
                 <h2>Login to Lagan Gaatho</h2>
