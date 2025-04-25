@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {  getAllDishCategories } from '../api/dishService';
 import { useCart } from '../context/CartContext'; // Import useCart
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 import '../styles/Dishes.css';  
 
 const Dishes = () => {
@@ -9,6 +10,7 @@ const Dishes = () => {
   const [selectedDishes, setSelectedDishes] = useState([]);
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart(); // Get addToCart from context
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -33,15 +35,21 @@ const Dishes = () => {
   };
 
  const handleSubmit = () => {
+    const token = localStorage.getItem("token");
+
     // submitDishes(selectedDishes);
     // Add each selected dish to cart
+    if(!token){
+      toast.info("Please login to Add items to your cart");
+      navigate('/login');
+      return;
+    }
     toast.success("Added to the cart successfully");
     categories.forEach(category => {
       category.dishes.forEach(dish => {
         if (selectedDishes.includes(dish.name)) {
           addToCart({
             name: dish.name,
-            price: dish.price || 0,
             image: dish.image,
             quantity: 1,
           });

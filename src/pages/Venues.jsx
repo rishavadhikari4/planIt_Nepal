@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getAllVenues } from '../api/venueService';
 import { useCart } from '../context/CartContext';
 import { toast } from 'react-toastify';
@@ -9,6 +10,8 @@ const Venues = () => {
   const [selectedVenue, setSelectedVenue] = useState(null);
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
+  const navigate = useNavigate();
+  
 
   useEffect(() => {
     const fetchVenues = async () => {
@@ -26,12 +29,16 @@ const Venues = () => {
   }, []);
 
   const handleSelect = async (venue) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      toast.info("Please login to add items to your cart.");
+      navigate('/login');
+      return;
+    }
     setSelectedVenue(venue.name);
     toast.success("Added to the cart successfully");
-    // await handleVenueSelection(venue.name);
     addToCart({
       name: venue.name,
-      price: venue.price || 0,
       image: venue.image,
       quantity: 1,
     });

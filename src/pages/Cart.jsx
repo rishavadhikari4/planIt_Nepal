@@ -1,5 +1,7 @@
 import React from "react";
 import { useCart } from "../context/CartContext";
+import '../styles/Cart.css'
+
 
 const Cart = () => {
   const { cartItems, removeFromCart } = useCart();
@@ -21,18 +23,18 @@ const Cart = () => {
                   <td>{item.name}</td>
                   <td>{item.quantity}</td>
                   <td>
-                    <button onClick={() => removeFromCart(item.name)} style={{ color: "red" }}>
-                      Remove
-                    </button>
+                  <button className="remove-btn" onClick={() => removeFromCart(item.name)}>
+                  X
+                   </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
           <div style={{ textAlign: "right", marginTop: 20 }}>
-            <button style={{ padding: "10px 24px", background: "#007bff", color: "#fff", border: "none", borderRadius: 4 }}>
-              Proceed to Checkout
-            </button>
+          <button className="proceed-btn">
+                 Proceed to Checkout
+          </button>
           </div>
         </div>
       )}

@@ -45,7 +45,24 @@
   color: var(--text-color);
   cursor: pointer;
 }
+.header__log-btn {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  outline: none;
+  display: inline;
+  padding: 5px 10px;
+}
 
+.header__log-btn:hover,
+.header__log-btn:focus {
+    background-color: var(--secondary-color);
+  color: white;
+}
 
 /* Mobile styles */
 @media (max-width: 768px) {

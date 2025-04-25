@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getAllDecorations } from '../api/decorationService';
+import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext'; 
 import { toast } from 'react-toastify';
 import '../styles/Decorations.css';
@@ -9,6 +10,7 @@ const Decorations = () => {
   const [selectedDecoration, setSelectedDecoration] = useState(null);
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart(); // Get addToCart from context
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDecorations = async () => {
@@ -25,6 +27,12 @@ const Decorations = () => {
   }, []);
 
 const handleSubmit = async () => {
+  const token = localStorage.getItem("token");
+  if(!token){
+    toast.info("Please login to add items to the cart");
+    navigate("/login");
+    return;
+  }
   if (selectedDecoration) {
     // await chooseDecoration(selectedDecoration);
     toast.success("Added to the cart successfully");

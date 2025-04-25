@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom"; // <-- import useLocation
 import API from "../api/api";
 import { jwtDecode } from "jwt-decode";
 
@@ -7,35 +7,39 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
     const navigate = useNavigate();
+    const location = useLocation(); // <-- get location
 
+    // Update isAuthenticated on every route change
+    useEffect(() => {
+        setIsAuthenticated(!!localStorage.getItem('token'));
+    }, [location]); // <-- depend on location
 
     useEffect(() => {
-        const token = sessionStorage.getItem("token");
-        const storedUser = sessionStorage.getItem("user");
+        const token = localStorage.getItem("token");
+        const storedUser = localStorage.getItem("user");
     
         if (token && storedUser) {
             try {
                 setUser(JSON.parse(storedUser));
             } catch (error) {
                 console.error("Error parsing user data:", error);
-                sessionStorage.removeItem("user");
+                localStorage.removeItem("user");
                 setUser(null);
             }
         }
     }, []);
+
     const login = async (email, password) => {
         try {
             const { data } = await API.post("/api/auth/login", { email, password });
-            
-            sessionStorage.setItem("token", data.token);
+            localStorage.setItem("token", data.token);
             const decodedToken = jwtDecode(data.token);
-
             const user = { id: decodedToken.id, name: decodedToken.name, email: decodedToken.email };
-            
-            sessionStorage.setItem("user", JSON.stringify(user));
+            localStorage.setItem("user", JSON.stringify(user));
             setUser(user);
-    
+            setIsAuthenticated(true); // <-- update state
             navigate("/");  
         } catch (error) {
             console.error("Login failed", error.response?.data?.message);
@@ -48,12 +52,10 @@ export const AuthProvider = ({ children }) => {
             const { data } = await API.post("/api/auth/register", { name, email, password, confirmPassword });
             sessionStorage.setItem("token", data.token);
             const decodedToken = jwtDecode(data.token);
-    
             const user = { id: decodedToken.id, name: decodedToken.name, email: decodedToken.email };
-            
-            sessionStorage.setItem("user", JSON.stringify(user));
+            localStorage.setItem("user", JSON.stringify(user));
             setUser(user); 
-    
+            setIsAuthenticated(true); // <-- update state
             navigate("/");
         } catch (error) {
             console.error("Signup failed", error.response?.data?.message);
@@ -62,23 +64,22 @@ export const AuthProvider = ({ children }) => {
     };
     
     const logout = () => {
-        sessionStorage.removeItem("token");
-        sessionStorage.removeItem("user");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
         setUser(null);
+        setIsAuthenticated(false);
         navigate("/");
     };
+    
     const adminLogin = async (email, password) => {
         try {
             const { data } = await API.post("/api/auth/adminLogin", { email, password });
-            
             localStorage.setItem("token", data.token);
             const decodedToken = jwtDecode(data.token);
-
             const user = { email: decodedToken.email };
-            
             localStorage.setItem("user", JSON.stringify(user));
             setUser(user);
-    
+            setIsAuthenticated(true); // <-- update state
             navigate("/admin");  
         } catch (error) {
             console.error("Login failed", error.response?.data?.message);
@@ -86,9 +87,8 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-
     return (
-        <AuthContext.Provider value={{ user, signup, login, logout, adminLogin }}>
+        <AuthContext.Provider value={{ user, isAuthenticated, signup, login, logout, adminLogin }}>
             {children}
         </AuthContext.Provider>
     );

@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ShoppingCart } from 'lucide-react';
+import { AuthContext } from '../context/AuthContext';
 import '../styles/Header.css';
 
 const Header = () => {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isAuthenticated, logout } = useContext(AuthContext);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -25,6 +27,15 @@ const Header = () => {
           ☰
         </button>
         <div className={`header__links ${isMenuOpen ? 'header__links--open' : ''}`}>
+          {!isAuthenticated && (
+            <Link
+              to="/login"
+              className={`header__link header__log-btn ${location.pathname === '/login' ? 'header__link--active' : ''}`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Login
+            </Link>
+          )}
           <Link
             to="/"
             className={`header__link ${location.pathname === '/' ? 'header__link--active' : ''}`}
@@ -61,11 +72,23 @@ const Header = () => {
             Contact
           </Link>
           <Link
-          to="/cart"
-          className={`header__link ${location.pathname ==='/cart'?'header__link--active': ''}`}
-          onClick={()=>setIsMenuOpen(false)}>
+            to="/cart"
+            className={`header__link ${location.pathname === '/cart' ? 'header__link--active' : ''}`}
+            onClick={() => setIsMenuOpen(false)}
+          >
             <ShoppingCart />
           </Link>
+          {isAuthenticated && (
+            <button
+              className="header__link header__log-btn"
+              onClick={() => {
+                logout();
+                setIsMenuOpen(false);
+              }}
+            >
+              Logout
+            </button>
+          )}
         </div>
       </nav>
     </header>

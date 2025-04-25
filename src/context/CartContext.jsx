@@ -1,11 +1,17 @@
-import React, { createContext, useContext, useState } from "react";
-
+import React, { createContext, useContext, useState, useEffect } from "react";
+import axios from "axios";
 const CartContext = createContext();
 
 export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
+
+//   useEffect(()=>{
+//     axios.get("/api/cart")
+//     .then(res=>setCartItems(res.data))
+//     .catch(()=>setCartItems([]));
+//   },[]);
 
   const addToCart = (item) => {
     setCartItems((prev) => {

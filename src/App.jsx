@@ -27,9 +27,10 @@ function AppContent() {
 
   return (
     <>
+    <AuthProvider>
       {!hideHeaderRoutes.includes(location.pathname) && <Header />}
       <CartProvider>
-      <AuthProvider>
+      
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/venues" element={<Venues />} />
@@ -55,8 +56,9 @@ function AppContent() {
           draggable
           theme="light"
         />
-      </AuthProvider>
+      
       </CartProvider>
+      </AuthProvider>
     </>
   );
 }
