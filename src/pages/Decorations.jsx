@@ -1,34 +1,53 @@
 import React, { useState, useEffect } from 'react';
-import { chooseDecoration, getAllDecorations } from '../api/services';
+import { getAllDecorations } from '../api/decorationService';
+import { useCart } from '../context/CartContext'; 
+import { toast } from 'react-toastify';
 import '../styles/Decorations.css';
 
 const Decorations = () => {
   const [decorations, setDecorations] = useState([]);
   const [selectedDecoration, setSelectedDecoration] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { addToCart } = useCart(); // Get addToCart from context
 
   useEffect(() => {
     const fetchDecorations = async () => {
-     try{
-      const data = await getAllDecorations();
-      setDecorations(data);
-    }catch(err){
-      console.error('Failed to fetch decorations:', err);
-    }finally{
-      setLoading(false);
-    }
+      try {
+        const data = await getAllDecorations();
+        setDecorations(data);
+      } catch (err) {
+        console.error('Failed to fetch decorations:', err);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchDecorations();
   }, []);
 
-  const handleSubmit = async () => {
-    if (selectedDecoration) {
-      await chooseDecoration(selectedDecoration);
+const handleSubmit = async () => {
+  if (selectedDecoration) {
+    // await chooseDecoration(selectedDecoration);
+    toast.success("Added to the cart successfully");
+    const decoration = decorations.find(d => d.name === selectedDecoration);
+    if (decoration) {
+      addToCart({
+        name: decoration.name,
+        price: decoration.price || 0,
+        image: decoration.image,
+        quantity: 1,
+      });
     }
-  };
-  if(loading) return <div className="loader-container">
-  <div className="loader"></div>
-</div>
+    setSelectedDecoration(null); // Reset the selection after adding to cart
+  }
+};     
+
+  if (loading)
+    return (
+      <div className="loader-container">
+        <div className="loader"></div>
+      </div>
+    );
+
   return (
     <div className="container">
       <h2 className="decorations__title">Wedding Decoration Themes</h2>
@@ -47,9 +66,9 @@ const Decorations = () => {
                 type="radio"
                 id={`decoration-${decoration._id}`}
                 name="decoration"
-                value={decoration._id}
-                checked={selectedDecoration === decoration._id}
-                onChange={() => setSelectedDecoration(decoration._id)}
+                value={decoration.name}
+                checked={selectedDecoration === decoration.name}
+                onChange={() => setSelectedDecoration(decoration.name)}
               />
               <label htmlFor={`decoration-${decoration._id}`}>Select this theme</label>
             </div>
@@ -62,7 +81,7 @@ const Decorations = () => {
           onClick={handleSubmit}
           disabled={!selectedDecoration}
         >
-          Confirm Decoration Theme
+          Add to Cart
         </button>
       </div>
     </div>

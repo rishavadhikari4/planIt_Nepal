@@ -1,35 +1,49 @@
 import React, { useEffect, useState } from 'react';
-import { getAllVenues,handleVenueSelection} from '../api/services';
+import { getAllVenues } from '../api/venueService';
+import { useCart } from '../context/CartContext';
+import { toast } from 'react-toastify';
 import '../styles/Venues.css';
 
 const Venues = () => {
   const [venues, setVenues] = useState([]);
   const [selectedVenue, setSelectedVenue] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const fetchVenues = async () => {
-      try{     
+      try {
         const data = await getAllVenues();
-      setVenues(data);
-    }catch(err){
-      console.error('Failed to fetch venues:', err);
-    }finally{
-      setLoading(false);
-    }
-
+        setVenues(data);
+      } catch (err) {
+        console.error('Failed to fetch venues:', err);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchVenues();
   }, []);
 
-  const handleSelect = async()=>{
-    if(selectedVenue){
-      await handleVenueSelection(selectedVenue);
-  }};
-  if(loading) return <div className="loader-container">
-    <div className="loader"></div>
-  </div>
+  const handleSelect = async (venue) => {
+    setSelectedVenue(venue.name);
+    toast.success("Added to the cart successfully");
+    // await handleVenueSelection(venue.name);
+    addToCart({
+      name: venue.name,
+      price: venue.price || 0,
+      image: venue.image,
+      quantity: 1,
+    });
+  };
+
+  if (loading)
+    return (
+      <div className="loader-container">
+        <div className="loader"></div>
+      </div>
+    );
+
   return (
     <div className="container">
       <h2 className="venues__title">Our Wedding Venues</h2>
@@ -41,11 +55,11 @@ const Venues = () => {
               <h3 className="venue-card__title">{venue.name}</h3>
               <p className="venue-card__location">{venue.location}</p>
               <p className="venue-card__description">{venue.description}</p>
-              <button 
+              <button
                 className="button button--primary"
-                onClick={() =>{setSelectedVenue(venue._id);handleSelect();} }
+                onClick={() => handleSelect(venue)}
               >
-                Select Venue
+                Add to Cart
               </button>
             </div>
           </div>

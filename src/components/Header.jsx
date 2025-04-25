@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { ShoppingCart } from 'lucide-react';
 import '../styles/Header.css';
 
 const Header = () => {
@@ -58,6 +59,12 @@ const Header = () => {
             onClick={() => setIsMenuOpen(false)}
           >
             Contact
+          </Link>
+          <Link
+          to="/cart"
+          className={`header__link ${location.pathname ==='/cart'?'header__link--active': ''}`}
+          onClick={()=>setIsMenuOpen(false)}>
+            <ShoppingCart />
           </Link>
         </div>
       </nav>
