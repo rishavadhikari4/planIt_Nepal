@@ -1,16 +1,28 @@
 import React, { useContext, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation,useNavigate} from 'react-router-dom';
 import { ShoppingCart } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
+import { toast } from 'react-toastify';
 import '../styles/Header.css';
 
 const Header = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isAuthenticated, logout } = useContext(AuthContext);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+    const handleCartClick = (e) => {
+    setIsMenuOpen(false);
+    if (!isAuthenticated) {
+      e.preventDefault();
+      toast.info('Please log in to view your cart.');
+      setTimeout(() => {
+        navigate('/login');
+      }, 1000);
+    }
   };
 
   return (
@@ -71,13 +83,13 @@ const Header = () => {
           >
             Contact
           </Link>
-          <Link
-            to="/cart"
-            className={`header__link ${location.pathname === '/cart' ? 'header__link--active' : ''}`}
-            onClick={() => setIsMenuOpen(false)}
-          >
-            <ShoppingCart />
-          </Link>
+        <Link
+          to="/cart"
+          className={`header__link ${location.pathname === '/cart' ? 'header__link--active' : ''}`}
+          onClick={handleCartClick}
+        >
+          <ShoppingCart />
+        </Link>
           {isAuthenticated && (
             <button
               className="header__link header__log-btn"

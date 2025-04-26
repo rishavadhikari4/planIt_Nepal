@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import axios from "axios";
+import API from "../api/api";
 const CartContext = createContext();
 
 export const useCart = () => useContext(CartContext);
@@ -7,26 +7,35 @@ export const useCart = () => useContext(CartContext);
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
 
-//   useEffect(()=>{
-//     axios.get("/api/cart")
-//     .then(res=>setCartItems(res.data))
-//     .catch(()=>setCartItems([]));
-//   },[]);
-
-  const addToCart = (item) => {
-    setCartItems((prev) => {
-      const exists = prev.find((i) => i.name === item.name);
-      if (exists) {
-        return prev.map((i) =>
-          i.name === item.name ? { ...i, quantity: i.quantity + 1 } : i
-        );
-      }
-      return [...prev, { ...item, quantity: 1 }];
+useEffect(() => {
+  API.get("/api/cart")
+    .then(res => {
+      setCartItems(Array.isArray(res.data) ? res.data : []);
+    })
+    .catch(err => {
+      console.error("Cart fetch failed", err);
+      setCartItems([]);
     });
+}, []);
+
+
+  const addToCart = async (item) => {
+    try {
+      const res = await API.post("/api/cart", item);
+      setCartItems(res.data); 
+    } catch (err) {
+      console.error("Error adding to cart", err);
+    }
   };
 
-  const removeFromCart = (name) => {
-    setCartItems((prev) => prev.filter((i) => i.name !== name));
+
+  const removeFromCart = async (id) => {
+    try {
+      const res = await API.delete(`/api/cart/${id}`);
+      setCartItems(res.data); 
+    } catch (err) {
+      console.error("Error removing from cart", err);
+    }
   };
 
   return (

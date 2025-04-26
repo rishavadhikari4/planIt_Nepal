@@ -1,40 +1,39 @@
 import React from "react";
 import { useCart } from "../context/CartContext";
-import '../styles/Cart.css'
-
+import '../styles/Cart.css';
 
 const Cart = () => {
-  const { cartItems, removeFromCart } = useCart();
+  const { cartItems, removeFromCart } = useCart([]);
 
   return (
-    <div className="cart-container" style={{ maxWidth: 800, margin: "2rem auto" }}>
-      <h2>Your Cart</h2>
+    <div className="cart-container">
+      <h2 className="cart-title">Your Cart</h2>
       {cartItems.length === 0 ? (
-        <p>Your cart is empty.</p>
+        <p className="cart-empty">Your cart is empty.</p>
       ) : (
-        <div>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <div className="cart-table-wrapper">
+          <table className="cart-table">
             <tbody>
               {cartItems.map((item) => (
-                <tr key={item.name} style={{ borderBottom: "1px solid #eee" }}>
-                  <td>
-                    <img src={item.image} alt={item.name} width={60} />
+                <tr key={item._id} className="cart-row">
+                  <td className="cart-img-cell">
+                    <img src={item.image} alt={item.name} className="cart-img" />
                   </td>
-                  <td>{item.name}</td>
-                  <td>{item.quantity}</td>
-                  <td>
-                  <button className="remove-btn" onClick={() => removeFromCart(item.name)}>
-                  X
-                   </button>
+                  <td className="cart-name">{item.name}</td>
+                  <td className="cart-qty">{item.quantity}</td>
+                  <td className="cart-remove">
+                    <button className="remove-btn" onClick={() => removeFromCart(item._id)}>
+                      X
+                    </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <div style={{ textAlign: "right", marginTop: 20 }}>
-          <button className="proceed-btn">
-                 Proceed to Checkout
-          </button>
+          <div className="cart-actions">
+            <button className="proceed-btn">
+              Proceed to Checkout
+            </button>
           </div>
         </div>
       )}
