@@ -1,9 +1,28 @@
 import React from "react";
 import { useCart } from "../context/CartContext";
 import '../styles/Cart.css';
+import API from "../api/api";
 
 const Cart = () => {
   const { cartItems, removeFromCart } = useCart([]);
+
+  const handleCheckout = async () => {
+    try {
+      const token = localStorage.getItem('token');
+
+      const response = await API.post(
+        '/api/orders',);
+
+      if (response.status === 200) {
+        alert('Order placed successfully!');
+
+        window.location.reload(); 
+      }
+    } catch (error) {
+      console.error('Error placing order:', error);
+      alert('Failed to place order. Please try again.');
+    }
+  };
 
   return (
     <div className="cart-container">
@@ -31,7 +50,7 @@ const Cart = () => {
             </tbody>
           </table>
           <div className="cart-actions">
-            <button className="proceed-btn">
+            <button className="proceed-btn" onClick={handleCheckout}>
               Proceed to Checkout
             </button>
           </div>

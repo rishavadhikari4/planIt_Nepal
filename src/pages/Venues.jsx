@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAllVenues } from '../api/venueService';
+import { getVenues } from '../api/venueService';
 import { useCart } from '../context/CartContext';
 import { toast } from 'react-toastify';
 import '../styles/Venues.css';
@@ -16,7 +16,7 @@ const Venues = () => {
   useEffect(() => {
     const fetchVenues = async () => {
       try {
-        const data = await getAllVenues();
+        const data = await getVenues();
         setVenues(data);
       } catch (err) {
         console.error('Failed to fetch venues:', err);

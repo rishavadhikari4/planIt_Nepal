@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import API from "../api/api";
 
 const Admin = () => {
   const [authorized, setAuthorized] = useState(false);
@@ -12,8 +12,7 @@ const Admin = () => {
       navigate("/*");
       return;
     }
-    axios.get("/api/auth/verify", {
-      headers: { Authorization: `Bearer ${token}` }
+    API.get("/api/auth/verify", {
     })
       .then(() => setAuthorized(true))
       .catch(() => navigate("/*"));
@@ -38,8 +37,7 @@ const Admin = () => {
         textAlign: "center"
       }}>
         <h2 style={{ color: "#e75480", marginBottom: "1.5rem" }}>Admin Dashboard</h2>
-        <p>Welcome, Admin! Here you can manage users, view reports, and configure settings.</p>
-        {/* Add more admin features/components here */}
+        <p>Welcome, Admin! Here you can manage users, view reports, and configure settings. It is in development....</p>
       </div>
     </div>
   );
