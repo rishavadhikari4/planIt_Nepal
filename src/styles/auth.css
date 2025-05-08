@@ -151,36 +151,68 @@ body {
   color: #ad1457;
 }
 
+.google-login-btn {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  background: #fff;
+  color: #444;
+  border: 1.5px solid #ffb6d5;
+  border-radius: 10px;
+  font-size: 1.08rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  margin-top: 1rem;
+  box-shadow: 0 2px 8px #ffb6d533;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+  animation: fadeInUp 0.7s 0.45s both;
+}
+
+.google-login-btn:hover {
+  background: #ffe6f2;
+  box-shadow: 0 6px 18px #ffb6d555;
+  transform: translateY(-2px) scale(1.03);
+}
+
+.google-logo {
+  width: 22px;
+  height: 22px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px #ffb6d533;
+}
+
+.or-divider {
+  display: flex;
+  align-items: center;
+  margin: 1.2rem 0 0.5rem 0;
+  font-size: 1rem;
+  color: #c2185b99;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+.or-divider::before,
+.or-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #ffb6d5;
+  margin: 0 0.7rem;
+  opacity: 0.5;
+}
+
+/* Responsive for Google button */
 @media (max-width: 600px) {
-  .auth-container {
-    padding: 1.5rem 0.5rem;
-    min-height: 100vh;
+  .google-login-btn {
+    font-size: 0.97rem;
+    padding: 0.6rem 0.5rem;
+    gap: 0.5rem;
   }
-
-  .auth-box {
-    max-width: 92vw;
-    padding: 1.5rem 0.6rem;
-    border-radius: 14px;
-    box-shadow: 0 2px 12px rgba(255, 128, 171, 0.12), 0 1px 4px rgba(0,0,0,0.05);
-  }
-
-  .auth-box h2 {
-    font-size: 1.1rem;
-  }
-
-  .auth-box input[type="email"],
-  .auth-box input[type="password"],
-  .auth-box input[type="text"] {
-    font-size: 0.95rem;
-    padding: 0.6rem 0.6rem;
-  }
-
-  .auth-box button[type="submit"] {
-    font-size: 0.98rem;
-    padding: 0.6rem;
-  }
-
-  .auth-box p {
-    font-size: 0.95rem;
+  .google-logo {
+    width: 18px;
+    height: 18px;
   }
 }
