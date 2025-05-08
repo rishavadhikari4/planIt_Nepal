@@ -33,7 +33,7 @@ const Home = () => {
           className="hero-image"
         />
         <div className="hero-content">
-          <h1 className="welcome__title">Welcome to LaganGaatho</h1>
+          <h1 className="welcome__title">Welcome to Wedding Planner</h1>
           <p className="welcome__description">
             Let us help you create the wedding of your dreams. From stunning venues to delicious dishes
             and beautiful decorations, we've got everything you need to make your special day perfect.
@@ -125,7 +125,7 @@ const Home = () => {
               <div className="contact-info">
                 <p className="contact-item">
                   <Mail className="w-5 h-5" />
-                  <span>Email: Lagangaatho@support.com</span>
+                  <span>Email: Weddingplanner@support.com</span>
                 </p>
                 <p className="contact-item">
                   <Phone className="w-5 h-5" />
@@ -181,8 +181,8 @@ const Home = () => {
       </div>
 
       <div className="footer">
-        <p>© {new Date().getFullYear()} LaganGaatho. All rights reserved.</p>
-        <p>Designed with ❤️ by LaganGaatho Team</p>
+        <p>© {new Date().getFullYear()} Wedding Planner. All rights reserved.</p>
+        <p>Designed with ❤️ by Wedding Planner Team</p>
       </div>
     </div>
   );
