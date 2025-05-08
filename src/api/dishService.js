@@ -13,7 +13,7 @@ export const getAllDishCategories = async () => {
 };
 
 // export const submitDishes = (selectedDishes) => {
-//   sessionStorage.setItem("selectedDishes", JSON.stringify(selectedDishes));
+//   localStorage.setItem("selectedDishes", JSON.stringify(selectedDishes));
 //   // Future API call to backend
 //   return Promise.resolve({ success: true });
 // };

@@ -15,7 +15,7 @@ export const getAllDecorations = async () => {
 };
 
 // export const chooseDecoration = (decorationId) => {
-//   sessionStorage.setItem("selectedDecoration", decorationId);
+//   localStorage.setItem("selectedDecoration", decorationId);
 //   // Future API call to backend
 //   return Promise.resolve({ success: true });
 // };

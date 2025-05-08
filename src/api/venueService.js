@@ -46,7 +46,7 @@ export const deleteVenue = async (id) => {
 
 // // Handle venue selection
 // export const handleVenueSelection = (venueId) => {
-//   sessionStorage.setItem("selectedVenue", venueId);
+//   localStorage.setItem("selectedVenue", venueId);
 //   // Future API call to backend
 //   return Promise.resolve({ success: true });
 // };

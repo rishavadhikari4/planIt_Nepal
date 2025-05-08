@@ -6,17 +6,22 @@ const Admin = () => {
   const [authorized, setAuthorized] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/*");
-      return;
-    }
-    API.get("/api/auth/verify", {
+useEffect(() => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    navigate("/*");
+    return;
+  }
+  API.get("/api/auth/verify")
+    .then((response) => {
+      if (response.data.valid) {
+        setAuthorized(true);
+      } else {
+        navigate("/*"); // invalid user, navigate away
+      }
     })
-      .then(() => setAuthorized(true))
-      .catch(() => navigate("/*"));
-  }, [navigate]);
+    .catch(() => navigate("/*")); // if token invalid or server error
+}, [navigate]);
 
   return (
     <div className="admin-container" style={{
