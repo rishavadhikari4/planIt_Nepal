@@ -28,7 +28,7 @@ const Register = () => {
     return (
         <div className="auth-container">
             <div className="auth-box">
-                <h2>Sign Up to Lagan Gaatho</h2>
+                <h2>Sign Up to Wedding Planner</h2>
                 <form onSubmit={handleSubmit}>
                     <input 
                         type="text" 

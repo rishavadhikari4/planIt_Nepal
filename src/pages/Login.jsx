@@ -24,7 +24,7 @@ const Login = () => {
 
         <div className="auth-container">
             <div className="auth-box">
-                <h2>Login to Lagan Gaatho</h2>
+                <h2>Login to Wedding Planner</h2>
                 {error && <p className="error-message">{error}</p>}
                 <form onSubmit={handleSubmit}>
                     <input

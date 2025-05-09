@@ -29,7 +29,7 @@ const Header = () => {
     <header className="header">
       <nav className="header__nav container">
         <Link to="/" className="header__logo">
-          Lagan Gaatho
+          Wedding Planner
         </Link>
         <button
           className="header__menu-toggle"
