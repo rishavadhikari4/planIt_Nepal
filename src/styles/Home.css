@@ -138,41 +138,152 @@
       background-color: var(--secondary-color);
   color: white;
 }
-.reviews-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
+
+
+.reviews-content {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 280px; /* Adjust height to match your review cards */
+  padding: 1rem 0;
+  /* background-color: #f9f9f9; optional background */
 }
 
-.review {
+/* The two rows of reviews, positioned side-by-side horizontally */
+.reviews-content .reviews-grid {
+  display: flex;
+  gap: 1rem;
+  position: absolute;
+  top: 0;
+   width: 1314px;  /* exactly total width */
+  animation: scroll-left 30s linear infinite;
+}
+
+
+.reviews-content .reviews-grid:nth-child(1) {
+  left: 0;
+}
+
+
+.reviews-content .reviews-grid:nth-child(2) {
+  left: 1330px;
+}
+
+/* Each review card */
+.reviews-grid > .review {
+  flex-shrink: 0;
   background-color: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 1rem;
+  width: 250px;
+  box-sizing: border-box;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
   transition: transform 0.2s ease-in-out;
 }
 
-.review:hover {
-  transform: translateY(-5px);
-}
-
+/* Text inside the review */
 .review-text {
-  font-size: 1.1rem;
-  line-height: 1.6;
+  font-size: 1rem;
+  line-height: 1.4;
   margin-bottom: 0.5rem;
+
+  max-height: 4.2em; /* about 3 lines */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
 }
 
+/* Author styling */
 .review-author {
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: bold;
   color: #555;
 }
 
+/* Stars styling */
 .review-stars {
-  color: #FFD700; 
-  font-size: 1.2rem;
+  color: #FFD700;
+  font-size: 1.1rem;
   margin-bottom: 0.5rem;
 }
+
+/* Container for the star rating (optional wrapper styles) */
+.star-rating {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 1rem;
+}
+
+/* Each star */
+.star {
+  cursor: pointer;
+  font-size: 1.5rem;
+  color: #ccc;                 /* default (unfilled) color */
+  transition: color 0.2s ease;
+}
+
+/* Filled stars (when hovered or selected) */
+.star.filled {
+  color: #FFD700;              /* gold color */
+}
+
+/* Hover state (optional if you want a slightly different effect on hover) */
+.star:hover {
+  color: #ffcf33;              /* lighter gold on hover */
+}
+
+/* Textarea styling */
+.review-comment {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: vertical;
+  margin-bottom: 1rem;
+}
+
+/* Submit button styling */
+.review-submit {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.review-submit:hover {
+  background-color: #0056b3;
+}
+
+/* Success / error message */
+.review-message {
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  color: #28a745;       /* green for success; override to red if needed */
+}
+
+
+/* The animation keyframes moving left by 1314px (full width of one row) */
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-1314px);
+  }
+}
+
+
+
 
 
 

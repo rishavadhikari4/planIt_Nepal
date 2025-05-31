@@ -1,6 +1,8 @@
-import React from 'react';
+import { useState,useEffect } from 'react';
 import { Mail, Phone, Home as HomeIcon, Flower, Utensils } from 'lucide-react';
 import { submitContactForm } from '../api/contactService';
+import { getAllReviews,} from '../api/reviewService';
+import Review from './review.jsx';
 import '../styles/Home.css';
 import { toast } from 'react-toastify';
 
@@ -16,6 +18,7 @@ const Home = () => {
     };
 
     const result = await submitContactForm(formData);
+
     if (result.message === 'Contact Created Successfully') {
       toast.success('Your message has been sent successfully!');
       e.target.reset();
@@ -76,43 +79,13 @@ const Home = () => {
             </div>
           </div>
         </div>
-
         <div className="reviews-section">
           <div className="reviews-box">
             <div className="reviews-header">
               <h2 className="reviews-title">What Our Clients Say</h2>
             </div>
-            <div className="reviews-content reviews-grid">
-              {/* Repeatable review */}
-              {[
-                {
-                  text: "LaganGaatho made our special day absolutely perfect!",
-                  stars: "★★★★★",
-                  author: "- Samu & Sachu"
-                },
-                {
-                  text: "From the venue to the catering, everything was beyond our expectations.",
-                  stars: "★★★★★",
-                  author: "- Praku & Upu"
-                },
-                {
-                  text: "The decorations were stunning, and the team was so easy to work with.",
-                  stars: "★★★★☆",
-                  author: "- Niru & Bipu"
-                },
-                {
-                  text: "The team was incredibly helpful and made the entire process stress-free.",
-                  stars: "★★★★★",
-                  author: "- Reshu & Aku"
-                }
-              ].map((review, index) => (
-                <div className="review" key={index}>
-                  <p className="review-text">{`"${review.text}"`}</p>
-                  <div className="review-stars">{review.stars}</div>
-                  <p className="review-author">{review.author}</p>
-                </div>
-              ))}
-            </div>
+            <br/>
+        <Review />
           </div>
         </div>
 
