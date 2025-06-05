@@ -1,11 +1,15 @@
-import React from "react";
+import { useEffect } from "react";
 import { useCart } from "../context/CartContext";
 import '../styles/Cart.css';
 import API from "../api/api";
 
 const Cart = () => {
-  const { cartItems, removeFromCart } = useCart([]);
+  const { cartItems, removeFromCart,fetchCartItems} = useCart([]);
 
+
+  useEffect(() => {
+    fetchCartItems();
+  }, []);
   const handleCheckout = async () => {
     try {
       const token = localStorage.getItem('token');

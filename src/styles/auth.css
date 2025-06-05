@@ -74,6 +74,7 @@ body {
   font-size: 1rem;
   transition: border 0.2s, box-shadow 0.2s;
   animation: fadeInUp 0.7s 0.3s both;
+  box-sizing: border-box;
 }
 
 .auth-box input:focus {
@@ -203,6 +204,41 @@ body {
   margin: 0 0.7rem;
   opacity: 0.5;
 }
+.password-input-wrapper {
+  position: relative;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  top: 35%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeInEye 0.2s ease-in;
+}
+
+.eye-icon {
+  width: 20px;
+  height: 20px;
+}
+
+@keyframes fadeInEye {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 
 /* Responsive for Google button */
 @media (max-width: 600px) {

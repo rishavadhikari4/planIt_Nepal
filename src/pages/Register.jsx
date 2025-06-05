@@ -1,6 +1,8 @@
 import { useState, useContext, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { Link } from "react-router-dom";
+import { Eye, EyeClosed } from "lucide-react";
+
 import "../styles/auth.css";
 
 const Register = () => {
@@ -10,6 +12,9 @@ const Register = () => {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
 
     useEffect(() => {
         if (password !== confirmPassword) {
@@ -42,18 +47,43 @@ const Register = () => {
                         value={email} 
                         onChange={(e) => setEmail(e.target.value)} 
                     />
-                    <input 
-                        type="password" 
-                        placeholder="Password" 
-                        value={password} 
-                        onChange={(e) => setPassword(e.target.value)} 
-                    />
-                    <input 
-                        type="password" 
-                        placeholder="Confirm Password" 
-                        value={confirmPassword} 
-                        onChange={(e) => setConfirmPassword(e.target.value)} 
-                    />
+                        <div className="password-input-wrapper">
+                        <input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
+                        {password && (
+                            <button
+                            type="button"
+                            className="toggle-password"
+                            onClick={() => setShowPassword(!showPassword)}
+                            >
+                            {showPassword ? <EyeClosed className="eye-icon" /> : <Eye className="eye-icon" />}
+                            </button>
+                        )}
+                        </div>
+
+                        <div className="password-input-wrapper">
+                        <input
+                            type={showConfirmPassword ? "text" : "password"}
+                            placeholder="Confirm Password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                        />
+                        {confirmPassword && (
+                            <button
+                            type="button"
+                            className="toggle-password"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            >
+                            {showConfirmPassword ? <EyeClosed className="eye-icon" /> : <Eye className="eye-icon" />}
+                            </button>
+                        )}
+                        </div>
+
+
                     {error && <p className="error-message">{error}</p>}
                     <button type="submit" disabled={error}>Sign Up</button>
                 </form>

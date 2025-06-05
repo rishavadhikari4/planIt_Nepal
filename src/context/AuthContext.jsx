@@ -16,20 +16,35 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(!!localStorage.getItem('token'));
     }, [location]);
 
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-        const storedUser = localStorage.getItem("user");
-    
-        if (token && storedUser) {
-            try {
-                setUser(JSON.parse(storedUser));
-            } catch (error) {
-                console.error("Error parsing user data:", error);
+useEffect(() => {
+    const token = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
+
+    if (token && storedUser) {
+        try {
+            const decodedToken = jwtDecode(token);
+            const currentTime = Date.now() / 1000; // current time in seconds
+
+            if (decodedToken.exp < currentTime) {
+                // Token expired
+                localStorage.removeItem("token");
                 localStorage.removeItem("user");
                 setUser(null);
+                setIsAuthenticated(false);
+                window.location.reload();
+                return;
             }
+
+            setUser(JSON.parse(storedUser));
+        } catch (error) {
+            console.error("Invalid token or user data:", error);
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            setUser(null);
         }
-    }, []);
+    }
+}, []);
+
 
     const login = async (email, password) => {
         try {

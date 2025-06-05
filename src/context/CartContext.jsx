@@ -7,16 +7,15 @@ export const useCart = () => useContext(CartContext);
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
 
-useEffect(() => {
-  API.get("/api/cart")
-    .then(res => {
+  const fetchCartItems = async () => {
+    try {
+      const res = await API.get("/api/cart");
       setCartItems(Array.isArray(res.data) ? res.data : []);
-    })
-    .catch(err => {
+    } catch (err) {
       console.error("Cart fetch failed", err);
       setCartItems([]);
-    });
-}, []);
+    }
+  };
 
 
   const addToCart = async (item) => {
@@ -39,7 +38,7 @@ useEffect(() => {
   };
 
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart }}>
+    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, fetchCartItems }}>
       {children}
     </CartContext.Provider>
   );

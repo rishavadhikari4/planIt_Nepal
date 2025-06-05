@@ -1,7 +1,5 @@
-import { useState,useEffect } from 'react';
 import { Mail, Phone, Home as HomeIcon, Flower, Utensils } from 'lucide-react';
 import { submitContactForm } from '../api/contactService';
-import { getAllReviews,} from '../api/reviewService';
 import Review from './review.jsx';
 import '../styles/Home.css';
 import { toast } from 'react-toastify';
