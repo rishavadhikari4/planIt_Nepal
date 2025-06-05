@@ -270,6 +270,20 @@
   font-size: 0.95rem;
   color: #28a745;       /* green for success; override to red if needed */
 }
+.login-reminder {
+  text-align: center;
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 16px 24px;
+  border: 1px solid #ffeeba;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  max-width: 500px;
+  margin: 20px auto;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
 
 
 /* The animation keyframes moving left by 1314px (full width of one row) */

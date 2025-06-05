@@ -9,12 +9,12 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
     const navigate = useNavigate();
-    const location = useLocation(); // <-- get location
+    const location = useLocation(); 
 
     // Update isAuthenticated on every route change
     useEffect(() => {
         setIsAuthenticated(!!localStorage.getItem('token'));
-    }, [location]); // <-- depend on location
+    }, [location]);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
