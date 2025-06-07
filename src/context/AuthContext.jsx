@@ -23,27 +23,33 @@ useEffect(() => {
     if (token && storedUser) {
         try {
             const decodedToken = jwtDecode(token);
-            const currentTime = Date.now() / 1000; // current time in seconds
+            const currentTime = Date.now() / 1000;
+
+            console.log("Decoded token:", decodedToken);
 
             if (decodedToken.exp < currentTime) {
-                // Token expired
+                // Token is expired
+                console.warn("Token expired");
                 localStorage.removeItem("token");
                 localStorage.removeItem("user");
                 setUser(null);
                 setIsAuthenticated(false);
-                window.location.reload();
+                navigate("/login"); // Consider going to login
                 return;
             }
 
             setUser(JSON.parse(storedUser));
+            setIsAuthenticated(true);
         } catch (error) {
-            console.error("Invalid token or user data:", error);
+            console.error("Token decode error:", error);
             localStorage.removeItem("token");
             localStorage.removeItem("user");
             setUser(null);
+            setIsAuthenticated(false);
         }
     }
 }, []);
+
 
 
     const login = async (email, password) => {
