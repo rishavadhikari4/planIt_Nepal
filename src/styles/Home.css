@@ -145,7 +145,7 @@
   position: relative;
   overflow: hidden;
   width: 100%;
-  height: 280px; /* Adjust height to match your review cards */
+  height: 125px; /* Adjust height to match your review cards */
   padding: 1rem 0;
   /* background-color: #f9f9f9; optional background */
 }
@@ -196,6 +196,7 @@
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
 }
 
