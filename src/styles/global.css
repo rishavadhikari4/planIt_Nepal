@@ -101,7 +101,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center; /* optional: dim background */
-  z-index: 9999;
+  z-index: 1000;
 }
 
 @media (max-width: 768px) {
