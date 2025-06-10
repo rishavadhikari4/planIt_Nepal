@@ -29,7 +29,11 @@ const Review = () => {
 
   return (
   <div>
-    {reviews.length === 0 ?(<p>No reviews yet.</p>):(<>    
+    {reviews.length === 0 ?(<>
+    <p>No reviews yet.</p> 
+     <br />  
+     </>
+    ):(  
       <div className="reviews-content">
       <div className="reviews-grid">
         {reviews.map((review, index) => (
@@ -50,8 +54,8 @@ const Review = () => {
         ))}
       </div>
     </div>
-    <br />
-      </>)}
+
+    )}
           {isAuthenticated ? (
             <form onSubmit={handleSubmit} style={{ maxWidth: '400px', margin: 'auto' }}>
               <h3>Leave a Review</h3>
