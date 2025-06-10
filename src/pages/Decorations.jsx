@@ -57,7 +57,7 @@ const handleSubmit = async () => {
     );
 
   return (
-    <div className="container">
+    <div className="decoration-container">
       <h2 className="decorations__title">Wedding Decoration Themes</h2>
       <div className="grid">
         {decorations.map((decoration) => (

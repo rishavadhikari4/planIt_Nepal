@@ -1,3 +1,10 @@
+.decoration-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  
+
+}
 .decorations__title {
   text-align: center;
   margin: 40px 0;
