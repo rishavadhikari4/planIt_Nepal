@@ -28,7 +28,8 @@ const Review = () => {
   };
 
   return (<div>
-    <div className="reviews-content">
+    {reviews.length === 0 ?(<p>No reviews yet.</p>):(    
+      <div className="reviews-content">
       <div className="reviews-grid">
         {reviews.map((review, index) => (
           <div className="review" key={`first-${index}`}>
@@ -47,7 +48,8 @@ const Review = () => {
           </div>  
         ))}
       </div>
-    </div>
+    </div>)}
+    <br />
           {isAuthenticated ? (
             <form onSubmit={handleSubmit} style={{ maxWidth: '400px', margin: 'auto' }}>
               <h3>Leave a Review</h3>
