@@ -1,8 +1,9 @@
+//this is the part which handels the req for the API for the reviews
 import API from './api';
 
 export const getAllReviews = async () => {
   try {
-    const response = await API.get('/api/review');
+    const response = await API.get('/api/review/verified-reviews');
     return response.data;
   } catch (error) {
     console.error('Error fetching reviews:', error.response ? error.response.data : error.message);
