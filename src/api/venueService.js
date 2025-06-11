@@ -6,7 +6,6 @@ import API from './api';
 export const getVenues = async () => {
   try {
     const response = await API.get('/api/venues');
-    console.log('Venues fetched successfully:', response.data.venues);
     return response.data.venues;
   } catch (error) {
     console.error('Error fetching venues:', error);
