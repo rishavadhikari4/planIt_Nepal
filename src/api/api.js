@@ -2,7 +2,8 @@ import axios from "axios";
 
 const API = axios.create({
     // baseURL: "http://192.168.1.73:5000",
-    baseURL:"https://wedding-planner-backend-drr8.onrender.com",
+    baseURL: "http://localhost:5000",
+    // baseURL:"https://wedding-planner-backend-drr8.onrender.com",
     headers: {
         "Content-Type": "application/json"
     }

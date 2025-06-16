@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/api";
+import AdminHeader from "../adminComponent/adminHeader";
 
 const Admin = () => {
   const [authorized, setAuthorized] = useState(false);
@@ -45,6 +46,7 @@ useEffect(() => {
         <p>Welcome, Admin! Here you can manage users, view reports, and configure settings. It is in development....</p>
       </div>
     </div>
+
   );
 };
 

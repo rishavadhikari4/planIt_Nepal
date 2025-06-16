@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAllVenues } from '../api/venueService';
-import { useCart } from '../context/CartContext';
+import { deleteVenue, getAllVenues } from '../api/venueService';
 import { toast } from 'react-toastify';
 import '../styles/Venues.css';
 
-const Venues = () => {
+const AdminVenues = () => {
   const [venues, setVenues] = useState([]);
-  const [selectedVenue, setSelectedVenue] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { addToCart } = useCart();
   const navigate = useNavigate();
   
 
@@ -28,21 +25,19 @@ const Venues = () => {
     fetchVenues();
   }, []);
 
-  const handleSelect = async (venue) => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      toast.info("Please login to add items to your cart.");
-      navigate('/login');
-      return;
+    const handleDelete = async (id) => {
+        if (!window.confirm('Are you sure you want to delete this decoration?')) return;
+  
+            const result = await deleteVenue(id);
+    
+      if (result.success) {
+            toast.success(result.message);
+            setVenues(venues.filter(venue => venue._id !== id));
+    } else {
+      toast.error(result.message);
     }
-    setSelectedVenue(venue.name);
-    toast.success("Added to the cart successfully");
-    addToCart({
-      name: venue.name,
-      image: venue.image,
-      quantity: 1,
-    });
   };
+
 
   if (loading)
     return (
@@ -52,8 +47,9 @@ const Venues = () => {
     );
 
   return (
-    <div className="container">
-      <h2 className="venues__title">Our Wedding Venues</h2>
+    <div className="main-container">
+    <div className="venue-container">
+      <h2 className="venues__title">Available Wedding Venues</h2>
       <div className="grid">
         {venues.map((venue) => (
           <div key={venue._id} className="card venue-card">
@@ -62,18 +58,21 @@ const Venues = () => {
               <h3 className="venue-card__title">{venue.name}</h3>
               <p className="venue-card__location">{venue.location}</p>
               <p className="venue-card__description">{venue.description}</p>
-              <button
-                className="button button--primary"
-                onClick={() => handleSelect(venue)}
-              >
-                Add to Cart
-              </button>
+
+              <div className="venue-card__actions">
+                <button onClick={() => navigate(`/admin-venues/edit/${venue._id}`)} className='edit-btn'>
+                      Edit
+                </button>
+
+                <button onClick={() => handleDelete(venue._id)} className="delete-btn">Delete</button>
+              </div>     
             </div>
           </div>
         ))}
       </div>
     </div>
+    </div>
   );
 };
 
-export default Venues;
+export default AdminVenues;
