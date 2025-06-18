@@ -1,84 +1,92 @@
-import { useState,useEffect } from "react";
-import { useParams,useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { editVenue, getOneVenue } from "../api/venueService";
 import { toast } from "react-toastify";
-//add the styling later of the editVenues 
 
-const EditVenue = () =>{
-    const {id} = useParams();
-    const navigate = useNavigate();
+const EditVenue = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-    const [formData,setFormData] = useState({
-        name:'',
-        location:'',
-        description:'',
-        image:'',
-    });
-    const [imageFile,setImageFile] = useState(null);
-    const [loading,setLoading] = useState();
-    
-    useEffect(()=>{
-        const fetchVenue = async() =>{
-            try{
-                const venue = await getOneVenue(id);
-                if(venue){
-                    const {name,location,description,image} = venue;
-                    setFormData({name,location,description,image});
-                }else{
-                    toast.error("Venue not found");
-                }
-            }catch(err){
-                toast.error("Failed to load the venue data");
-            }finally{
-                setLoading(false)
-            }
-        };
-        fetchVenue();
-    },[id]);
+  const [formData, setFormData] = useState({
+    name: '',
+    location: '',
+    description: '',
+    image: '',
+  });
 
-    const handleChange = (e) =>{
-        setFormData(prev=>({
-            ...prev,
-            [e.target.name]:e.target.value
-        }));
+  const [imageFile, setImageFile] = useState(null);
+  const [loading, setLoading] = useState(true); // start with loading true
+
+  useEffect(() => {
+    const fetchVenue = async () => {
+      try {
+        const venue = await getOneVenue(id);
+        if (venue) {
+          const { name, location, description, image } = venue;
+          setFormData({ name, location, description, image });
+        } else {
+          toast.error("Venue not found");
+        }
+      } catch (err) {
+        toast.error("Failed to load the venue data");
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchVenue();
+  }, [id]);
 
-    const handleFileChange = (e) =>{
-        setImageFile(e.target.files[0]);
-    };
+  const handleChange = (e) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
+  };
+
+  const handleFileChange = (e) => {
+    setImageFile(e.target.files[0]);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // start loader on submit
 
     const data = new FormData();
     data.append('name', formData.name);
-    data.append('location',formData.location);
+    data.append('location', formData.location);
     data.append('description', formData.description);
     if (imageFile) {
       data.append('image', imageFile);
     }
 
-    editVenue(
-      id,
-      data,
-      (successMessage) => {
-        toast.success(successMessage);
-        navigate('/admin-venues');
-      },
-      (errorMessage) => {
-        toast.error(errorMessage);
-      }
-    );
+    try {
+      await editVenue(
+        id,
+        data,
+        (successMessage) => {
+          toast.success(successMessage);
+          navigate('/admin-venues');
+        },
+        (errorMessage) => {
+          toast.error(errorMessage);
+        }
+      );
+    } catch (error) {
+      toast.error("An unexpected error occurred");
+    } finally {
+      setLoading(false); 
+    }
   };
 
-  if(loading){
-    return(
-    <div className="loader-container">
+  if (loading) {
+    return (
+      <div className="loader-container">
         <div className="loader"></div>
-    </div>
-    )
+      </div>
+    );
   }
-  return(
+
+  return (
     <div className="edit-container">
       <h2>Edit Venue</h2>
       <form onSubmit={handleSubmit} className="edit-form">
@@ -101,7 +109,6 @@ const EditVenue = () =>{
       </form>
     </div>
   );
-    
 };
 
 export default EditVenue;

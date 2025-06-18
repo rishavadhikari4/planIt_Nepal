@@ -1,4 +1,5 @@
-import API from './api'; // Adjust the import based on your project structure
+//this handels the dishes api
+import API from './api';
 
 
 export const getAllDishCategories = async () => {
@@ -11,8 +12,3 @@ export const getAllDishCategories = async () => {
   }
 };
 
-// export const submitDishes = (selectedDishes) => {
-//   localStorage.setItem("selectedDishes", JSON.stringify(selectedDishes));
-//   // Future API call to backend
-//   return Promise.resolve({ success: true });
-// };

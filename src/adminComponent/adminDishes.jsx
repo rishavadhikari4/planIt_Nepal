@@ -1,8 +1,5 @@
 import { useState, useEffect } from 'react';
-import {  getAllDishCategories } from '../api/dishService';
-import { useCart } from '../context/CartContext'; 
-import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+import { getAllDishCategories } from '../api/dishService'; 
 import '../styles/Dishes.css';  
 
 const AdminDishes = () => {
@@ -48,24 +45,26 @@ const AdminDishes = () => {
     </div>
   );
 
-  if (loading) return <div className="loader-container">
-    <div className="loader"></div>
-  </div>;
+  if (loading) return (
+    <div className="loader-container">
+      <div className="loader"></div>
+    </div>
+  );
 
   return (
     <div className="main-container">
-    <div className="container dishes__section">
-      {categories.map(category => (
-        <div key={category._id}>
-          <h2 className="dishes__category">{category.category}</h2>
-          <div className="grid">
-            {category.dishes.map(dish => (
-              <DishCard key={dish._id} dish={dish} />
-            ))}
+      <div className="container dishes__section">
+        {categories.map(category => (
+          <div key={category._id}>
+            <h2 className="dishes__category">{category.category}</h2>
+            <div className="grid">
+              {category.dishes.map(dish => (
+                <DishCard key={dish._id} dish={dish} />
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
     </div>
   );
 };

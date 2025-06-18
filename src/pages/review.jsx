@@ -1,5 +1,5 @@
 import  { useState ,useEffect,useContext} from 'react';
-import { postReview,getAllReviews} from '../api/reviewService';
+import { postReview,getVerifiedReviews} from '../api/reviewService';
 import { toast } from 'react-toastify';
 import { AuthContext } from '../context/AuthContext';
 
@@ -12,7 +12,7 @@ const Review = () => {
   const { isAuthenticated} = useContext(AuthContext);
 
   useEffect(() => {
-    getAllReviews().then(setReviews);
+    getVerifiedReviews().then(setReviews);
   }, []);
 
   const handleSubmit = async (e) => {

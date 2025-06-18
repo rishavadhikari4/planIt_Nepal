@@ -1,7 +1,4 @@
-
-import API from './api'; // Adjust the import based on your project structure
-
-
+import API from './api';
 
 
 export const getAllDecorations = async () => {
@@ -17,7 +14,7 @@ export const getAllDecorations = async () => {
 export const getOneDecoration = async (id) => {
   try {
     const response = await API.get(`/api/decorations/${id}`);
-    return response.data.decoration; // ✅ not `decorations`
+    return response.data.decoration; 
   } catch (err) {
     console.error("Error Fetching the decoration", err);
     return null;
@@ -58,10 +55,3 @@ export const editDecoration = async (id, formData, onSuccess, onError) => {
     onError(message);
   }
 };
-
-
-// export const chooseDecoration = (decorationId) => {
-//   localStorage.setItem("selectedDecoration", decorationId);
-//   // Future API call to backend
-//   return Promise.resolve({ success: true });
-// };

@@ -13,6 +13,7 @@ const EditDecoration = () => {
     description: '',
     image: '',
   });
+
   const [imageFile, setImageFile] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -29,7 +30,7 @@ const EditDecoration = () => {
       } catch (err) {
         toast.error("Failed to load decoration data");
       } finally {
-        setLoading(false);
+        setLoading(false); 
       }
     };
 
@@ -49,6 +50,7 @@ const EditDecoration = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); 
 
     const data = new FormData();
     data.append('name', formData.name);
@@ -57,17 +59,23 @@ const EditDecoration = () => {
       data.append('image', imageFile);
     }
 
-    editDecoration(
-      id,
-      data,
-      (successMessage) => {
-        toast.success(successMessage);
-        navigate('/admin-decorations');
-      },
-      (errorMessage) => {
-        toast.error(errorMessage);
-      }
-    );
+    try {
+      await editDecoration(
+        id,
+        data,
+        (successMessage) => {
+          toast.success(successMessage);
+          navigate('/admin-decorations');
+        },
+        (errorMessage) => {
+          toast.error(errorMessage);
+        }
+      );
+    } catch (error) {
+      toast.error("Something went wrong");
+    } finally {
+      setLoading(false); 
+    }
   };
 
   if (loading) {

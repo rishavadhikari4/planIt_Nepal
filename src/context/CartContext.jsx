@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState } from "react";
 import API from "../api/api";
 const CartContext = createContext();
 
@@ -12,7 +12,6 @@ export const CartProvider = ({ children }) => {
       const res = await API.get("/api/cart");
       setCartItems(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.error("Cart fetch failed", err);
       setCartItems([]);
     }
   };

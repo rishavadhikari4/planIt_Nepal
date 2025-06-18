@@ -1,52 +1,46 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import API from "../api/api";
-import AdminHeader from "../adminComponent/adminHeader";
+import { useState } from 'react';
+import AdminOrderList from '../adminComponent/adminOrders';
+import AdminUserList from '../adminComponent/adminUsersList';
+import AdminReviews from '../adminComponent/adminReviews';
+import '../styles/admin.css'; 
 
 const Admin = () => {
-  const [authorized, setAuthorized] = useState(false);
-  const navigate = useNavigate();
-
-useEffect(() => {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    navigate("/*");
-    return;
-  }
-  API.get("/api/auth/verify")
-    .then((response) => {
-      if (response.data.valid) {
-        setAuthorized(true);
-      } else {
-        navigate("/*"); // invalid user, navigate away
-      }
-    })
-    .catch(() => navigate("/*")); // if token invalid or server error
-}, [navigate]);
+  const [activeTab, setActiveTab] = useState('orders');
 
   return (
-    <div className="admin-container" style={{
-      minHeight: "100vh",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      background: "linear-gradient(135deg, #fff0f6 0%, #ffe0ec 100%)"
-    }}>
-      <div className="admin-box" style={{
-        background: "#fff",
-        borderRadius: "18px",
-        boxShadow: "0 4px 32px rgba(255, 128, 171, 0.12), 0 1.5px 8px rgba(0,0,0,0.07)",
-        padding: "2.5rem 2rem",
-        maxWidth: "400px",
-        width: "100%",
-        textAlign: "center"
-      }}>
-        <h2 style={{ color: "#e75480", marginBottom: "1.5rem" }}>Admin Dashboard</h2>
-        <p>Welcome, Admin! Here you can manage users, view reports, and configure settings. It is in development....</p>
+    <div className="admin-container">
+      {/* Sidebar */}
+      <div className="admin-sidebar">
+        <ul className="admin-nav">
+          <li
+            className={`admin-tab ${activeTab === 'orders' ? 'active' : ''}`}
+            onClick={() => setActiveTab('orders')}
+          >
+            📦 Orders
+          </li>
+          <li
+            className={`admin-tab ${activeTab === 'users' ? 'active' : ''}`}
+            onClick={() => setActiveTab('users')}
+          >
+            👥 Users
+          </li>
+          <li
+            className={`admin-tab ${activeTab === 'review' ? 'active' : ''}`}
+            onClick={() => setActiveTab('review')}
+          >
+            ⭐ Reviews
+          </li>
+          <li className="admin-tab disabled">⚙ Settings</li>
+        </ul>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="admin-content">
+        {activeTab === 'orders' && <AdminOrderList />}
+        {activeTab === 'users' && <AdminUserList />}
+        {activeTab ==='review' && <AdminReviews/>}
       </div>
     </div>
-
   );
 };
 

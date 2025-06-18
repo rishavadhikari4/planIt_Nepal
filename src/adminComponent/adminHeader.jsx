@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { Link, useLocation} from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { toast } from 'react-toastify';
@@ -7,7 +7,7 @@ import '../styles/Header.css';
 const AdminHeader = () => {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isAuthenticated, adminLogout } = useContext(AuthContext);
+  const { isAuthenticated, adminLogout,isAdmin } = useContext(AuthContext);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -17,7 +17,7 @@ const AdminHeader = () => {
     <header className="header">
       <nav className="header__nav container">
         <Link to="/admin" className="header__logo">
-          Wedding Planner
+          Admin Panel
         </Link>
         <button
           className="header__menu-toggle"
@@ -62,17 +62,18 @@ const AdminHeader = () => {
           >
             Contact
           </Link>
-          {isAuthenticated && (
-            <button
-              className="header__link header__log-btn"
-              onClick={() => {
-                adminLogout();
-                setIsMenuOpen(false);
-              }}
-            >
-              Logout
-            </button>
-          )}
+            {(isAuthenticated || isAdmin) && (
+              <button
+                className="header__link header__log-btn"
+                onClick={() => {
+                  isAdmin ? adminLogout() : logout();
+                  setIsMenuOpen(false);
+                }}
+              >
+                Logout
+              </button>
+            )}
+
         </div>
       </nav>
     </header>

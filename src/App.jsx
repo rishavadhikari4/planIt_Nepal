@@ -2,8 +2,8 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import './styles/global.css';
 
+// User pages
 import AuthSuccess from './pages/AuthSuccess';
-import Admin from './admin/Admin';
 import Header from './components/Header';
 import Home from './pages/Home';
 import Venues from './pages/Venues';
@@ -13,9 +13,11 @@ import Contact from './pages/Contact';
 import NotFound from './pages/NotFound';
 import Register from './pages/Register';
 import Login from './pages/Login';
-import AdminLogin from './admin/adminLogin';
 import Cart from './pages/Cart';
-// admins controller
+
+// Admin pages
+import Admin from './admin/Admin';
+import AdminLogin from './admin/adminLogin';
 import AdminHeader from './adminComponent/adminHeader';
 import AdminDecorations from './adminComponent/adminDecorations';
 import AdminDishes from './adminComponent/adminDishes';
@@ -23,7 +25,9 @@ import AdminVenues from './adminComponent/adminVenues';
 import AdminContact from './adminComponent/adminContact';
 import EditDecoration from './editComponents/editDecorations';
 import EditVenue from './editComponents/editVenues';
+import AdminOrderList from './adminComponent/adminOrders';
 
+// Contexts
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 
@@ -31,18 +35,22 @@ function AppContent() {
   const location = useLocation();
 
   const hideHeaderRoutes = [
-    '/login', '/auth-success', '/register', '/admin-login'
+    '/login',
+    '/register',
+    '/auth-success',
+    '/admin-login',
+    '/*',
   ];
 
   const showHeaderForAdmin = [
     '/admin',
+    '/admin-orders',
     '/admin-decorations',
     '/admin-dishes',
     '/admin-venues',
     '/admin-contact',
     '/admin-decorations/edit',
-    '/admin-venues/edit'
-
+    '/admin-venues/edit',
   ];
 
   const pathname = location.pathname;
@@ -62,24 +70,31 @@ function AppContent() {
 
       <CartProvider>
         <Routes>
+          
+          {/* User Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/venues" element={<Venues />} />
           <Route path="/dishes" element={<Dishes />} />
           <Route path="/decorations" element={<Decorations />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/cart" element={<Cart />} />
-          <Route path="*" element={<NotFound />} />
           <Route path="/auth-success" element={<AuthSuccess />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+
+          {/* Admin Routes */}
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/admin-orders" element={<AdminOrderList />} />
           <Route path="/admin-decorations" element={<AdminDecorations />} />
           <Route path="/admin-dishes" element={<AdminDishes />} />
           <Route path="/admin-venues" element={<AdminVenues />} />
           <Route path="/admin-contact" element={<AdminContact />} />
           <Route path="/admin-decorations/edit/:id" element={<EditDecoration />} />
           <Route path="/admin-venues/edit/:id" element={<EditVenue />} />
+
+          {/* Fallback */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
 
         <ToastContainer
