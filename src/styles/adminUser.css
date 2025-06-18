@@ -36,12 +36,14 @@
   background-color: #e60000;
 }
 
-.loader {
-  text-align: center;
-  margin-top: 2rem;
-  font-weight: bold;
-  color: #e75480;
+.user-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ccc;
 }
+
 
 .error {
   color: red;
