@@ -13,6 +13,9 @@ const AdminUserList = () => {
       setLoading(true);
       const token = localStorage.getItem("token");
       const res = await API.get("/api/auth/allUsers", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       setUsers(res.data);
     } catch (err) {
@@ -46,9 +49,12 @@ const AdminUserList = () => {
     fetchUsers();
   }, []);
 
-  if (loading) return     <div className="loader-container">
-      <div className="loader"></div>
-    </div>
+  if (loading)
+    return (
+      <div className="loader-container">
+        <div className="loader"></div>
+      </div>
+    );
   if (error) return <div className="error">{error}</div>;
 
   return (
@@ -60,6 +66,7 @@ const AdminUserList = () => {
         <table className="user-table">
           <thead>
             <tr>
+              <th>Profile</th>
               <th>Name</th>
               <th>Email</th>
               <th>User ID</th>
@@ -69,11 +76,21 @@ const AdminUserList = () => {
           <tbody>
             {users.map((user) => (
               <tr key={user._id}>
+                <td>
+                  <img
+                    src={user.profileImage}
+                    alt="Profile"
+                    className="user-avatar"
+                  />
+                </td>
                 <td>{user.name || "N/A"}</td>
                 <td>{user.email}</td>
                 <td>{user._id}</td>
                 <td>
-                  <button className="delete-btn" onClick={() => deleteUser(user._id)}>
+                  <button
+                    className="delete-btn"
+                    onClick={() => deleteUser(user._id)}
+                  >
                     🗑 Delete
                   </button>
                 </td>
