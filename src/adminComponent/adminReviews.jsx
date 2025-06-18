@@ -52,7 +52,9 @@ const AdminReviews = () => {
     }
   };
 
-  if (loading) return <p>Loading reviews...</p>;
+  if (loading) return  <div className="loader-container">
+      <div className="loader"></div>
+    </div>
   if (error) return <p>{error}</p>;
 
   return (

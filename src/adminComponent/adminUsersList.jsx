@@ -46,7 +46,9 @@ const AdminUserList = () => {
     fetchUsers();
   }, []);
 
-  if (loading) return <div className="loader">Loading users...</div>;
+  if (loading) return     <div className="loader-container">
+      <div className="loader"></div>
+    </div>
   if (error) return <div className="error">{error}</div>;
 
   return (
