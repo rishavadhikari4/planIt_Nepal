@@ -14,7 +14,7 @@ const Register = () => {
     const [error, setError] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
+    const [loading, setLoading] = useState(false); // Loader state
 
     useEffect(() => {
         if (password !== confirmPassword) {
@@ -24,10 +24,18 @@ const Register = () => {
         }
     }, [password, confirmPassword]);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (error) return; 
-        signup(name, email, password, confirmPassword);
+        if (error) return;
+        setLoading(true);
+
+        try {
+            await signup(name, email, password, confirmPassword);
+        } catch (err) {
+            setError(err.message || "Signup failed.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -47,7 +55,7 @@ const Register = () => {
                         value={email} 
                         onChange={(e) => setEmail(e.target.value)} 
                     />
-                        <div className="password-input-wrapper">
+                    <div className="password-input-wrapper">
                         <input
                             type={showPassword ? "text" : "password"}
                             placeholder="Password"
@@ -56,16 +64,16 @@ const Register = () => {
                         />
                         {password && (
                             <button
-                            type="button"
-                            className="toggle-password"
-                            onClick={() => setShowPassword(!showPassword)}
+                                type="button"
+                                className="toggle-password"
+                                onClick={() => setShowPassword(!showPassword)}
                             >
-                            {showPassword ? <EyeClosed className="eye-icon" /> : <Eye className="eye-icon" />}
+                                {showPassword ? <EyeClosed className="eye-icon" /> : <Eye className="eye-icon" />}
                             </button>
                         )}
-                        </div>
+                    </div>
 
-                        <div className="password-input-wrapper">
+                    <div className="password-input-wrapper">
                         <input
                             type={showConfirmPassword ? "text" : "password"}
                             placeholder="Confirm Password"
@@ -74,18 +82,20 @@ const Register = () => {
                         />
                         {confirmPassword && (
                             <button
-                            type="button"
-                            className="toggle-password"
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                type="button"
+                                className="toggle-password"
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                             >
-                            {showConfirmPassword ? <EyeClosed className="eye-icon" /> : <Eye className="eye-icon" />}
+                                {showConfirmPassword ? <EyeClosed className="eye-icon" /> : <Eye className="eye-icon" />}
                             </button>
                         )}
-                        </div>
-
+                    </div>
 
                     {error && <p className="error-message">{error}</p>}
-                    <button type="submit" disabled={error}>Sign Up</button>
+
+                    <button type="submit" disabled={error || loading}>
+                        {loading ? <div className="small-loader"></div> : "Sign Up"}
+                    </button>
                 </form>
                 <p>Already have an account? <Link to="/login">Login</Link></p>
             </div>

@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import '../styles/adminUser.css';
-import { fetchUsers, deleteUser } from '../api/userService'; // adjust path if needed
+import { fetchUsers, deleteUser } from '../api/userService';
 import { toast } from 'react-toastify';
 
 const AdminUserList = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [deletingId, setDeletingId] = useState(null); // Track deleting user ID
 
   // Load users on mount
   useEffect(() => {
@@ -16,6 +17,7 @@ const AdminUserList = () => {
         const data = await fetchUsers();
         setUsers(data);
       } catch (err) {
+        setError(err);
         console.error(err);
         toast.error("Error Fetching the users");
       } finally {
@@ -30,13 +32,18 @@ const AdminUserList = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this user?')) return;
 
+    setDeletingId(id); // Start loader on delete button
+
     try {
       await deleteUser(id);
       setUsers((prev) => prev.filter((user) => user._id !== id));
       toast.success("User deleted Successfully");
     } catch (err) {
       console.error(err);
+      setError(err);
       toast.error("Failed to delete the user");
+    } finally {
+      setDeletingId(null); // Stop loader
     }
   };
 
@@ -80,8 +87,18 @@ const AdminUserList = () => {
                 <td>{user.email}</td>
                 <td>{user._id}</td>
                 <td>
-                  <button className="delete-btn" onClick={() => handleDelete(user._id)}>
-                    🗑 Delete
+                  <button
+                    className="delete-btn"
+                    onClick={() => handleDelete(user._id)}
+                    disabled={deletingId === user._id} // disable button while deleting
+                  >
+                    {deletingId === user._id ? (
+                      <div
+                        className="small-loader"
+                      />
+                    ) : (
+                      '🗑 Delete'
+                    )}
                   </button>
                 </td>
               </tr>

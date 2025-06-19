@@ -25,6 +25,7 @@ import AdminVenues from './adminComponent/adminVenues';
 import AdminContact from './adminComponent/adminContact';
 import EditDecoration from './editComponents/editDecorations';
 import EditVenue from './editComponents/editVenues';
+import EditDish from './editComponents/editDishes';
 import AdminOrderList from './adminComponent/adminOrders';
 
 // Contexts
@@ -51,6 +52,7 @@ function AppContent() {
     '/admin-contact',
     '/admin-decorations/edit',
     '/admin-venues/edit',
+    '/admin-dishes/edit'
   ];
 
   const pathname = location.pathname;
@@ -92,6 +94,7 @@ function AppContent() {
           <Route path="/admin-contact" element={<AdminContact />} />
           <Route path="/admin-decorations/edit/:id" element={<EditDecoration />} />
           <Route path="/admin-venues/edit/:id" element={<EditVenue />} />
+          <Route path="/admin-dishes/edit/:categoryName/:dishId" element={<EditDish />} />
 
           {/* Fallback */}
           <Route path="*" element={<NotFound />} />

@@ -15,7 +15,7 @@ const EditVenue = () => {
   });
 
   const [imageFile, setImageFile] = useState(null);
-  const [loading, setLoading] = useState(true); // start with loading true
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchVenue = async () => {
@@ -49,7 +49,7 @@ const EditVenue = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // start loader on submit
+    setLoading(true);
 
     const data = new FormData();
     data.append('name', formData.name);
@@ -74,8 +74,12 @@ const EditVenue = () => {
     } catch (error) {
       toast.error("An unexpected error occurred");
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
+  };
+
+  const handleBack = () => {
+    navigate('/admin-venues');
   };
 
   if (loading) {
@@ -88,7 +92,11 @@ const EditVenue = () => {
 
   return (
     <div className="edit-container">
+
       <h2>Edit Venue</h2>
+      <button onClick={handleBack} className="back-button" style={{ marginBottom: '1rem' }}>
+        ← Back
+      </button>
       <form onSubmit={handleSubmit} className="edit-form">
         <label>Name:</label>
         <input type="text" name="name" value={formData.name} onChange={handleChange} required />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { editDecoration, getOneDecoration } from '../api/decorationService';
 import { toast } from 'react-toastify';
@@ -78,6 +78,10 @@ const EditDecoration = () => {
     }
   };
 
+  const handleBack = () => {
+    navigate('/admin-decorations');
+  };
+
   if (loading) {
     return (
       <div className="loader-container">
@@ -89,18 +93,42 @@ const EditDecoration = () => {
   return (
     <div className="edit-container">
       <h2>Edit Decoration</h2>
+      
+      <button onClick={handleBack} className="back-button">← Back</button>
+
       <form onSubmit={handleSubmit} className="edit-form">
         <label>Name:</label>
-        <input type="text" name="name" value={formData.name} onChange={handleChange} required />
+        <input
+          type="text"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          required
+        />
 
         <label>Description:</label>
-        <textarea name="description" value={formData.description} onChange={handleChange} required />
+        <textarea
+          name="description"
+          value={formData.description}
+          onChange={handleChange}
+          required
+        />
 
         <label>Current Image:</label>
-        {formData.image && <img src={formData.image} alt="Current" className="preview-img" />}
+        {formData.image && (
+          <img
+            src={formData.image}
+            alt="Current"
+            className="preview-img"
+          />
+        )}
 
         <label>New Image (optional):</label>
-        <input type="file" onChange={handleFileChange} accept="image/*" />
+        <input
+          type="file"
+          onChange={handleFileChange}
+          accept="image/*"
+        />
 
         <button type="submit">Update</button>
       </form>

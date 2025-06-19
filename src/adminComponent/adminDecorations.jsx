@@ -7,6 +7,7 @@ import '../styles/Decorations.css';
 const AdminDecorations = () => {
   const [decorations, setDecorations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState(null); // Track which decoration is deleting
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,6 +30,7 @@ const AdminDecorations = () => {
     if (!window.confirm('Are you sure you want to delete this decoration?')) return;
 
     try {
+      setDeletingId(id); // start loader for this button
       const result = await deleteDecoration(id);
       if (result.success) {
         toast.success(result.message);
@@ -39,6 +41,8 @@ const AdminDecorations = () => {
     } catch (error) {
       console.error(error);
       toast.error('Error deleting decoration.');
+    } finally {
+      setDeletingId(null); // stop loader
     }
   };
 
@@ -56,26 +60,36 @@ const AdminDecorations = () => {
         <h2 className="decorations__title">Available Wedding Decoration Themes</h2>
         <div className="grid">
           {decorations.map(decoration => (
-            <div key={decoration._id} className="card decoration-card">
-              <img
-                src={decoration.image}
-                alt={decoration.name}
-                className="decoration-card__image"
-              />
-              <h3 className="decoration-card__title">{decoration.name}</h3>
-              <p className="decoration-card__description">{decoration.description}</p>
-              <div className="decoration-card__actions">
+            <div key={decoration._id} style={{ marginBottom: '2rem' }}>
+              {/* Decoration Card */}
+              <div className="card decoration-card">
+                <img
+                  src={decoration.image}
+                  alt={decoration.name}
+                  className="decoration-card__image"
+                />
+                <h3 className="decoration-card__title">{decoration.name}</h3>
+                <p className="decoration-card__description">{decoration.description}</p>
+              </div>
+
+              {/* Buttons outside the card */}
+              <div className="decoration-actions" style={{ marginTop: '0.5rem', display: 'flex', gap: '1rem' }}>
                 <button
                   onClick={() => navigate(`/admin-decorations/edit/${decoration._id}`)}
-                  className="edit-btn"
+                  className="edit-button"
                 >
                   Edit
                 </button>
                 <button
                   onClick={() => handleDelete(decoration._id)}
-                  className="delete-btn"
+                  className="delete-button"
+                  disabled={deletingId === decoration._id}
                 >
-                  Delete
+                  {deletingId === decoration._id ? (
+                    <div className="small-loader" style={{ width: 16, height: 16, border: '2px solid #f3f3f3', borderTop: '2px solid #555', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }}></div>
+                  ) : (
+                    'Delete'
+                  )}
                 </button>
               </div>
             </div>

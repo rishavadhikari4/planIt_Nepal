@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
-import { getAllReviews, toggleVerified, deleteReview } from "../api/reviewService"; // adjust path
+import { getAllReviews, toggleVerified, deleteReview } from "../api/reviewService";
 import { toast } from "react-toastify";
-import "../styles/adminReview.css"; // import the external CSS
+import "../styles/adminReview.css";
 
 const AdminReviews = () => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [deletingReviewId, setDeletingReviewId] = useState(null); // <-- NEW
 
   const fetchReviews = async () => {
     try {
@@ -43,18 +44,24 @@ const AdminReviews = () => {
   const handleDeleteReview = async (id) => {
     if (!window.confirm("Are you sure you want to delete this review?")) return;
 
+    setDeletingReviewId(id); // <-- SET
     try {
       await deleteReview(id);
       setReviews((prevReviews) => prevReviews.filter((rev) => rev._id !== id));
       toast.success("Review deleted successfully");
     } catch {
       toast.error("Failed to delete review");
+    } finally {
+      setDeletingReviewId(null); // <-- RESET
     }
   };
 
-  if (loading) return  <div className="loader-container">
+  if (loading) return (
+    <div className="loader-container">
       <div className="loader"></div>
     </div>
+  );
+
   if (error) return <p>{error}</p>;
 
   return (
@@ -87,11 +94,19 @@ const AdminReviews = () => {
                   >
                     {verified ? "Unverify" : "Verify"}
                   </button>
+
                   <button
                     className="btn-delete"
                     onClick={() => handleDeleteReview(_id)}
+                    disabled={deletingReviewId === _id}
                   >
-                    Delete
+                    {deletingReviewId === _id ? (
+                      <div
+                        className="small-loader"
+                      ></div>
+                    ) : (
+                      'Delete'
+                    )}
                   </button>
                 </td>
               </tr>
