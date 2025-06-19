@@ -1,60 +1,53 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import '../styles/adminUser.css';
-import API from '../api/api';
+import { fetchUsers, deleteUser } from '../api/userService'; // adjust path if needed
+import { toast } from 'react-toastify';
 
 const AdminUserList = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchUsers = async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem("token");
-      const res = await API.get("/api/auth/allUsers", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setUsers(res.data);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to fetch users.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const deleteUser = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
-
-    try {
-      const token = localStorage.getItem("token");
-      await axios.delete(`/api/auth/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      setUsers((prev) => prev.filter((user) => user._id !== id));
-      alert("User deleted successfully.");
-    } catch (err) {
-      console.error(err);
-      alert("Failed to delete user.");
-    }
-  };
-
+  // Load users on mount
   useEffect(() => {
-    fetchUsers();
+    const getUsers = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchUsers();
+        setUsers(data);
+      } catch (err) {
+        console.error(err);
+        toast.error("Error Fetching the users");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getUsers();
   }, []);
 
-  if (loading)
+  // Handle user deletion
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this user?')) return;
+
+    try {
+      await deleteUser(id);
+      setUsers((prev) => prev.filter((user) => user._id !== id));
+      toast.success("User deleted Successfully");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete the user");
+    }
+  };
+
+  if (loading) {
     return (
       <div className="loader-container">
         <div className="loader"></div>
       </div>
     );
+  }
+
   if (error) return <div className="error">{error}</div>;
 
   return (
@@ -83,14 +76,11 @@ const AdminUserList = () => {
                     className="user-avatar"
                   />
                 </td>
-                <td>{user.name || "N/A"}</td>
+                <td>{user.name || 'N/A'}</td>
                 <td>{user.email}</td>
                 <td>{user._id}</td>
                 <td>
-                  <button
-                    className="delete-btn"
-                    onClick={() => deleteUser(user._id)}
-                  >
+                  <button className="delete-btn" onClick={() => handleDelete(user._id)}>
                     🗑 Delete
                   </button>
                 </td>
