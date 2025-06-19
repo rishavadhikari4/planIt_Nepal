@@ -33,10 +33,7 @@
   cursor: pointer;
 }
 
-.admin-tab.active {
-  color: #e75480;
-  font-weight: bold;
-}
+
 
 .admin-tab.disabled {
   color: #999;
@@ -50,4 +47,16 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   padding: 2rem;
   overflow-y: auto;
+}
+
+.admin-tab {
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+.admin-tab:hover {
+  transform: translateX(5px);
+}
+.admin-tab.active {
+  color: #e75480;
+  font-weight: bold;
 }
