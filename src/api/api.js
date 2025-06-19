@@ -3,7 +3,7 @@ import axios from "axios";
 const API = axios.create({
     // baseURL: "http://192.168.1.73:5000",
     // baseURL: "http://localhost:5000",
-    baseURL:"https://wedding-planner-backend-drr8.onrender.com",
+    baseURL: import.meta.env.VITE_API_BASE_URL,
     headers: {
         "Content-Type": "application/json"
     }
