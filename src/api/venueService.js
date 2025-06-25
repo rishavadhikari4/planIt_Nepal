@@ -61,3 +61,22 @@ export const editVenue = async (id, formData, onSuccess,  onError) =>{
     onError(message);
   }
 };
+
+
+export const addVenue = async (formData, onSuccess, onError) => {
+  try {
+    const response = await API.post('/api/venues/', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    if (onSuccess) {
+      // response.data has message and venue
+      onSuccess(response.data.message, response.data.venue);
+    }
+  } catch (error) {
+    const message = error.response?.data?.message || 'Failed to add venue';
+    if (onError) onError(message);
+  }
+};

@@ -76,4 +76,17 @@ export const deleteCategory = async (categoryId, onSuccess, onError) => {
   }
 };
 
-
+// 7. Add dish to the database with the category
+export const addDish = async (formData, onSuccess, onError) => {
+  try {
+    const response = await API.post('/api/dishes/upload-dish', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    if (onSuccess) onSuccess(response.data.message, response.data.dish, response.data.updatedCategory);
+  } catch (error) {
+    const message = error.response?.data?.message || 'Failed to add dish';
+    if (onError) onError(message);
+  }
+};

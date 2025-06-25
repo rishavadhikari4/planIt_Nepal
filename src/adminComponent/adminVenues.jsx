@@ -66,7 +66,16 @@ const AdminVenues = () => {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.4 }}
       >
-        <h2 className="venues__title">Available Wedding Venues</h2>
+        <div className="title-bar">
+  <h2 className="venues__title">Available Wedding Venues</h2>
+  <button
+    onClick={() => navigate('/admin-venues/addVenue')}
+  >
+    + Add Venue
+  </button>
+</div>
+
+
         <div className="grid">
           <AnimatePresence>
             {venues.map((venue) => (
@@ -80,7 +89,11 @@ const AdminVenues = () => {
                 style={{ marginBottom: '2rem' }}
               >
                 <div className="card venue-card">
-                  <img src={venue.image} alt={venue.name} className="venue-card__image" />
+                  <img
+                    src={venue.image}
+                    alt={venue.name}
+                    className="venue-card__image"
+                  />
                   <div className="venue-card__content">
                     <h3 className="venue-card__title">{venue.name}</h3>
                     <p className="venue-card__location">{venue.location}</p>
@@ -88,7 +101,14 @@ const AdminVenues = () => {
                   </div>
                 </div>
 
-                <div className="venue-actions" style={{ marginTop: '0.5rem', display: 'flex', gap: '1rem' }}>
+                <div
+                  className="venue-actions"
+                  style={{
+                    marginTop: '0.5rem',
+                    display: 'flex',
+                    gap: '1rem',
+                  }}
+                >
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -100,7 +120,7 @@ const AdminVenues = () => {
                   </motion.button>
 
                   <motion.button
-                    whileHover={{ scale: 1.05, backgroundColor: "#dc3545" }}
+                    whileHover={{ scale: 1.05, backgroundColor: '#dc3545' }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => handleDelete(venue._id)}
                     className="delete-button"

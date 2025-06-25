@@ -23,10 +23,12 @@ import AdminDecorations from './adminComponent/adminDecorations';
 import AdminDishes from './adminComponent/adminDishes';
 import AdminVenues from './adminComponent/adminVenues';
 import AdminContact from './adminComponent/adminContact';
-import EditDecoration from './editComponents/editDecorations';
-import EditVenue from './editComponents/editVenues';
-import EditDish from './editComponents/editDishes';
+import EditDecoration from './utillsComponents/editDecorations';
+import EditVenue from './utillsComponents/editVenues';
+import EditDish from './utillsComponents/editDishes';
 import AdminOrderList from './adminComponent/adminOrders';
+import AddDishForm from './utillsComponents/addDishForm';
+import AddVenueForm from './utillsComponents/addVenuesFrom';
 
 // Contexts
 import { AuthProvider } from './context/AuthContext';
@@ -53,6 +55,7 @@ function AppContent() {
     '/admin-decorations/edit',
     '/admin-venues/edit',
     '/admin-dishes/edit'
+    
   ];
 
   const pathname = location.pathname;
@@ -95,7 +98,8 @@ function AppContent() {
           <Route path="/admin-decorations/edit/:id" element={<EditDecoration />} />
           <Route path="/admin-venues/edit/:id" element={<EditVenue />} />
           <Route path="/admin-dishes/edit/:categoryName/:dishId" element={<EditDish />} />
-
+          <Route path="/admin-dishes/addDishes" element={<AddDishForm />} />
+          <Route path="/admin-venues/addVenue" element={<AddVenueForm />} />
           {/* Fallback */}
           <Route path="*" element={<NotFound />} />
         </Routes>

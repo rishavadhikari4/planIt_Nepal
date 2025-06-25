@@ -53,7 +53,7 @@ const Venues = () => {
 
   return (
     <div className="container">
-      <h2 className="venues__title">Our Wedding Venues</h2>
+      <h2 className="venues__title_customer">Our Wedding Venues</h2>
       <div className="grid">
         {venues.map((venue) => (
           <div key={venue._id} className="card venue-card">

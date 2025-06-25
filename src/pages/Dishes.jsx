@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import {  getAllDishCategories } from '../api/dishService';
-import { useCart } from '../context/CartContext'; // Import useCart
+import { getAllDishCategories } from '../api/dishService';
+import { useCart } from '../context/CartContext'; 
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Dishes.css';  
@@ -9,7 +9,7 @@ const Dishes = () => {
   const [categories, setCategories] = useState([]);
   const [selectedDishes, setSelectedDishes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { addToCart } = useCart(); // Get addToCart from context
+  const { addToCart } = useCart(); 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,6 +19,7 @@ const Dishes = () => {
         setCategories(categoriesData || []);
       } catch (err) {
         console.error('Failed to fetch dishes:', err);
+        toast.error('Failed to load dishes.');
       } finally {
         setLoading(false);
       }
@@ -34,11 +35,8 @@ const Dishes = () => {
     );
   };
 
- const handleSubmit = () => {
+  const handleSubmit = () => {
     const token = localStorage.getItem("token");
-
-    // submitDishes(selectedDishes);
-    // Add each selected dish to cart
     if(!token){
       toast.info("Please login to Add items to your cart");
       navigate('/login');
@@ -56,7 +54,7 @@ const Dishes = () => {
         }
       });
     });
-    setSelectedDishes([]); // Reset all checkboxes after adding to cart
+    setSelectedDishes([]);
   };
 
   const DishCard = ({ dish }) => (
@@ -75,31 +73,43 @@ const Dishes = () => {
     </div>
   );
 
-  if (loading) return <div className="loader-container">
-    <div className="loader"></div>
-  </div>;
+  if (loading) return (
+    <div className="loader-container">
+      <div className="loader"></div>
+    </div>
+  );
+
+  // Check if there are any dishes in all categories
+  const hasDishes = categories.some(category => category.dishes && category.dishes.length > 0);
 
   return (
     <div className="container dishes__section">
-      {categories.map(category => (
-        <div key={category._id}>
-          <h2 className="dishes__category">{category.category}</h2>
-          <div className="grid">
-            {category.dishes.map(dish => (
-              <DishCard key={dish._id} dish={dish} />
-            ))}
+      {!hasDishes ? (
+        <p className="no-dishes-message">No dishes found.</p>
+      ) : (
+        categories.map(category => (
+          <div key={category._id}>
+            <h2 className="dishes__category">{category.category}</h2>
+            <div className="grid">
+              {category.dishes.map(dish => (
+                <DishCard key={dish._id} dish={dish} />
+              ))}
+            </div>
           </div>
+        ))
+      )}
+
+      {hasDishes && (
+        <div className="dishes__confirm">
+          <button
+            className="button button--primary"
+            onClick={handleSubmit}
+            disabled={selectedDishes.length === 0}
+          >
+            Add to Cart
+          </button>
         </div>
-      ))}
-      <div className="dishes__confirm">
-        <button
-          className="button button--primary"
-          onClick={handleSubmit}
-          disabled={selectedDishes.length === 0}
-        >
-          Add to Cart
-        </button>
-      </div>
+      )}
     </div>
   );
 };
