@@ -1,19 +1,21 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { addDish, getAllDishCategories } from '../api/dishService';
-import { toast } from 'react-toastify';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { addDish, getAllDishCategories } from "../api/dishService";
+import { toast } from "react-toastify";
 import '../styles/Dishes.css';
 
 const AddDishForm = () => {
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     category: '',
     name: '',
     description: '',
   });
+
   const [isCustomCategory, setIsCustomCategory] = useState(false);
-  const [image, setImage] = useState(null);
-  const [uploading, setUploading] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
@@ -46,48 +48,61 @@ const AddDishForm = () => {
     }
   };
 
-  const handleImageChange = (e) => {
-    setImage(e.target.files[0]);
+  const handleFileChange = (e) => {
+    setImageFile(e.target.files[0]);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.category || !formData.name || !image) {
-      toast.error('Please fill all fields and select an image');
+    const { category, name, description } = formData;
+
+    if (!category || !name || !imageFile) {
+      toast.error("Please fill in all required fields and select an image");
       return;
     }
 
-    const data = new FormData();
-    data.append('category', formData.category);
-    data.append('name', formData.name);
-    data.append('description', formData.description);
-    data.append('image', image);
+    setLoading(true);
 
-    setUploading(true);
-    await addDish(
-      data,
-      (message) => {
-        toast.success(message);
-        setFormData({ category: '', name: '', description: '' });
-        setIsCustomCategory(false);
-        setImage(null);
-        document.getElementById('imageInput').value = null;
-        navigate('/admin-dishes');
-      },
-      (errorMessage) => {
-        toast.error(errorMessage);
-      }
-    );
-    setUploading(false);
+    const data = new FormData();
+    data.append('category', category);
+    data.append('name', name);
+    data.append('description', description);
+    data.append('image', imageFile);
+
+    try {
+      await addDish(
+        data,
+        (successMessage) => {
+          toast.success(successMessage);
+          navigate('/admin-dishes');
+        },
+        (errorMessage) => {
+          toast.error(errorMessage);
+        }
+      );
+    } catch (error) {
+      toast.error("An unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBack = () => {
+    navigate('/admin-dishes');
   };
 
   return (
-    <div className="add-dish-container">
+    <div className="edit-container">
       <h2>Add New Dish</h2>
-      <form className="add-dish-form" onSubmit={handleSubmit}>
+      <button onClick={handleBack} className="back-button" style={{ marginBottom: '1rem' }}>
+        ← Back
+      </button>
+
+      <form onSubmit={handleSubmit} className="edit-form">
         <label>Category:</label>
         <select
+        className="CategorySelect"
           name="categorySelect"
           value={isCustomCategory ? 'Other' : formData.category}
           onChange={handleChange}
@@ -101,39 +116,45 @@ const AddDishForm = () => {
         </select>
 
         {isCustomCategory && (
-          <input
-            type="text"
-            name="category"
-            placeholder="Enter custom category"
-            value={formData.category}
-            onChange={handleChange}
-            required
-          />
+          <>
+            <label>Custom Category:</label>
+            <input
+              type="text"
+              name="category"
+              placeholder="Enter custom category"
+              value={formData.category}
+              onChange={handleChange}
+              required
+            />
+          </>
         )}
 
+        <label>Dish Name:</label>
         <input
           type="text"
           name="name"
-          placeholder="Dish Name"
           value={formData.name}
           onChange={handleChange}
           required
         />
+
+        <label>Description:</label>
         <textarea
           name="description"
-          placeholder="Description"
           value={formData.description}
           onChange={handleChange}
         />
+
+        <label>Image:</label>
         <input
           type="file"
+          onChange={handleFileChange}
           accept="image/*"
-          id="imageInput"
-          onChange={handleImageChange}
           required
         />
-        <button type="submit" disabled={uploading}>
-          {uploading ? 'Uploading...' : 'Add Dish'}
+
+        <button type="submit" disabled={loading}>
+          {loading ? "Adding..." : "Add Dish"}
         </button>
       </form>
     </div>

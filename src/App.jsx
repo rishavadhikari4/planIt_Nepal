@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import './styles/global.css';
 
@@ -29,6 +29,7 @@ import EditDish from './utillsComponents/editDishes';
 import AdminOrderList from './adminComponent/adminOrders';
 import AddDishForm from './utillsComponents/addDishForm';
 import AddVenueForm from './utillsComponents/addVenuesFrom';
+import AddDecorationForm from './utillsComponents/addDecorationForm';
 
 // Contexts
 import { AuthProvider } from './context/AuthContext';
@@ -36,13 +37,14 @@ import { CartProvider } from './context/CartContext';
 
 function AppContent() {
   const location = useLocation();
+  const pathname = location.pathname;
 
   const hideHeaderRoutes = [
     '/login',
     '/register',
     '/auth-success',
     '/admin-login',
-    '/*',
+    '/not-found', // ✅ Add this
   ];
 
   const showHeaderForAdmin = [
@@ -55,10 +57,7 @@ function AppContent() {
     '/admin-decorations/edit',
     '/admin-venues/edit',
     '/admin-dishes/edit'
-    
   ];
-
-  const pathname = location.pathname;
 
   const shouldHideHeader = hideHeaderRoutes.some(route =>
     pathname === route || pathname.startsWith(route + '/')
@@ -75,7 +74,6 @@ function AppContent() {
 
       <CartProvider>
         <Routes>
-          
           {/* User Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/venues" element={<Venues />} />
@@ -100,11 +98,14 @@ function AppContent() {
           <Route path="/admin-dishes/edit/:categoryName/:dishId" element={<EditDish />} />
           <Route path="/admin-dishes/addDishes" element={<AddDishForm />} />
           <Route path="/admin-venues/addVenue" element={<AddVenueForm />} />
-          {/* Fallback */}
-          <Route path="*" element={<NotFound />} />
+          <Route path="/admin-decorations/addDecoration" element={<AddDecorationForm />} />
+
+          {/* Not Found Route */}
+          <Route path="/not-found" element={<NotFound />} />
+          <Route path="*" element={<Navigate to="/not-found" replace />} />
         </Routes>
 
-        <ToastContainer
+        <ToastContainer 
           position="top-right"
           autoClose={4000}
           hideProgressBar={false}

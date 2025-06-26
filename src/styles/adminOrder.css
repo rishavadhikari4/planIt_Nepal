@@ -9,8 +9,10 @@
   text-align: center;
   margin-bottom: 2rem;
   color: #333;
+  font-size: 1.8rem;
 }
 
+/* Order Card */
 .order-card {
   border: 1px solid #ddd;
   border-radius: 10px;
@@ -23,6 +25,7 @@
 .order-card p {
   margin: 0.5rem 0;
   color: #444;
+  font-size: 1rem;
 }
 
 .order-card strong {
@@ -34,10 +37,12 @@
   padding: 0;
 }
 
+/* Items inside order */
 .order-card li {
   display: flex;
   align-items: center;
   margin: 0.5rem 0;
+  flex-wrap: wrap;
 }
 
 .order-card img {
@@ -48,7 +53,20 @@
   border: 1px solid #ccc;
 }
 
-@media (max-width: 600px) {
+/* Responsive Rules */
+@media (max-width: 768px) {
+  .admin-orders-container {
+    padding: 0.75rem;
+  }
+
+  .order-card {
+    padding: 1rem;
+  }
+
+  .order-card p {
+    font-size: 0.95rem;
+  }
+
   .order-card li {
     flex-direction: column;
     align-items: flex-start;
@@ -56,6 +74,26 @@
 
   .order-card img {
     margin-left: 0;
-    margin-top: 5px;
+    margin-top: 8px;
+    width: 100%;
+    max-width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-orders-container h2 {
+    font-size: 1.5rem;
+  }
+
+  .order-card {
+    padding: 0.8rem;
+  }
+
+  .order-card p {
+    font-size: 0.9rem;
+  }
+
+  .order-card img {
+    max-width: 80px;
   }
 }

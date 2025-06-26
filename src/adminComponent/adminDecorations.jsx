@@ -63,7 +63,14 @@ const AdminDecorations = () => {
       transition={{ duration: 0.6 }}
     >
       <div className="decoration-container">
-        <h2 className="decorations__title">Available Wedding Decoration Themes</h2>
+        <div className="title-bar">
+  <h2 className="venues__title">Available Wedding Venues</h2>
+  <button
+    onClick={() => navigate('/admin-decorations/addDecoration')}
+  >
+    + Add Decoration
+  </button>
+</div>
         <div className="grid">
           {decorations.map((decoration, index) => (
             <motion.div

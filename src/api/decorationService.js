@@ -55,3 +55,22 @@ export const editDecoration = async (id, formData, onSuccess, onError) => {
     onError(message);
   }
 };
+
+
+export const addDecoration = async (fromData, onSuccess, onError) => {
+  try{
+    const response = await API.post('/api/decorations/',
+      fromData,{
+        headers:{
+          'Content-Type' : 'multipart/form-data',
+        },
+      });
+      if(onSuccess){
+        onSuccess(response.data.message,response.data.decoration);
+      }
+  }catch(error){
+    const message = error.response?.data?.message ||
+    'Failed to add decoraion';
+    if(onError) onError(mesasge);
+  }
+};

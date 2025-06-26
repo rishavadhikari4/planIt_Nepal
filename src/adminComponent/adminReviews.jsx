@@ -82,34 +82,33 @@ const AdminReviews = () => {
           </thead>
           <tbody>
             {reviews.map(({ _id, user, rating, comment, verified }) => (
-              <tr key={_id} className="review-row">
-                <td>{user?.name || "Unknown User"}</td>
-                <td>{rating}</td>
-                <td>{comment}</td>
-                <td>{verified ? "✅" : "❌"}</td>
-                <td>
-                  <button
-                    className="btn-toggle"
-                    onClick={() => handleToggleVerified(_id)}
-                  >
-                    {verified ? "Unverify" : "Verify"}
-                  </button>
+            <tr key={_id} className="review-row">
+              <td data-label="User">{user?.name || "Unknown User"}</td>
+              <td data-label="Rating">{rating}</td>
+              <td data-label="Comment">{comment}</td>
+              <td data-label="Verified">{verified ? "✅" : "❌"}</td>
+              <td data-label="Actions">
+                <button
+                  className="btn-toggle"
+                  onClick={() => handleToggleVerified(_id)}
+                >
+                  {verified ? "Unverify" : "Verify"}
+                </button>
+                        
+                <button
+                  className="btn-delete"
+                  onClick={() => handleDeleteReview(_id)}
+                  disabled={deletingReviewId === _id}
+                >
+                  {deletingReviewId === _id ? (
+                    <div className="small-loader"></div>
+                  ) : (
+                    "Delete"
+                  )}
+                </button>
+              </td>
+            </tr>
 
-                  <button
-                    className="btn-delete"
-                    onClick={() => handleDeleteReview(_id)}
-                    disabled={deletingReviewId === _id}
-                  >
-                    {deletingReviewId === _id ? (
-                      <div
-                        className="small-loader"
-                      ></div>
-                    ) : (
-                      'Delete'
-                    )}
-                  </button>
-                </td>
-              </tr>
             ))}
           </tbody>
         </table>

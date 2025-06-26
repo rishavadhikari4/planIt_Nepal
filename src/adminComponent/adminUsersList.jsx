@@ -74,36 +74,35 @@ const AdminUserList = () => {
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
-              <tr key={user._id}>
-                <td>
-                  <img
-                    src={user.profileImage}
-                    alt="Profile"
-                    className="user-avatar"
-                  />
-                </td>
-                <td>{user.name || 'N/A'}</td>
-                <td>{user.email}</td>
-                <td>{user._id}</td>
-                <td>
-                  <button
-                    className="delete-btn"
-                    onClick={() => handleDelete(user._id)}
-                    disabled={deletingId === user._id} // disable button while deleting
-                  >
-                    {deletingId === user._id ? (
-                      <div
-                        className="small-loader"
-                      />
-                    ) : (
-                      '🗑 Delete'
-                    )}
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
+  {users.map((user) => (
+    <tr key={user._id}>
+      <td data-label="Profile">
+        <img
+          src={user.profileImage}
+          alt="Profile"
+          className="user-avatar"
+        />
+      </td>
+      <td data-label="Name">{user.name || 'N/A'}</td>
+      <td data-label="Email">{user.email}</td>
+      <td data-label="User ID">{user._id}</td>
+      <td data-label="Action">
+        <button
+          className="delete-btn"
+          onClick={() => handleDelete(user._id)}
+          disabled={deletingId === user._id}
+        >
+          {deletingId === user._id ? (
+            <div className="loader-small" />
+          ) : (
+            '🗑 Delete'
+          )}
+        </button>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
         </table>
       )}
     </div>
