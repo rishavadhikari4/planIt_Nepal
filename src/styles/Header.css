@@ -65,6 +65,60 @@
     background-color: var(--secondary-color);
   color: white;
 }
+.header__user-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.header__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #ddd;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header__avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.header__avatar-placeholder {
+  font-weight: bold;
+  color: #555;
+}
+
+.header__dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 110%;
+  background-color: white;
+  border: 1px solid #ccc;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+  padding: 8px 0;
+  z-index: 1000;
+  border-radius: 4px;
+}
+
+.header__dropdown-item {
+  padding: 8px 16px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.header__dropdown-item:hover {
+  background-color: #f0f0f0;
+}
+
 
 /* Mobile styles */
 @media (max-width: 768px) {

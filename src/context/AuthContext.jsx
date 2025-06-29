@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import API from "../services/api";
+import { fetchLoginUser } from "../services/userService";
 import {jwtDecode} from "jwt-decode";
 
 export const AuthContext = createContext();
@@ -117,14 +118,10 @@ export const AuthProvider = ({ children }) => {
     try {
       const { data } = await API.post("/api/auth/login", { email, password });
       localStorage.setItem("token", data.token);
-      const decodedToken = jwtDecode(data.token);
-      const user = {
-        id: decodedToken.id,
-        name: decodedToken.name,
-        email: decodedToken.email,
-      };
-      localStorage.setItem("user", JSON.stringify(user));
-      setUser(user);
+      const fullUser = await fetchLoginUser();
+
+      localStorage.setItem("user", JSON.stringify(fullUser));
+      setUser(fullUser);
       setIsAuthenticated(true);
       navigate("/");
     } catch (error) {
