@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useCart } from "../context/CartContext";
 import '../styles/Cart.css';
-import API from "../api/api";
+import API from "../services/api";
 
 const Cart = () => {
   const { cartItems, removeFromCart,fetchCartItems} = useCart([]);

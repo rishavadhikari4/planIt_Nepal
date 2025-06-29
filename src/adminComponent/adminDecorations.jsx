@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getAllDecorations, deleteDecoration } from '../api/decorationService';
+import { getAllDecorations, deleteDecoration } from '../services/decorationService';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';

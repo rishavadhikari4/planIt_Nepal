@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { editDecoration, getOneDecoration } from '../api/decorationService';
+import { editDecoration, getOneDecoration } from '../services/decorationService';
 import { toast } from 'react-toastify';
 import '../styles/Decorations.css';
 

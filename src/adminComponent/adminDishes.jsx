@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAllDishCategories, deleteDish, deleteCategory } from '../api/dishService';
+import { getAllDishCategories, deleteDish, deleteCategory } from '../services/dishService';
 import '../styles/Dishes.css';
 import { toast } from 'react-toastify';
 import { motion, AnimatePresence } from 'framer-motion';

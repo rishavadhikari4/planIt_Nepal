@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getAllDishCategories } from '../api/dishService';
+import { getAllDishCategories } from '../services/dishService';
 import { useCart } from '../context/CartContext'; 
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';

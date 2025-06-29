@@ -1,5 +1,5 @@
 import { Mail, Phone, Home as HomeIcon, Flower, Utensils } from 'lucide-react';
-import { submitContactForm } from '../api/contactService';
+import { submitContactForm } from '../services/contactService.js';
 import Review from './review.jsx';
 import '../styles/Home.css';
 import { toast } from 'react-toastify';

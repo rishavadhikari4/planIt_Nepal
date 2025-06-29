@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { editVenue, getOneVenue } from "../api/venueService";
+import { editVenue, getOneVenue } from "../services/venueService";
 import { toast } from "react-toastify";
 
 const EditVenue = () => {

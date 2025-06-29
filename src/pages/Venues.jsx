@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAllVenues } from '../api/venueService';
+import { getAllVenues } from '../services/venueService';
 import { useCart } from '../context/CartContext';
 import { toast } from 'react-toastify';
 import '../styles/Venues.css';

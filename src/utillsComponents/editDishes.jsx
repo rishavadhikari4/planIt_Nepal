@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getDishById, editDish } from '../api/dishService';
+import { getDishById, editDish } from '../services/dishService';
 import { toast } from 'react-toastify';
 import '../styles/Decorations.css';
 

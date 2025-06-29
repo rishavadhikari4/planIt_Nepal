@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAllReviews, toggleVerified, deleteReview } from "../api/reviewService";
+import { getAllReviews, toggleVerified, deleteReview } from "../services/reviewService";
 import { toast } from "react-toastify";
 import "../styles/adminReview.css";
 

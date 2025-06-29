@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getAllDecorations } from '../api/decorationService';
+import { getAllDecorations } from '../services/decorationService';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext'; 
 import { toast } from 'react-toastify';

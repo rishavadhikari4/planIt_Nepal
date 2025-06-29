@@ -1,5 +1,5 @@
 import  { useState ,useEffect,useContext} from 'react';
-import { postReview,getVerifiedReviews} from '../api/reviewService';
+import { postReview,getVerifiedReviews} from '../services/reviewService';
 import { toast } from 'react-toastify';
 import { AuthContext } from '../context/AuthContext';
 

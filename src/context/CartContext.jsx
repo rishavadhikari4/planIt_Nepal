@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from "react";
-import API from "../api/api";
+import API from "../services/api";
 const CartContext = createContext();
 
 export const useCart = () => useContext(CartContext);

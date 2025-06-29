@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import '../styles/adminUser.css';
-import { fetchUsers, deleteUser } from '../api/userService';
+import { fetchUsers, deleteUser } from '../services/userService';
 import { toast } from 'react-toastify';
 
 const AdminUserList = () => {

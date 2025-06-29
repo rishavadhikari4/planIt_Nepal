@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getAllOrders } from '../api/orderService'; 
+import { getAllOrders } from '../services/orderService'; 
 import '../styles/adminOrder.css';
 
 const AdminOrderList = () => {

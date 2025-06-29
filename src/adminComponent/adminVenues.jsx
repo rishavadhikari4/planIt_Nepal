@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { deleteVenue, getAllVenues } from '../api/venueService';
+import { deleteVenue, getAllVenues } from '../services/venueService';
 import { toast } from 'react-toastify';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../styles/Venues.css';

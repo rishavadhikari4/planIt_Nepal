@@ -1,4 +1,4 @@
-import API from '../api/api'; // adjust path if needed
+import API from './api'; // adjust path if needed
 
 // Fetch all users
 export const fetchUsers = async () => {

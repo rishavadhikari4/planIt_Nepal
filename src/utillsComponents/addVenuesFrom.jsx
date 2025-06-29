@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { addVenue } from "../api/venueService";
+import { addVenue } from "../services/venueService";
 import { toast } from "react-toastify";
 import '../styles/Venues.css'
 
