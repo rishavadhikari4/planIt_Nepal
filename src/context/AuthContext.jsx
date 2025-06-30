@@ -195,6 +195,17 @@ export const AuthProvider = ({ children }) => {
     navigate("/admin-login");
   };
 
+  const refreshAuth = () => {
+    const token = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
+
+    if (token && storedUser) {
+      setUser(JSON.parse(storedUser));
+      setIsAuthenticated(true);
+    }
+  };
+
+
   return (
     <AuthContext.Provider
       value={{
@@ -206,6 +217,7 @@ export const AuthProvider = ({ children }) => {
         logout,
         adminLogin,
         adminLogout,
+        refreshAuth
       }}
     >
       {children}
