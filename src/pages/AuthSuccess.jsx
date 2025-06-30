@@ -2,6 +2,7 @@ import { useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { fetchLoginUser } from '../services/userService';
+import '../styles/auth.css'
 
 function AuthSuccess() {
   const navigate = useNavigate();
@@ -31,7 +32,14 @@ function AuthSuccess() {
     handleGoogleLogin();
   }, [navigate, refreshAuth]);
 
-  return <p>Logging in...</p>;
+  return (
+            <div class="wrapper">
+                    <div class="blue ball"></div>
+                    <div class="red ball"></div>  
+                    <div class="yellow ball"></div>  
+                    <div class="green ball"></div>  
+            </div>
+        );
 }
 
 export default AuthSuccess;
