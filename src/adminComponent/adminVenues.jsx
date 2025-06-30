@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { deleteVenue, getAllVenues } from '../services/venueService';
 import { toast } from 'react-toastify';
 import { motion, AnimatePresence } from 'framer-motion';
-import '../styles/Venues.css';
+// import '../styles/Venues.css';
 
 const AdminVenues = () => {
   const [venues, setVenues] = useState([]);
@@ -54,91 +54,88 @@ const AdminVenues = () => {
   }
 
   return (
-    <motion.div
-      className="main-container"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
-      <motion.div
-        className="venue-container"
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.4 }}
-      >
-        <div className="title-bar">
-  <h2 className="venues__title">Available Wedding Venues</h2>
-  <button
-    onClick={() => navigate('/admin-venues/addVenue')}
+<motion.div
+  className="min-h-screen p-6"
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  exit={{ opacity: 0 }}
+>
+  <motion.div
+    className="max-w-7xl mx-auto"
+    initial={{ y: 20, opacity: 0 }}
+    animate={{ y: 0, opacity: 1 }}
+    transition={{ duration: 0.4 }}
   >
-    + Add Venue
-  </button>
-</div>
+    {/* Title and Add Button */}
+    <div className="flex justify-between items-center mb-8">
+      <h2 className="text-3xl font-bold text-gray-800">Available Wedding Venues</h2>
+      <button
+        onClick={() => navigate('/admin-venues/addVenue')}
+        className="bg-pink-600 hover:bg-pink-700 text-white px-5 py-2 rounded-lg transition"
+      >
+        + Add Venue
+      </button>
+    </div>
 
+    {/* Venue Cards */}
+    <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+      <AnimatePresence>
+        {venues.map((venue) => (
+          <motion.div
+            key={venue._id}
+            layout
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.4 }}
+            className="bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-300"
+          >
+            {/* Venue Card */}
+            <div className="overflow-hidden rounded-t-lg">
+              <img
+                src={venue.image}
+                alt={venue.name}
+                className="w-full h-48 object-cover"
+              />
+            </div>
+            <div className="p-4">
+              <h3 className="text-xl font-semibold text-gray-800 mb-1">{venue.name}</h3>
+              <p className="text-sm text-gray-500 mb-1">{venue.location}</p>
+              <p className="text-gray-700 text-sm">{venue.description}</p>
+            </div>
 
-        <div className="grid">
-          <AnimatePresence>
-            {venues.map((venue) => (
-              <motion.div
-                key={venue._id}
-                layout
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.4 }}
-                style={{ marginBottom: '2rem' }}
+            {/* Action Buttons */}
+            <div className="flex justify-end gap-3 px-4 pb-4">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate(`/admin-venues/edit/${venue._id}`)}
+                className="bg-yellow-400 hover:bg-yellow-500 text-white px-4 py-1 rounded-md transition"
+                disabled={deletingId === venue._id}
               >
-                <div className="card venue-card">
-                  <img
-                    src={venue.image}
-                    alt={venue.name}
-                    className="venue-card__image"
-                  />
-                  <div className="venue-card__content">
-                    <h3 className="venue-card__title">{venue.name}</h3>
-                    <p className="venue-card__location">{venue.location}</p>
-                    <p className="venue-card__description">{venue.description}</p>
-                  </div>
-                </div>
+                Edit
+              </motion.button>
 
-                <div
-                  className="venue-actions"
-                  style={{
-                    marginTop: '0.5rem',
-                    display: 'flex',
-                    gap: '1rem',
-                  }}
-                >
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => navigate(`/admin-venues/edit/${venue._id}`)}
-                    className="edit-button"
-                    disabled={deletingId === venue._id}
-                  >
-                    Edit
-                  </motion.button>
-
-                  <motion.button
-                    whileHover={{ scale: 1.05, backgroundColor: '#dc3545' }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => handleDelete(venue._id)}
-                    className="delete-button"
-                    disabled={deletingId === venue._id}
-                  >
-                    {deletingId === venue._id ? (
-                      <div className="small-loader" />
-                    ) : (
-                      'Delete'
-                    )}
-                  </motion.button>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-      </motion.div>
-    </motion.div>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => handleDelete(venue._id)}
+                className="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded-md transition"
+                disabled={deletingId === venue._id}
+              >
+                {deletingId === venue._id ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  'Delete'
+                )}
+              </motion.button>
+            </div>
+          </motion.div>
+        ))}
+      </AnimatePresence>
+    </div>
+  </motion.div>
+</motion.div>
   );
 };
 

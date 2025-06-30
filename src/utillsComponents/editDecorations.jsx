@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { editDecoration, getOneDecoration } from '../services/decorationService';
-import { toast } from 'react-toastify';
-import '../styles/Decorations.css';
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { editDecoration, getOneDecoration } from "../services/decorationService";
+import { toast } from "react-toastify";
 
 const EditDecoration = () => {
   const { id } = useParams();
@@ -30,7 +29,7 @@ const EditDecoration = () => {
       } catch (err) {
         toast.error("Failed to load decoration data");
       } finally {
-        setLoading(false); 
+        setLoading(false);
       }
     };
 
@@ -50,7 +49,7 @@ const EditDecoration = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); 
+    setLoading(true);
 
     const data = new FormData();
     data.append('name', formData.name);
@@ -74,7 +73,7 @@ const EditDecoration = () => {
     } catch (error) {
       toast.error("Something went wrong");
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
@@ -91,46 +90,70 @@ const EditDecoration = () => {
   }
 
   return (
-    <div className="edit-container">
-      <h2>Edit Decoration</h2>
-      
-      <button onClick={handleBack} className="back-button">← Back</button>
+    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md mt-8">
+      <h2 className="text-4xl font-bold text-center text-gray-800 mb-6">Edit Decoration</h2>
 
-      <form onSubmit={handleSubmit} className="edit-form">
-        <label>Name:</label>
-        <input
-          type="text"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-        />
+      <button
+        onClick={handleBack}
+        className="mb-6 inline-flex items-center px-4 py-2 bg-pink-100 text-pink-700 font-semibold rounded-md shadow-sm hover:bg-pink-200 transition text-lg"
+      >
+        ← Back
+      </button>
 
-        <label>Description:</label>
-        <textarea
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-          required
-        />
-
-        <label>Current Image:</label>
-        {formData.image && (
-          <img
-            src={formData.image}
-            alt="Current"
-            className="preview-img"
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label className="block text-lg font-medium text-gray-700">Name:</label>
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-pink-500 focus:border-pink-500 text-lg"
           />
-        )}
+        </div>
 
-        <label>New Image (optional):</label>
-        <input
-          type="file"
-          onChange={handleFileChange}
-          accept="image/*"
-        />
+        <div>
+          <label className="block text-lg font-medium text-gray-700">Description:</label>
+          <textarea
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            required
+            rows={4}
+            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-pink-500 focus:border-pink-500 text-lg resize-none"
+          />
+        </div>
 
-        <button type="submit">Update</button>
+        <div>
+          <label className="block text-lg font-medium text-gray-700">Current Image:</label>
+          {formData.image && (
+            <img
+              src={formData.image}
+              alt="Current Decoration"
+              className="mt-2 w-full max-h-60 object-cover rounded"
+            />
+          )}
+        </div>
+
+        <div>
+          <label className="block text-lg font-medium text-gray-700">New Image (optional):</label>
+          <input
+            type="file"
+            onChange={handleFileChange}
+            accept="image/*"
+            className="mt-1 block w-full text-lg text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-white file:bg-pink-500 hover:file:bg-pink-600"
+          />
+        </div>
+
+        <div>
+          <button
+            type="submit"
+            className="w-full bg-pink-500 hover:bg-pink-600 text-white py-3 px-4 rounded-md font-semibold transition text-lg"
+          >
+            Update
+          </button>
+        </div>
       </form>
     </div>
   );

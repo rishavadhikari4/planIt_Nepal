@@ -1,115 +1,150 @@
-import {useState} from "react";
-import { useNavigate} from "react-router-dom";
+import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { addDecoration } from "../services/decorationService";
 import { toast } from "react-toastify";
-import '../styles/Decorations.css';
 
-const AddDecoration = () =>{
-    const navigate = useNavigate();
+const AddDecoration = () => {
+  const navigate = useNavigate();
+  const fileInputRef = useRef(null);
 
-    const [formData, setFormData] = useState({
-        name:'',
-        description:'',
-    });
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+  });
 
-    const [imageFile,setImageFile] = useState(null);
-    const [loading, setLoading] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-    const handleChange = (e) =>{
+  const handleChange = (e) => {
     setFormData(prev => ({
-        ...prev,
-        [e.target.name]: e.target.value
+      ...prev,
+      [e.target.name]: e.target.value
     }));
-    };
+  };
 
-    const handleFileChange = (e) =>{
-        setImageFile(e.target.files[0]);
-    };
+  const handleFileChange = (e) => {
+    setImageFile(e.target.files[0]);
+  };
 
-    const handleSubmit = async(e)=>{
-        e.preventDefault();
+  const handleFileButtonClick = () => {
+    fileInputRef.current?.click();
+  };
 
-        if(!formData.name || !formData.description ||
-            !imageFile){
-                toast.error("please fill in all field and select an image");
-                return;
-            }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-            setLoading(true);
+    if (!formData.name || !formData.description || !imageFile) {
+      toast.error("Please fill in all fields and select an image");
+      return;
+    }
 
-            const data = new FormData();
-            data.append('name',formData.name);
-            data.append('description',formData.description);
-            data.append('image',imageFile);
+    setLoading(true);
 
-            try{
-                await addDecoration(
-                    data,
-                    (successMessage) =>{
-                        toast.success(successMessage);
-                        navigate('/admin-decorations');
-                    },
-                    (errorMessage) => {
-                        toast.error(errorMessage);
-                    }
-                );
-            }catch(error){
-                toast.error("An Unexpected error occured");
-            }finally{
-                setLoading(false);
-            }
+    const data = new FormData();
+    data.append('name', formData.name);
+    data.append('description', formData.description);
+    data.append('image', imageFile);
 
-        };
-        const handleBack = () => {
-            navigate('/admin-decorations');
-        };
-        return(
-            <div className="edit-container">
-                <h2>
-                    Add New Decoration
-                </h2>
-                <button className="back-button"
-                onClick={handleBack}
-                style={{
-                    marginBottom:'1rem'
-                }}
-                >
-                     ← Back
-                </button>
+    try {
+      await addDecoration(
+        data,
+        (successMessage) => {
+          toast.success(successMessage);
+          navigate('/admin-decorations');
+        },
+        (errorMessage) => {
+          toast.error(errorMessage);
+        }
+      );
+    } catch (error) {
+      toast.error("An unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-                <form onSubmit={handleSubmit} className="edit-form">
+  const handleBack = () => {
+    navigate('/admin-decorations');
+  };
 
-                <label>Name:</label>
-                <input 
-                  type="text" 
-                  name="name" 
-                  value={formData.name} 
-                  onChange={handleChange} 
-                  required 
-                />
+  return (
+    <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md mt-8">
+      <h2 className="text-2xl font-semibold mb-6 text-gray-800">Add New Decoration</h2>
 
-                <label>Description:</label>
-                <textarea 
-                  name="description" 
-                  value={formData.description} 
-                  onChange={handleChange} 
-                  required 
-                />    
+      <button
+        onClick={handleBack}
+        className="mb-6 inline-flex items-center px-6 py-3 bg-pink-200 text-pink-800 font-semibold rounded-md shadow-sm hover:bg-pink-300 transition"
+      >
+        ← Back
+      </button>
 
-                <label>Image:</label>
-                <input 
-                  type="file" 
-                  onChange={handleFileChange} 
-                  accept="image/*" 
-                  required 
-                />
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label className="block mb-1 font-medium text-gray-700">Name:</label>
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-400 transition"
+          />
+        </div>
 
-                <button type="submit" disabled={loading}>
-                {loading ? "Adding..." : "Add Venue"}
-                </button>        
-                </form>
-            </div>
-        );
+        <div>
+          <label className="block mb-1 font-medium text-gray-700">Description:</label>
+          <textarea
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            required
+            rows={4}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-400 resize-none transition"
+          />
+        </div>
+
+        <div>
+          <label className="block mb-2 font-medium text-gray-700">Image:</label>
+
+          {/* Hidden file input */}
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept="image/*"
+            required
+            className="hidden"
+          />
+
+          {/* Custom button */}
+          <button
+            type="button"
+            onClick={handleFileButtonClick}
+            className="px-5 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-pink-400 transition"
+          >
+            Choose File
+          </button>
+
+          {/* Selected file name */}
+          {imageFile && (
+            <p className="mt-2 text-gray-600 text-sm truncate max-w-full" title={imageFile.name}>
+              Selected file: {imageFile.name}
+            </p>
+          )}
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className={`w-full py-3 mt-4 rounded-md font-semibold text-white transition ${
+            loading ? 'bg-pink-300 cursor-not-allowed' : 'bg-pink-500 hover:bg-pink-600'
+          }`}
+        >
+          {loading ? "Adding..." : "Add Decoration"}
+        </button>
+      </form>
+    </div>
+  );
 };
 
 export default AddDecoration;

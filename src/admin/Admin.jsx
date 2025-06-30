@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import AdminOrderList from '../adminComponent/adminOrders';
 import AdminUserList from '../adminComponent/adminUsersList';
 import AdminReviews from '../adminComponent/adminReviews';
-import '../styles/admin.css';
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('orders');
@@ -16,34 +15,50 @@ const Admin = () => {
   };
 
   return (
-    <div className="admin-container">
+    <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
-      <div className="admin-sidebar">
-        <ul className="admin-nav">
-          <li
-            className={`admin-tab ${activeTab === 'orders' ? 'active' : ''}`}
-            onClick={() => setActiveTab('orders')}
-          >
-            📦 Orders
-          </li>
-          <li
-            className={`admin-tab ${activeTab === 'users' ? 'active' : ''}`}
-            onClick={() => setActiveTab('users')}
-          >
-            👥 Users
-          </li>
-          <li
-            className={`admin-tab ${activeTab === 'review' ? 'active' : ''}`}
-            onClick={() => setActiveTab('review')}
-          >
-            ⭐ Reviews
-          </li>
-          <li className="admin-tab disabled">⚙ Settings</li>
-        </ul>
-      </div>
+      <aside className="w-64 bg-white shadow-md">
+        <nav className="py-6">
+          <ul className="flex flex-col space-y-2 px-4">
+            <li
+              onClick={() => setActiveTab('orders')}
+              className={`cursor-pointer rounded px-3 py-2 text-lg flex items-center gap-2 transition-colors ${
+                activeTab === 'orders'
+                  ? 'bg-pink-600 text-white font-semibold'
+                  : 'text-gray-700 hover:bg-pink-100'
+              }`}
+            >
+              📦 Orders
+            </li>
+            <li
+              onClick={() => setActiveTab('users')}
+              className={`cursor-pointer rounded px-3 py-2 text-lg flex items-center gap-2 transition-colors ${
+                activeTab === 'users'
+                  ? 'bg-pink-600 text-white font-semibold'
+                  : 'text-gray-700 hover:bg-pink-100'
+              }`}
+            >
+              👥 Users
+            </li>
+            <li
+              onClick={() => setActiveTab('review')}
+              className={`cursor-pointer rounded px-3 py-2 text-lg flex items-center gap-2 transition-colors ${
+                activeTab === 'review'
+                  ? 'bg-pink-600 text-white font-semibold'
+                  : 'text-gray-700 hover:bg-pink-100'
+              }`}
+            >
+              ⭐ Reviews
+            </li>
+            <li className="cursor-not-allowed rounded px-3 py-2 text-lg text-gray-400 flex items-center gap-2 select-none">
+              ⚙ Settings
+            </li>
+          </ul>
+        </nav>
+      </aside>
 
       {/* Main Content Area */}
-      <div className="admin-content">
+      <main className="flex-1 p-8">
         <AnimatePresence mode="wait">
           {activeTab === 'orders' && (
             <motion.div
@@ -84,7 +99,7 @@ const Admin = () => {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
+      </main>
     </div>
   );
 };

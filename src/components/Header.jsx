@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ShoppingCart } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import { toast } from 'react-toastify';
-import '../styles/Header.css';
 
 const Header = () => {
   const location = useLocation();
@@ -32,7 +31,6 @@ const Header = () => {
     }
   };
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -43,50 +41,122 @@ const Header = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  return (
-    <header className="header">
-      <nav className="header__nav container">
-        <Link to="/" className="header__logo">Wedding Planner</Link>
+  // Tailwind colors variables equivalent (replace with your own colors if needed)
+ const primaryColor = 'bg-gradient-to-r from-blue-400 via-blue-400 to-pink-600';
+    // replace with your --primary-color
+  const secondaryColor = 'bg-pink-800';    // replace with your --secondary-color
+  const textColor = 'text-gray-100';       // replace with your --text-color
 
-        <button className="header__menu-toggle" onClick={toggleMenu} aria-label="Toggle menu">
+  return (
+    <header className={`sticky top-0 z-50 w-full shadow-md ${primaryColor} py-4`}>
+      <nav className="container mx-auto flex justify-between items-center px-4">
+        <Link to="/" className="text-2xl font-bold text-gray-100 no-underline">
+          Wedding Planner
+        </Link>
+
+        {/* Menu toggle for mobile */}
+        <button
+          className="text-gray-100 text-3xl md:hidden focus:outline-none"
+          onClick={toggleMenu}
+          aria-label="Toggle menu"
+        >
           ☰
         </button>
 
-        <div className={`header__links ${isMenuOpen ? 'header__links--open' : ''}`}>
+        {/* Links container */}
+        <div
+          className={`flex md:flex-row flex-col md:static absolute top-full left-0 right-0 bg-pink-600 md:bg-transparent shadow-md md:shadow-none md:gap-5 gap-2 p-4 md:p-0 transition-all duration-300 ease-in-out ${
+            isMenuOpen ? 'flex' : 'hidden md:flex'
+          }`}
+        >
           {!isAuthenticated && (
             <Link
               to="/login"
-              className={`header__link header__log-btn ${location.pathname === '/login' ? 'header__link--active' : ''}`}
               onClick={() => setIsMenuOpen(false)}
+              className={`text-lg px-3 py-1 rounded text-gray-100 ${
+                location.pathname === '/login' ? 'bg-pink-800 text-white font-bold' : 'hover:bg-pink-800 hover:text-white '
+              }`}
             >
               Login
             </Link>
           )}
-          <Link to="/" className={`header__link ${location.pathname === '/' ? 'header__link--active' : ''}`} onClick={() => setIsMenuOpen(false)}>Home</Link>
-          <Link to="/venues" className={`header__link ${location.pathname === '/venues' ? 'header__link--active' : ''}`} onClick={() => setIsMenuOpen(false)}>Venues</Link>
-          <Link to="/dishes" className={`header__link ${location.pathname === '/dishes' ? 'header__link--active' : ''}`} onClick={() => setIsMenuOpen(false)}>Dishes</Link>
-          <Link to="/decorations" className={`header__link ${location.pathname === '/decorations' ? 'header__link--active' : ''}`} onClick={() => setIsMenuOpen(false)}>Decorations</Link>
-          <Link to="/contact" className={`header__link ${location.pathname === '/contact' ? 'header__link--active' : ''}`} onClick={() => setIsMenuOpen(false)}>Contact</Link>
+          <Link
+            to="/"
+            onClick={() => setIsMenuOpen(false)}
+            className={`text-lg px-3 py-1 rounded text-gray-100 ${
+              location.pathname === '/' ? 'bg-pink-800 text-white font-bold' : ' hover:bg-pink-800 hover:text-white'
+            }`}
+          >
+            Home
+          </Link>
+          <Link
+            to="/venues"
+            onClick={() => setIsMenuOpen(false)}
+            className={`text-lg px-3 py-1 rounded text-gray-100 ${
+              location.pathname === '/venues' ? 'bg-pink-800 text-white font-bold' : 'hover:bg-pink-800 hover:text-white '
+            }`}
+          >
+            Venues
+          </Link>
+          <Link
+            to="/dishes"
+            onClick={() => setIsMenuOpen(false)}
+            className={`text-lg px-3 py-1 rounded text-gray-100 ${
+              location.pathname === '/dishes' ? 'bg-pink-800 text-white font-bold' : 'hover:bg-pink-800 hover:text-white'
+            }`}
+          >
+            Dishes
+          </Link>
+          <Link
+            to="/decorations"
+            onClick={() => setIsMenuOpen(false)}
+            className={` text-lg px-3 py-1 rounded text-gray-100 ${
+              location.pathname === '/decorations' ? 'bg-pink-800 text-white font-bold' : 'hover:bg-pink-800 hover:text-white'
+            }`}
+          >
+            Decorations
+          </Link>
+          <Link
+            to="/contact"
+            onClick={() => setIsMenuOpen(false)}
+            className={`text-lg px-3 py-1 rounded text-gray-100 ${
+              location.pathname === '/contact' ? 'bg-pink-800 text-white font-bold' : 'hover:bg-pink-800 hover:text-white'
+            }`}
+          >
+            Contact
+          </Link>
 
-          <Link to="/cart" className={`header__link ${location.pathname === '/cart' ? 'header__link--active' : ''}`} onClick={handleCartClick}>
+          <Link
+            to="/cart"
+            onClick={handleCartClick}
+            className={`px-3 py-1 rounded text-gray-100 flex items-center ${
+              location.pathname === '/cart' ? 'bg-pink-800 text-white' : 'hover:bg-pink-800 hover:text-white'
+            }`}
+          >
             <ShoppingCart />
           </Link>
 
           {isAuthenticated && user && (
-            <div className="header__user-dropdown" ref={dropdownRef}>
-              <div className="header__avatar" onClick={toggleDropdown}>
+            <div className="relative inline-block" ref={dropdownRef}>
+              <div
+                onClick={toggleDropdown}
+                className="w-10 h-10 rounded-full bg-gray-300 overflow-hidden cursor-pointer flex items-center justify-center select-none"
+              >
                 {user.profileImage ? (
-                  <img src={user.profileImage} alt="User" className="header__avatar-img" />
+                  <img src={user.profileImage} alt="User" className="w-full h-full object-cover rounded-full" />
                 ) : (
-                  <span className="header__avatar-placeholder">
-                    {user.name?.charAt(0).toUpperCase()}
-                  </span>
+                  <span className="font-bold text-gray-700">{user.name?.charAt(0).toUpperCase()}</span>
                 )}
               </div>
 
               {isDropdownOpen && (
-                <div className="header__dropdown-menu">
-                  <button onClick={logout} className="header__dropdown-item">Logout</button>
+                <div className="text-lg absolute right-0 mt-2 w-36 bg-white border border-gray-300 rounded shadow-lg z-50">
+                  <button
+                    onClick={logout}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 focus:outline-none"
+                  >
+                    Logout
+                  </button>
                 </div>
               )}
             </div>

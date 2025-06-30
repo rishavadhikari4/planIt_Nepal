@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
-import './styles/global.css';
 
 // User pages
 import AuthSuccess from './pages/AuthSuccess';
