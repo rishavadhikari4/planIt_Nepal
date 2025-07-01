@@ -8,9 +8,10 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    !!localStorage.getItem("token")
-  );
+const [isAuthenticated, setIsAuthenticated] = useState(
+  !!localStorage.getItem("token") || !!sessionStorage.getItem("token")
+);
+
   const [isAdmin, setIsAdmin] = useState(!!sessionStorage.getItem("token"));
 
   const navigate = useNavigate();
