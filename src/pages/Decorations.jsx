@@ -81,24 +81,26 @@ const Decorations = () => {
         Wedding Decoration Themes
       </h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+      {/* Grid: 2 columns on smallest screens, 3 on lg */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {decorations.map((decoration) => (
           <div
             key={decoration._id}
-            className={`border rounded-2xl shadow-md transition cursor-pointer hover:shadow-xl p-5 sm:p-6 text-center bg-white ${
+            className={`border rounded-2xl shadow-md transition cursor-pointer hover:shadow-xl p-3 sm:p-6 text-center bg-white ${
               selectedDecoration === decoration.name ? 'ring-4 ring-pink-500' : ''
             }`}
             onClick={() => setSelectedDecoration(decoration.name)}
           >
+            {/* Smaller image height on mobile */}
             <img
               src={decoration.image}
               alt={decoration.name}
-              className="w-full h-48 sm:h-56 md:h-64 object-cover rounded-lg mb-4"
+              className="w-full h-32 sm:h-56 md:h-64 object-cover rounded-lg mb-3 sm:mb-4"
             />
-            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">{decoration.name}</h3>
-            <p className="text-sm sm:text-base text-gray-600 my-3">{decoration.description}</p>
+            <h3 className="text-sm sm:text-xl md:text-2xl font-bold text-gray-800">{decoration.name}</h3>
+            <p className="text-xs sm:text-base text-gray-600 my-2 sm:my-3">{decoration.description}</p>
 
-            <div className="mt-4 flex items-center justify-center">
+            <div className="mt-3 flex items-center justify-center">
               <input
                 type="radio"
                 id={`decoration-${decoration._id}`}
@@ -107,11 +109,11 @@ const Decorations = () => {
                 checked={selectedDecoration === decoration.name}
                 onChange={() => setSelectedDecoration(decoration.name)}
                 onClick={(e) => e.stopPropagation()}
-                className="accent-pink-600 w-5 h-5"
+                className="accent-pink-600 w-4 h-4 sm:w-5 sm:h-5"
               />
               <label
                 htmlFor={`decoration-${decoration._id}`}
-                className="ml-2 text-sm sm:text-base text-gray-700 font-medium"
+                className="ml-2 text-xs sm:text-base text-gray-700 font-medium"
               >
                 Select this theme
               </label>
@@ -120,15 +122,15 @@ const Decorations = () => {
         ))}
       </div>
 
-      <div className="mt-10 flex justify-center">
-        <button
-          className="w-[180px] sm:w-[200px] md:w-[220px] lg:w-[240px] px-6 py-3 sm:py-4 text-white text-sm sm:text-base md:text-lg font-semibold rounded-full bg-pink-600 hover:bg-pink-700 transition disabled:opacity-50"
-          onClick={handleSubmit}
-          disabled={!selectedDecoration}
-        >
-          Add to Cart
-        </button>
-      </div>
+      {/* Sticky button on bottom right */}
+      <button
+        className="fixed bottom-6 right-6 z-50 px-6 py-3 text-white text-sm sm:text-base md:text-lg font-semibold rounded-full bg-pink-600 hover:bg-pink-700 transition disabled:opacity-50 shadow-lg"
+        onClick={handleSubmit}
+        disabled={!selectedDecoration}
+        aria-label="Add selected decoration to cart"
+      >
+        Add to Cart
+      </button>
     </div>
   );
 };

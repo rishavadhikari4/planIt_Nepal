@@ -62,7 +62,7 @@ const Dishes = () => {
     return (
       <div
         onClick={() => handleDishSelection(dish.name)}
-        className={`relative border rounded-2xl shadow transition bg-white p-6 flex flex-col items-center cursor-pointer hover:shadow-lg ${
+        className={`relative border rounded-2xl shadow transition bg-white p-4 sm:p-6 flex flex-col items-center cursor-pointer hover:shadow-lg ${
           isSelected ? 'ring-4 ring-pink-500' : ''
         }`}
       >
@@ -76,13 +76,13 @@ const Dishes = () => {
         <img
           src={dish.image}
           alt={dish.name}
-          className="w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 object-cover rounded-lg mb-4 pointer-events-none"
+          className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 object-cover rounded-lg mb-4 pointer-events-none"
         />
         <div className="text-center pointer-events-none">
-          <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 mb-2">
+          <h3 className="text-base sm:text-lg md:text-2xl font-semibold text-gray-800 mb-2">
             {dish.name}
           </h3>
-          <p className="text-sm sm:text-base text-gray-600">{dish.description}</p>
+          <p className="text-xs sm:text-sm text-gray-600">{dish.description}</p>
         </div>
       </div>
     );
@@ -127,7 +127,7 @@ const Dishes = () => {
               <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-pink-700 mb-6 border-b-2 border-pink-300 pb-2">
                 {category.category}
               </h2>
-              <div className="grid gap-6 sm:gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              <div className="grid gap-4 sm:gap-6 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                 {category.dishes.map(dish => (
                   <DishCard key={dish._id} dish={dish} />
                 ))}
