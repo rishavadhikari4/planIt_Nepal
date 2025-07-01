@@ -41,11 +41,7 @@ const Header = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Tailwind colors variables equivalent (replace with your own colors if needed)
- const primaryColor = 'bg-gradient-to-r from-blue-400 via-blue-400 to-pink-600';
-    // replace with your --primary-color
-  const secondaryColor = 'bg-pink-800';    // replace with your --secondary-color
-  const textColor = 'text-gray-100';       // replace with your --text-color
+  const primaryColor = 'bg-gradient-to-r from-blue-400 via-blue-400 to-pink-600';
 
   return (
     <header className={`sticky top-0 z-50 w-full shadow-md ${primaryColor} py-4`}>
@@ -54,27 +50,42 @@ const Header = () => {
           Wedding Planner
         </Link>
 
-        {/* Menu toggle for mobile */}
+        {/* Animated Hamburger Menu */}
         <button
-          className="text-gray-100 text-3xl md:hidden focus:outline-none"
+          className="relative w-8 h-8 md:hidden focus:outline-none"
           onClick={toggleMenu}
           aria-label="Toggle menu"
         >
-          ☰
+          <span
+            className={`block absolute h-0.5 w-8 bg-gray-100 transform transition duration-300 ease-in-out ${
+              isMenuOpen ? 'rotate-45 top-3.5' : 'top-2'
+            }`}
+          ></span>
+          <span
+            className={`block absolute h-0.5 w-8 bg-gray-100 transition-all duration-300 ease-in-out ${
+              isMenuOpen ? 'opacity-0' : 'top-4'
+            }`}
+          ></span>
+          <span
+            className={`block absolute h-0.5 w-8 bg-gray-100 transform transition duration-300 ease-in-out ${
+              isMenuOpen ? '-rotate-45 top-3.5' : 'top-6'
+            }`}
+          ></span>
         </button>
 
         {/* Links container */}
         <div
-          className={`flex md:flex-row flex-col md:static absolute top-full left-0 right-0 bg-pink-600 md:bg-transparent shadow-md md:shadow-none md:gap-5 gap-2 p-4 md:p-0 transition-all duration-300 ease-in-out ${
-            isMenuOpen ? 'flex' : 'hidden md:flex'
-          }`}
+          className={`flex md:flex-row flex-col items-center md:items-center md:static absolute top-full left-0 right-0
+            bg-gradient-to-r from-blue-400 via-blue-400 to-pink-600 md:bg-transparent
+            shadow-md md:shadow-none md:gap-5 gap-2 p-4 md:p-0 transition-all duration-300 ease-in-out
+            ${isMenuOpen ? 'flex' : 'hidden md:flex'}`}
         >
           {!isAuthenticated && (
             <Link
               to="/login"
               onClick={() => setIsMenuOpen(false)}
-              className={`text-lg px-3 py-1 rounded text-gray-100 ${
-                location.pathname === '/login' ? 'bg-pink-800 text-white font-bold' : 'hover:bg-pink-800 hover:text-white '
+              className={`text-lg px-3 py-1 rounded text-gray-100 text-center ${
+                location.pathname === '/login' ? 'bg-pink-800 text-white font-bold' : 'hover:bg-pink-800 hover:text-white'
               }`}
             >
               Login
@@ -83,7 +94,7 @@ const Header = () => {
           <Link
             to="/"
             onClick={() => setIsMenuOpen(false)}
-            className={`text-lg px-3 py-1 rounded text-gray-100 ${
+            className={`text-lg px-3 py-1 rounded text-gray-100 text-center ${
               location.pathname === '/' ? 'bg-pink-800 text-white font-bold' : ' hover:bg-pink-800 hover:text-white'
             }`}
           >
@@ -92,8 +103,8 @@ const Header = () => {
           <Link
             to="/venues"
             onClick={() => setIsMenuOpen(false)}
-            className={`text-lg px-3 py-1 rounded text-gray-100 ${
-              location.pathname === '/venues' ? 'bg-pink-800 text-white font-bold' : 'hover:bg-pink-800 hover:text-white '
+            className={`text-lg px-3 py-1 rounded text-gray-100 text-center ${
+              location.pathname === '/venues' ? 'bg-pink-800 text-white font-bold' : 'hover:bg-pink-800 hover:text-white'
             }`}
           >
             Venues
@@ -101,7 +112,7 @@ const Header = () => {
           <Link
             to="/dishes"
             onClick={() => setIsMenuOpen(false)}
-            className={`text-lg px-3 py-1 rounded text-gray-100 ${
+            className={`text-lg px-3 py-1 rounded text-gray-100 text-center ${
               location.pathname === '/dishes' ? 'bg-pink-800 text-white font-bold' : 'hover:bg-pink-800 hover:text-white'
             }`}
           >
@@ -110,7 +121,7 @@ const Header = () => {
           <Link
             to="/decorations"
             onClick={() => setIsMenuOpen(false)}
-            className={` text-lg px-3 py-1 rounded text-gray-100 ${
+            className={` text-lg px-3 py-1 rounded text-gray-100 text-center ${
               location.pathname === '/decorations' ? 'bg-pink-800 text-white font-bold' : 'hover:bg-pink-800 hover:text-white'
             }`}
           >
@@ -119,7 +130,7 @@ const Header = () => {
           <Link
             to="/contact"
             onClick={() => setIsMenuOpen(false)}
-            className={`text-lg px-3 py-1 rounded text-gray-100 ${
+            className={`text-lg px-3 py-1 rounded text-gray-100 text-center ${
               location.pathname === '/contact' ? 'bg-pink-800 text-white font-bold' : 'hover:bg-pink-800 hover:text-white'
             }`}
           >
@@ -129,7 +140,7 @@ const Header = () => {
           <Link
             to="/cart"
             onClick={handleCartClick}
-            className={`px-3 py-1 rounded text-gray-100 flex items-center ${
+            className={`px-3 py-1 rounded text-gray-100 flex items-center text-center ${
               location.pathname === '/cart' ? 'bg-pink-800 text-white' : 'hover:bg-pink-800 hover:text-white'
             }`}
           >
