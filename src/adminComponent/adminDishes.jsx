@@ -91,15 +91,15 @@ const AdminDishes = () => {
       exit={{ opacity: 0, scale: 0.8, y: -10 }}
       transition={{ duration: 0.3 }}
     >
-      <img src={dish.image} alt={dish.name} className="w-full h-48 object-cover" />
-      <div className="p-4">
-        <h3 className="text-lg font-semibold text-gray-800">{dish.name}</h3>
-        <p className="text-gray-600 mt-1">{dish.description}</p>
+      <img src={dish.image} alt={dish.name} className="w-full h-36 sm:h-48 object-cover" />
+      <div className="p-3 sm:p-4">
+        <h3 className="text-sm sm:text-base font-semibold text-gray-800">{dish.name}</h3>
+        <p className="text-xs sm:text-sm text-gray-600 mt-1">{dish.description}</p>
       </div>
     </motion.div>
   );
 
-if (loading)
+  if (loading)
     return (
       <div className="flex justify-center items-center min-h-[200px]">
         <svg
@@ -130,7 +130,7 @@ if (loading)
 
   const AddDishButton = () => (
     <button
-      className="mb-6 px-5 py-2 bg-pink-500 hover:bg-pink-600 text-white font-semibold rounded-md shadow-sm transition"
+      className="mb-6 px-5 py-2 bg-pink-500 hover:bg-pink-600 text-white font-semibold rounded-md shadow-sm transition text-sm sm:text-base"
       onClick={() => navigate('/admin-dishes/addDishes')}
     >
       Add Dish
@@ -149,7 +149,7 @@ if (loading)
 
         {noDishes ? (
           <div className="text-center mt-20">
-            <h2 className="text-2xl font-semibold mb-6">No dishes found</h2>
+            <h2 className="text-xl sm:text-2xl font-semibold mb-6">No dishes found</h2>
             <AddDishButton />
           </div>
         ) : (
@@ -165,9 +165,11 @@ if (loading)
                   className="mb-8"
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-2xl font-bold text-gray-900">{category.category}</h2>
+                    <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
+                      {category.category}
+                    </h2>
                     <button
-                      className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-md font-semibold shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition"
+                      className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-md font-semibold shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition text-sm sm:text-base"
                       onClick={() => handleDeleteCategory(category._id)}
                       disabled={deletingCategoryId === category._id}
                     >
@@ -179,7 +181,7 @@ if (loading)
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
                     <AnimatePresence>
                       {category.dishes.map(dish => (
                         <motion.div
@@ -191,16 +193,16 @@ if (loading)
                           className="relative"
                         >
                           <DishCard dish={dish} />
-                          <div className="flex justify-end space-x-3 mt-2">
+                          <div className="flex justify-end space-x-2 sm:space-x-3 mt-2">
                             <button
-                              className="bg-yellow-400 hover:bg-yellow-500 text-white px-4 py-1 rounded-md transition"
+                              className="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded-md transition text-xs sm:text-sm"
                               onClick={() => navigate(`/admin-dishes/edit/${category._id}/${dish._id}`)}
                               disabled={deletingDishId === dish._id}
                             >
                               Edit
                             </button>
                             <button
-                              className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-md font-semibold shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition"
+                              className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-md font-semibold shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition text-xs sm:text-sm"
                               onClick={() => handleDeleteDish(category._id, dish._id)}
                               disabled={deletingDishId === dish._id}
                             >

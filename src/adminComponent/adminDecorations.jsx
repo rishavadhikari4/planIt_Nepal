@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { getAllDecorations, deleteDecoration } from '../services/decorationService';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const AdminDecorations = () => {
   const [decorations, setDecorations] = useState([]);
@@ -22,15 +22,13 @@ const AdminDecorations = () => {
         setLoading(false);
       }
     };
-
     fetchDecorations();
   }, []);
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this decoration?')) return;
-
+    setDeletingId(id);
     try {
-      setDeletingId(id);
       const result = await deleteDecoration(id);
       if (result.success) {
         toast.success(result.message);
@@ -46,7 +44,7 @@ const AdminDecorations = () => {
     }
   };
 
-if (loading)
+  if (loading)
     return (
       <div className="flex justify-center items-center min-h-[200px]">
         <svg
@@ -73,76 +71,93 @@ if (loading)
     );
 
   return (
-<motion.div
-  className="max-w-7xl mx-auto p-6"
-  initial={{ opacity: 0 }}
-  animate={{ opacity: 1 }}
-  transition={{ duration: 0.6 }}
->
-  <div className="decoration-container">
-    <div className="flex justify-between items-center mb-6">
-      <h2 className="text-2xl font-semibold text-gray-800">Available Wedding Venues</h2>
-      <button
-        onClick={() => navigate('/admin-decorations/addDecoration')}
-        className="px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700 transition"
+    <motion.div
+      className="min-h-screen p-4 sm:p-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <motion.div
+        className="max-w-7xl mx-auto"
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.4 }}
       >
-        + Add Decoration
-      </button>
-    </div>
+        {/* Title and Add Button */}
+        <div className="flex justify-between items-center mb-6 sm:mb-8">
+          <h2 className="text-xl sm:text-3xl font-bold text-gray-800">
+            Available Wedding Decorations
+          </h2>
+          <button
+            onClick={() => navigate('/admin-decorations/addDecoration')}
+            className="bg-pink-600 hover:bg-pink-700 text-white text-sm sm:text-base px-4 sm:px-5 py-2 rounded-lg transition"
+          >
+            + Add Decoration
+          </button>
+        </div>
 
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-      {decorations.map((decoration, index) => (
-        <motion.div
-          key={decoration._id}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: index * 0.1, duration: 0.5 }}
-          whileHover={{ scale: 1.02 }}
-          className="mb-8"
-        >
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <img
-              src={decoration.image}
-              alt={decoration.name}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-4">
-              <h3 className="text-lg font-semibold text-gray-800">{decoration.name}</h3>
-              <p className="text-gray-600 mt-2">{decoration.description}</p>
-            </div>
-          </div>
+        {/* Decoration Cards */}
+        <div className="grid gap-4 sm:gap-6 grid-cols-2 sm:grid-cols-2 md:grid-cols-3">
+          <AnimatePresence>
+            {decorations.map((decoration) => (
+              <motion.div
+                key={decoration._id}
+                layout
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.4 }}
+                className="bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-300"
+              >
+                {/* Decoration Card */}
+                <div className="overflow-hidden rounded-t-lg">
+                  <img
+                    src={decoration.image}
+                    alt={decoration.name}
+                    className="w-full h-40 object-cover"
+                  />
+                </div>
+                <div className="p-3 sm:p-4">
+                  <h3 className="text-base sm:text-xl font-semibold text-gray-800 mb-1">
+                    {decoration.name}
+                  </h3>
+                  <p className="text-sm sm:text-base text-gray-700 mb-1">
+                    {decoration.description}
+                  </p>
+                </div>
 
-          <div className="flex gap-4 mt-2">
-            <button
-              onClick={() => navigate(`/admin-decorations/edit/${decoration._id}`)}
-              className="bg-yellow-400 hover:bg-yellow-500 text-white px-4 py-1 rounded-md transition"
-            >
-              Edit
-            </button>
-            <button
-              onClick={() => handleDelete(decoration._id)}
-              disabled={deletingId === decoration._id}
-              className={`px-3 py-1 rounded text-white transition ${
-                deletingId === decoration._id
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-red-600 hover:bg-red-700'
-              }`}
-            >
-              {deletingId === decoration._id ? (
-                <div
-                  className="w-4 h-4 border-2 border-gray-300 border-t-2 border-t-gray-700 rounded-full animate-spin mx-auto"
-                ></div>
-              ) : (
-                'Delete'
-              )}
-            </button>
-          </div>
-        </motion.div>
-      ))}
-    </div>
-  </div>
-</motion.div>
+                {/* Action Buttons */}
+                <div className="flex justify-end gap-2 px-3 sm:px-4 pb-3 sm:pb-4">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => navigate(`/admin-decorations/edit/${decoration._id}`)}
+                    className="bg-yellow-400 hover:bg-yellow-500 text-white text-sm px-3 py-1 rounded-md transition"
+                    disabled={deletingId === decoration._id}
+                  >
+                    Edit
+                  </motion.button>
 
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleDelete(decoration._id)}
+                    className="bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1 rounded-md transition"
+                    disabled={deletingId === decoration._id}
+                  >
+                    {deletingId === decoration._id ? (
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      'Delete'
+                    )}
+                  </motion.button>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

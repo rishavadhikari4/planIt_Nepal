@@ -167,62 +167,50 @@ if (loading)
         {/* Card list for small screens */}
         <div className="md:hidden space-y-4">
           {reviews.map(({ _id, user, rating, comment, verified }) => (
-            <div
-              key={_id}
-              className="p-4 bg-pink-50 rounded-lg border border-pink-200 shadow-sm"
-            >
-              <p className="font-semibold text-gray-800">{user?.name || "Unknown User"}</p>
-              <p><strong>Rating:</strong> {rating}</p>
-              <p className="break-words"><strong>Comment:</strong> {comment}</p>
-              <p className="mt-1">
-                <strong>Verified:</strong>{" "}
-                {verified ? (
-                  <span className="text-green-600 text-xl align-middle">✅</span>
-                ) : (
-                  <span className="text-red-600 text-xl align-middle">❌</span>
-                )}
-              </p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <button
-                  onClick={() => handleToggleVerified(_id)}
-                  className={`px-3 py-1 rounded-md text-sm font-semibold transition-colors
-                    ${verified ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-green-500 hover:bg-green-600 text-white'}`}
+              <div
+                  key={_id}
+                  className="p-3 bg-pink-50 rounded-md border border-pink-200 shadow-sm text-sm"
                 >
-                  {verified ? "Unverify" : "Verify"}
-                </button>
-
-                <button
-                  onClick={() => handleDeleteReview(_id)}
-                  disabled={deletingReviewId === _id}
-                  className="px-3 py-1 rounded-md text-sm font-semibold bg-gray-300 hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {deletingReviewId === _id ? (
-                    <svg
-                      className="animate-spin h-5 w-5 text-gray-600 mx-auto"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
+                  <p className="font-semibold text-gray-800 text-sm">{user?.name || "Unknown User"}</p>
+                  <p className="text-xs"><strong>Rating:</strong> {rating}</p>
+                  <p className="text-xs break-words"><strong>Comment:</strong> {comment}</p>
+                  <p className="text-xs mt-1">
+                    <strong>Verified:</strong>{" "}
+                    {verified ? (
+                      <span className="text-green-600 text-lg align-middle">✅</span>
+                    ) : (
+                      <span className="text-red-600 text-lg align-middle">❌</span>
+                    )}
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    <button
+                      className={`px-2 py-1 text-xs rounded-md font-semibold transition-colors
+                        ${verified ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-green-500 hover:bg-green-600 text-white'}`}
                     >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8v8H4z"
-                      ></path>
-                    </svg>
-                  ) : (
-                    "Delete"
-                  )}
-                </button>
-              </div>
-            </div>
+                      {verified ? "Unverify" : "Verify"}
+                    </button>
+                      
+                    <button
+                      disabled={deletingReviewId === _id}
+                      className="px-2 py-1 text-xs rounded-md font-semibold bg-gray-300 hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {deletingReviewId === _id ? (
+                        <svg
+                          className="animate-spin h-4 w-4 text-gray-600 mx-auto"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                        </svg>
+                      ) : (
+                        "Delete"
+                      )}
+                    </button>
+                  </div>
+                </div>
+
           ))}
         </div>
       </>

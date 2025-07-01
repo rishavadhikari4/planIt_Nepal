@@ -22,11 +22,11 @@ const AdminOrderList = () => {
     fetchOrders();
   }, []);
 
-if (loading)
+  if (loading)
     return (
       <div className="flex justify-center items-center min-h-[200px]">
         <svg
-          className="animate-spin h-12 w-12 text-pink-600"
+          className="animate-spin h-10 w-10 sm:h-12 sm:w-12 text-pink-600"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -50,52 +50,47 @@ if (loading)
 
   if (error)
     return (
-      <p className="text-center text-red-600 font-semibold my-6">
+      <p className="text-center text-red-600 font-medium sm:font-semibold my-4 sm:my-6 text-sm sm:text-base">
         {error}
       </p>
     );
 
   return (
-    <div className="max-w-5xl mx-auto p-4 sm:p-6">
-      <h2 className="text-3xl font-bold mb-8 text-gray-800">Orders</h2>
-  
+    <div className="max-w-5xl mx-auto p-2 sm:p-4">
+      <h2 className="text-xl sm:text-3xl font-bold mb-4 sm:mb-8 text-gray-800 text-center sm:text-left">
+        Orders
+      </h2>
+
       {orders.length === 0 ? (
-        <p className="text-center text-gray-600">No orders found.</p>
+        <p className="text-center text-gray-600 text-sm sm:text-base">No orders found.</p>
       ) : (
         orders.map((order) => (
           <div
             key={order._id}
-            className="mb-8 p-6 bg-white rounded-lg shadow-md border border-gray-200"
+            className="mb-6 sm:mb-8 p-3 sm:p-6 bg-white rounded-lg shadow-md border border-gray-200"
           >
-            <p className="mb-1 break-words">
+            <p className="mb-1 text-sm sm:text-base break-words">
               <strong>User Name:</strong> {order.userId?.name || 'Unknown'}
             </p>
-            <p className="mb-1 break-words">
+            <p className="mb-1 text-sm sm:text-base break-words">
               <strong>User Email:</strong> {order.userId?.email || 'Unknown'}
             </p>
-            <p className="mb-4 break-words">
+            <p className="mb-3 text-sm sm:text-base break-words">
               <strong>Order ID:</strong> {order._id}
             </p>
-        
-            <ul className="space-y-4 overflow-x-auto">
+
+            <ul className="space-y-3 overflow-x-auto">
               {order.items.map((item, index) => (
                 <li
                   key={index}
-                  className="
-                    flex flex-wrap items-center gap-4
-                    bg-gray-50 p-3 rounded
-                  "
+                  className="flex items-center gap-3 bg-gray-50 p-2 sm:p-3 rounded"
                 >
                   <img
                     src={item.image}
                     alt={item.name}
-                    className="
-                      w-12 h-12 sm:w-16 sm:h-16
-                      object-cover rounded
-                      flex-shrink-0
-                    "
+                    className="w-10 h-10 sm:w-14 sm:h-14 object-cover rounded flex-shrink-0"
                   />
-                  <span className="text-gray-700 font-medium max-w-[calc(100%-4rem)] break-words">
+                  <span className="text-gray-700 text-sm sm:text-base font-medium break-words">
                     {item.name} — {item.quantity} pcs
                   </span>
                 </li>
@@ -106,7 +101,6 @@ if (loading)
       )}
     </div>
   );
-
 };
 
 export default AdminOrderList;
