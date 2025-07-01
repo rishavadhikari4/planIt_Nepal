@@ -56,9 +56,9 @@ if (loading)
     );
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
+    <div className="max-w-5xl mx-auto p-4 sm:p-6">
       <h2 className="text-3xl font-bold mb-8 text-gray-800">Orders</h2>
-
+  
       {orders.length === 0 ? (
         <p className="text-center text-gray-600">No orders found.</p>
       ) : (
@@ -67,28 +67,35 @@ if (loading)
             key={order._id}
             className="mb-8 p-6 bg-white rounded-lg shadow-md border border-gray-200"
           >
-            <p className="mb-1">
+            <p className="mb-1 break-words">
               <strong>User Name:</strong> {order.userId?.name || 'Unknown'}
             </p>
-            <p className="mb-1">
+            <p className="mb-1 break-words">
               <strong>User Email:</strong> {order.userId?.email || 'Unknown'}
             </p>
-            <p className="mb-4">
+            <p className="mb-4 break-words">
               <strong>Order ID:</strong> {order._id}
             </p>
-
-            <ul className="space-y-4">
+        
+            <ul className="space-y-4 overflow-x-auto">
               {order.items.map((item, index) => (
                 <li
                   key={index}
-                  className="flex items-center gap-4 bg-gray-50 p-3 rounded"
+                  className="
+                    flex flex-wrap items-center gap-4
+                    bg-gray-50 p-3 rounded
+                  "
                 >
                   <img
                     src={item.image}
                     alt={item.name}
-                    className="w-16 h-16 object-cover rounded"
+                    className="
+                      w-12 h-12 sm:w-16 sm:h-16
+                      object-cover rounded
+                      flex-shrink-0
+                    "
                   />
-                  <span className="text-gray-700 font-medium">
+                  <span className="text-gray-700 font-medium max-w-[calc(100%-4rem)] break-words">
                     {item.name} — {item.quantity} pcs
                   </span>
                 </li>
@@ -99,6 +106,7 @@ if (loading)
       )}
     </div>
   );
+
 };
 
 export default AdminOrderList;

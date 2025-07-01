@@ -7,18 +7,14 @@ import { toast } from 'react-toastify';
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isAuthenticated, logout, user } = useContext(AuthContext);
+  const { isAuthenticated, user } = useContext(AuthContext);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
+  const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
   const handleCartClick = (e) => {
     setIsMenuOpen(false);
@@ -43,6 +39,14 @@ const Header = () => {
 
   const primaryColor = 'bg-gradient-to-r from-blue-400 via-blue-400 to-pink-600';
 
+  const handleProfileClick = () => {
+    if (user && user._id) {
+      navigate(`/user-profile/${user._id}`);
+      setIsDropdownOpen(false);
+      setIsMenuOpen(false);
+    }
+  };
+
   return (
     <header className={`sticky top-0 z-50 w-full shadow-md ${primaryColor} py-4`}>
       <nav className="container mx-auto flex justify-between items-center px-4">
@@ -50,7 +54,7 @@ const Header = () => {
           Wedding Planner
         </Link>
 
-        {/* Animated Hamburger Menu */}
+        {/* Hamburger Menu Button */}
         <button
           className="relative w-8 h-8 md:hidden focus:outline-none"
           onClick={toggleMenu}
@@ -73,7 +77,7 @@ const Header = () => {
           ></span>
         </button>
 
-        {/* Links container */}
+        {/* Links */}
         <div
           className={`flex md:flex-row flex-col items-center md:items-center md:static absolute top-full left-0 right-0
             bg-gradient-to-r from-blue-400 via-blue-400 to-pink-600 md:bg-transparent
@@ -91,6 +95,7 @@ const Header = () => {
               Login
             </Link>
           )}
+
           <Link
             to="/"
             onClick={() => setIsMenuOpen(false)}
@@ -150,7 +155,7 @@ const Header = () => {
           {isAuthenticated && user && (
             <div className="relative inline-block" ref={dropdownRef}>
               <div
-                onClick={toggleDropdown}
+                onClick={handleProfileClick}
                 className="w-10 h-10 rounded-full bg-gray-300 overflow-hidden cursor-pointer flex items-center justify-center select-none"
               >
                 {user.profileImage ? (
@@ -159,17 +164,6 @@ const Header = () => {
                   <span className="font-bold text-gray-700">{user.name?.charAt(0).toUpperCase()}</span>
                 )}
               </div>
-
-              {isDropdownOpen && (
-                <div className="text-lg absolute right-0 mt-2 w-36 bg-white border border-gray-300 rounded shadow-lg z-50">
-                  <button
-                    onClick={logout}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100 focus:outline-none"
-                  >
-                    Logout
-                  </button>
-                </div>
-              )}
             </div>
           )}
         </div>

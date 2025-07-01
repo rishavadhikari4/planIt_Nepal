@@ -17,3 +17,21 @@ export const fetchLoginUser = async () =>{
   return res.data;
 }
 
+export const updateProfilePicture = async (imageFile) => {
+  const formData = new FormData();
+  formData.append('image', imageFile);
+
+  const res = await API.patch('/api/auth/update-profile-pic', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  
+  return res.data;
+};
+
+export const updateProfile = async (userData) => {
+  const res = await API.patch('/api/auth/update-profile', userData);
+  return res.data;
+};
+

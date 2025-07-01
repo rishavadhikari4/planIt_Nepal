@@ -7,58 +7,77 @@ import AdminReviews from '../adminComponent/adminReviews';
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('orders');
 
-  // Animation variants
   const fadeVariant = {
     hidden: { opacity: 0, y: 10 },
     visible: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -10 }
+    exit: { opacity: 0, y: -10 },
+  };
+
+  const icons = {
+    orders: '📦',
+    users: '👥',
+    review: '⭐',
+    settings: '⚙',
   };
 
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-md">
-        <nav className="py-6">
-          <ul className="flex flex-col space-y-2 px-4">
-            <li
-              onClick={() => setActiveTab('orders')}
-              className={`cursor-pointer rounded px-3 py-2 text-lg flex items-center gap-2 transition-colors ${
-                activeTab === 'orders'
-                  ? 'bg-pink-600 text-white font-semibold'
-                  : 'text-gray-700 hover:bg-pink-100'
-              }`}
-            >
-              📦 Orders
-            </li>
-            <li
-              onClick={() => setActiveTab('users')}
-              className={`cursor-pointer rounded px-3 py-2 text-lg flex items-center gap-2 transition-colors ${
-                activeTab === 'users'
-                  ? 'bg-pink-600 text-white font-semibold'
-                  : 'text-gray-700 hover:bg-pink-100'
-              }`}
-            >
-              👥 Users
-            </li>
-            <li
-              onClick={() => setActiveTab('review')}
-              className={`cursor-pointer rounded px-3 py-2 text-lg flex items-center gap-2 transition-colors ${
-                activeTab === 'review'
-                  ? 'bg-pink-600 text-white font-semibold'
-                  : 'text-gray-700 hover:bg-pink-100'
-              }`}
-            >
-              ⭐ Reviews
-            </li>
-            <li className="cursor-not-allowed rounded px-3 py-2 text-lg text-gray-400 flex items-center gap-2 select-none">
-              ⚙ Settings
-            </li>
+      <aside
+        className="
+          bg-white shadow-md
+          fixed top-11 bottom-0 left-0
+          w-12        /* Small width just enough for icon */
+          lg:w-64     /* Full width on desktop */
+          flex flex-col
+          border-r border-gray-200
+          overflow-hidden
+        "
+      >
+        <nav className="py-6 flex flex-col flex-grow">
+          <ul className="flex flex-col space-y-2">
+            {['orders', 'users', 'review', 'settings'].map((tab) => (
+              <li
+                key={tab}
+                onClick={() => tab !== 'settings' && setActiveTab(tab)}
+                className={`
+                  cursor-pointer
+                  rounded
+                  flex items-center
+                  justify-center   /* center icon horizontally on mobile */
+                  lg:justify-start /* left align on desktop */
+                  px-0 lg:px-3     /* remove horizontal padding on mobile */
+                  py-3 text-lg
+                  transition-colors
+                  ${
+                    activeTab === tab
+                      ? 'bg-pink-600 text-white font-semibold'
+                      : tab === 'settings'
+                      ? 'text-gray-400 cursor-not-allowed select-none'
+                      : 'text-gray-700 hover:bg-pink-100'
+                  }
+                `}
+              >
+                <span className="text-xl">{icons[tab]}</span>
+                {/* Text label hidden on mobile, shown on desktop */}
+                <span className="hidden lg:inline ml-3">
+                  {tab === 'review' ? 'Reviews' : tab.charAt(0).toUpperCase() + tab.slice(1)}
+                </span>
+              </li>
+            ))}
           </ul>
         </nav>
       </aside>
 
-      {/* Main Content Area */}
-      <main className="flex-1 p-8">
+      {/* Main Content */}
+      <main
+        className="
+          flex-1 p-8
+          ml-12     /* margin left = sidebar width on mobile */
+          lg:ml-64  /* margin left = sidebar width on desktop */
+          overflow-auto max-h-screen
+        "
+      >
         <AnimatePresence mode="wait">
           {activeTab === 'orders' && (
             <motion.div

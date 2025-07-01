@@ -42,7 +42,7 @@ const AdminUserList = () => {
     }
   };
 
-if (loading)
+  if (loading)
     return (
       <div className="flex justify-center items-center min-h-[200px]">
         <svg
@@ -67,6 +67,7 @@ if (loading)
         </svg>
       </div>
     );
+
   if (error) return <p className="text-center text-red-600 mt-4">{error}</p>;
 
   return (
@@ -76,67 +77,120 @@ if (loading)
       {users.length === 0 ? (
         <p className="text-center text-gray-600">No users found.</p>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-md">
-            <thead className="bg-pink-600 text-white">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">Profile</th>
-                <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">Name</th>
-                <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">Email</th>
-                <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">User ID</th>
-                <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">Action</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {users.map((user) => (
-                <tr key={user._id} className="hover:bg-pink-50">
-                  <td className="px-6 py-4 whitespace-nowrap" data-label="Profile">
-                    <img
-                      src={user.profileImage || 'https://via.placeholder.com/40'}
-                      alt="Profile"
-                      className="h-10 w-10 rounded-full object-cover border border-gray-300"
-                    />
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-gray-800 font-medium" data-label="Name">{user.name || 'N/A'}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-gray-700" data-label="Email">{user.email}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-gray-600 text-sm font-mono truncate max-w-[150px]" data-label="User ID">{user._id}</td>
-                  <td className="px-6 py-4 whitespace-nowrap" data-label="Action">
-                    <button
-                      onClick={() => handleDelete(user._id)}
-                      disabled={deletingId === user._id}
-                      className="px-3 py-1 rounded-md text-sm font-semibold bg-red-500 hover:bg-red-600 text-white disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                    >
-                      {deletingId === user._id ? (
-                        <svg
-                          className="animate-spin h-5 w-5 text-white"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8v8H4z"
-                          ></path>
-                        </svg>
-                      ) : (
-                        '🗑 Delete'
-                      )}
-                    </button>
-                  </td>
+        <>
+          {/* Table visible only on md and above */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-md">
+              <thead className="bg-pink-600 text-white">
+                <tr>
+                  <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">Profile</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">Email</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">User ID</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {users.map((user) => (
+                  <tr key={user._id} className="hover:bg-pink-50">
+                    <td className="px-6 py-4 whitespace-nowrap" data-label="Profile">
+                      <img
+                        src={user.profileImage || 'https://via.placeholder.com/40'}
+                        alt="Profile"
+                        className="h-10 w-10 rounded-full object-cover border border-gray-300"
+                      />
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-800 font-medium" data-label="Name">{user.name || 'N/A'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-700" data-label="Email">{user.email}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-600 text-sm font-mono truncate max-w-[150px]" data-label="User ID">{user._id}</td>
+                    <td className="px-6 py-4 whitespace-nowrap" data-label="Action">
+                      <button
+                        onClick={() => handleDelete(user._id)}
+                        disabled={deletingId === user._id}
+                        className="px-3 py-1 rounded-md text-sm font-semibold bg-red-500 hover:bg-red-600 text-white disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      >
+                        {deletingId === user._id ? (
+                          <svg
+                            className="animate-spin h-5 w-5 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8v8H4z"
+                            ></path>
+                          </svg>
+                        ) : (
+                          '🗑 Delete'
+                        )}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Cards visible on small screens */}
+          <div className="md:hidden space-y-4">
+            {users.map((user) => (
+              <div key={user._id} className="border border-gray-200 rounded-lg p-4 shadow-sm bg-white">
+                <div className="flex items-center gap-4">
+                  <img
+                    src={user.profileImage || 'https://via.placeholder.com/40'}
+                    alt="Profile"
+                    className="h-12 w-12 rounded-full object-cover border border-gray-300"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-gray-800 truncate">{user.name || 'N/A'}</p>
+                    <p className="text-sm text-gray-600 truncate">{user.email}</p>
+                    <p className="text-xs text-gray-500 font-mono truncate">{user._id}</p>
+                  </div>
+                  <button
+                    onClick={() => handleDelete(user._id)}
+                    disabled={deletingId === user._id}
+                    className="px-3 py-1 rounded-md text-sm font-semibold bg-red-500 hover:bg-red-600 text-white disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {deletingId === user._id ? (
+                      <svg
+                        className="animate-spin h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v8H4z"
+                        ></path>
+                      </svg>
+                    ) : (
+                      '🗑 Delete'
+                    )}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

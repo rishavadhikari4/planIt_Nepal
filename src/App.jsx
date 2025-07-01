@@ -15,6 +15,7 @@ import Login from './pages/Login';
 import Cart from './pages/Cart';
 import ForgotPassword from './pages/forgotPassword';
 import ResetPassword from './pages/resetPassword';
+import UserProfile from './pages/userProfile';
 
 // Admin pages
 import Admin from './admin/Admin';
@@ -88,6 +89,8 @@ function AppContent() {
           <Route path="/register" element={<Register />}/>
           <Route path="/login/forgot-password" element={<ForgotPassword />}/>
           <Route path="/reset-password/:resetToken" element={<ResetPassword />}/>
+          <Route path="/user-profile/:id" element={<UserProfile />}/>
+          
 
           {/* Admin Routes */}
           <Route path="/admin" element={<Admin />} />

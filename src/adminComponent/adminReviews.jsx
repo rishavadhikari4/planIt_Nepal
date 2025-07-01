@@ -84,13 +84,15 @@ if (loading)
   if (error) return <p className="text-center text-red-600 mt-4">{error}</p>;
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-semibold mb-6 text-gray-800">All Reviews</h2>
+  <div className="p-6 bg-white rounded-lg shadow-md">
+    <h2 className="text-2xl font-semibold mb-6 text-gray-800">All Reviews</h2>
 
-      {reviews.length === 0 ? (
-        <p className="text-center text-gray-600">No reviews found.</p>
-      ) : (
-        <div className="overflow-x-auto">
+    {reviews.length === 0 ? (
+      <p className="text-center text-gray-600">No reviews found.</p>
+    ) : (
+      <>
+        {/* Table visible only on md and up */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-md">
             <thead className="bg-pink-600 text-white">
               <tr>
@@ -108,7 +110,7 @@ if (loading)
                     {user?.name || "Unknown User"}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-gray-700" data-label="Rating">{rating}</td>
-                  <td className="px-6 py-4 whitespace-nowrap max-w-xs truncate" data-label="Comment">{comment}</td>
+                  <td className="px-6 py-4 max-w-xs truncate" data-label="Comment">{comment}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-center" data-label="Verified">
                     {verified ? (
                       <span className="text-green-600 text-xl">✅</span>
@@ -161,9 +163,73 @@ if (loading)
             </tbody>
           </table>
         </div>
-      )}
-    </div>
-  );
+
+        {/* Card list for small screens */}
+        <div className="md:hidden space-y-4">
+          {reviews.map(({ _id, user, rating, comment, verified }) => (
+            <div
+              key={_id}
+              className="p-4 bg-pink-50 rounded-lg border border-pink-200 shadow-sm"
+            >
+              <p className="font-semibold text-gray-800">{user?.name || "Unknown User"}</p>
+              <p><strong>Rating:</strong> {rating}</p>
+              <p className="break-words"><strong>Comment:</strong> {comment}</p>
+              <p className="mt-1">
+                <strong>Verified:</strong>{" "}
+                {verified ? (
+                  <span className="text-green-600 text-xl align-middle">✅</span>
+                ) : (
+                  <span className="text-red-600 text-xl align-middle">❌</span>
+                )}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                  onClick={() => handleToggleVerified(_id)}
+                  className={`px-3 py-1 rounded-md text-sm font-semibold transition-colors
+                    ${verified ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-green-500 hover:bg-green-600 text-white'}`}
+                >
+                  {verified ? "Unverify" : "Verify"}
+                </button>
+
+                <button
+                  onClick={() => handleDeleteReview(_id)}
+                  disabled={deletingReviewId === _id}
+                  className="px-3 py-1 rounded-md text-sm font-semibold bg-gray-300 hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {deletingReviewId === _id ? (
+                    <svg
+                      className="animate-spin h-5 w-5 text-gray-600 mx-auto"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v8H4z"
+                      ></path>
+                    </svg>
+                  ) : (
+                    "Delete"
+                  )}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </>
+    )}
+  </div>
+);
+
 };
 
 export default AdminReviews;
