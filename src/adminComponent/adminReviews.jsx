@@ -250,9 +250,15 @@ const AdminReviews = () => {
                   {/* Header */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center text-white font-semibold">
-                        {review.user?.name?.charAt(0)?.toUpperCase() || <User className="w-5 h-5" />}
-                      </div>
+                          {review.user?.profileImage ? (
+                            <img
+                              src={review.user.profileImage}
+                              alt={review.user.name}
+                              className="w-12 h-12 rounded-full object-cover"
+                            />
+                          ) : (
+                            review.user?.name?.charAt(0)?.toUpperCase() || <User className="w-5 h-5" />
+                          )}
                       <div>
                         <h3 className="font-semibold text-gray-800 text-sm lg:text-base">
                           {review.user?.name || "Anonymous User"}

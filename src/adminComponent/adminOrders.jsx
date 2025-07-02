@@ -17,8 +17,10 @@ import {
   Download,
   Menu,
   X,
+  ChevronDown,
 } from "lucide-react"
-import { getAllOrders } from "../services/orderService"
+import { getAllOrders, updateOrderStatus } from "../services/orderService"
+import { toast } from "react-toastify"
 
 const AdminOrderList = () => {
   const [orders, setOrders] = useState([])
@@ -27,12 +29,14 @@ const AdminOrderList = () => {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [showMobileFilters, setShowMobileFilters] = useState(false)
+  const [updatingOrderId, setUpdatingOrderId] = useState(null)
+  const [openDropdownId, setOpenDropdownId] = useState(null)
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         const ordersData = await getAllOrders()
-        setOrders(ordersData)
+        setOrders(ordersData || [])
       } catch (err) {
         console.error(err)
         setError("Failed to fetch orders.")
@@ -41,22 +45,40 @@ const AdminOrderList = () => {
       }
     }
     fetchOrders()
-
   }, [])
 
-  const getStatusColor = (status) => {
-    switch (status?.toLowerCase()) {
-      case "completed":
-        return "bg-green-100 text-green-800 border-green-200"
-      case "pending":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200"
-      case "processing":
-        return "bg-blue-100 text-blue-800 border-blue-200"
-      case "cancelled":
-        return "bg-red-100 text-red-800 border-red-200"
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200"
+  const statusOptions = [
+    { value: "pending", label: "Pending", color: "bg-yellow-100 text-yellow-800 border-yellow-200" },
+    { value: "processing", label: "Processing", color: "bg-blue-100 text-blue-800 border-blue-200" },
+    { value: "completed", label: "Completed", color: "bg-green-100 text-green-800 border-green-200" },
+    { value: "cancelled", label: "Cancelled", color: "bg-red-100 text-red-800 border-red-200" },
+  ]
+
+  const handleStatusUpdate = async (orderId, newStatus) => {
+    if (updatingOrderId) return // Prevent multiple simultaneous updates
+
+    setUpdatingOrderId(orderId)
+    try {
+      await updateOrderStatus(orderId, newStatus)
+
+      // Update local state
+      setOrders((prevOrders) =>
+        prevOrders.map((order) => (order._id === orderId ? { ...order, status: newStatus } : order)),
+      )
+
+      toast.success(`Order status updated to ${newStatus}`)
+      setOpenDropdownId(null) // Close dropdown after successful update
+    } catch (error) {
+      console.error("Error updating order status:", error)
+      toast.error("Failed to update order status")
+    } finally {
+      setUpdatingOrderId(null)
     }
+  }
+
+  const getStatusColor = (status) => {
+    const statusOption = statusOptions.find((option) => option.value === status?.toLowerCase())
+    return statusOption ? statusOption.color : "bg-gray-100 text-gray-800 border-gray-200"
   }
 
   const getStatusIcon = (status) => {
@@ -104,6 +126,74 @@ const AdminOrderList = () => {
       icon: Truck,
     },
   ]
+
+  // Status Dropdown Component
+  const StatusDropdown = ({ order }) => {
+    const currentStatus = order.status || "pending"
+    const isOpen = openDropdownId === order._id
+    const isUpdating = updatingOrderId === order._id
+
+    return (
+      <div className="relative">
+        <button
+          onClick={() => setOpenDropdownId(isOpen ? null : order._id)}
+          disabled={isUpdating}
+          className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border transition-all duration-200 ${getStatusColor(
+            currentStatus,
+          )} ${isUpdating ? "opacity-50 cursor-not-allowed" : "hover:shadow-md cursor-pointer"}`}
+        >
+          {isUpdating ? (
+            <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+          ) : (
+            getStatusIcon(currentStatus)
+          )}
+          <span className="hidden xs:inline capitalize">{currentStatus}</span>
+          <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+        </button>
+
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: -10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[140px]"
+            >
+              <div className="py-1">
+                {statusOptions.map((status) => (
+                  <button
+                    key={status.value}
+                    onClick={() => handleStatusUpdate(order._id, status.value)}
+                    disabled={status.value === currentStatus || isUpdating}
+                    className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors duration-200 flex items-center gap-2 ${
+                      status.value === currentStatus ? "bg-gray-100 cursor-not-allowed opacity-60" : ""
+                    }`}
+                  >
+                    {getStatusIcon(status.value)}
+                    <span className="capitalize">{status.label}</span>
+                    {status.value === currentStatus && <CheckCircle className="w-3 h-3 text-green-600 ml-auto" />}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    )
+  }
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (openDropdownId && !event.target.closest(".relative")) {
+        setOpenDropdownId(null)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [openDropdownId])
 
   if (loading) {
     return (
@@ -282,14 +372,7 @@ const AdminOrderList = () => {
                             <h3 className="font-semibold text-gray-800 text-sm sm:text-base truncate">
                               Order #{order._id.toUpperCase()}
                             </h3>
-                            <span
-                              className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(
-                                order.status || "pending",
-                              )} w-fit`}
-                            >
-                              {getStatusIcon(order.status || "pending")}
-                              <span className="hidden xs:inline">{order.status || "Pending"}</span>
-                            </span>
+                            <StatusDropdown order={order} />
                           </div>
                           <div className="space-y-1 sm:space-y-2">
                             <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">

@@ -193,7 +193,7 @@ const [isAuthenticated, setIsAuthenticated] = useState(
     setUser(null);
     setIsAuthenticated(false);
     setIsAdmin(false);
-    navigate("/admin-login");
+    navigate("/");
   };
 
   const refreshAuth = () => {

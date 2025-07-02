@@ -17,7 +17,6 @@ import {
   LogOut,
   Bell,
   Search,
-  User,
 } from "lucide-react"
 
 const AdminHeader = () => {
@@ -31,7 +30,7 @@ const AdminHeader = () => {
   const navLinks = [
     { path: "/admin", label: "Dashboard", icon: Home },
     { path: "/admin-venues", label: "Venues", icon: MapPin },
-    { path: "/admin-dishes", label: "Dishes", icon: UtensilsCrossed },
+    { path: "/admin-dishes", label: "Catering", icon: UtensilsCrossed },
     { path: "/admin-decorations", label: "Decorations", icon: Sparkles },
     { path: "/admin-contact", label: "Contact", icon: MessageSquare },
   ]
@@ -40,7 +39,7 @@ const AdminHeader = () => {
     if (isAdmin) {
       adminLogout()
       toast.success("Logged out successfully")
-      navigate("/admin-login")
+      navigate("/")
     } else {
       toast.info("You are not authorized")
     }

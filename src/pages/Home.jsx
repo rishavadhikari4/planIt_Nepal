@@ -2,15 +2,17 @@ import { Mail, Phone, HomeIcon, Flower, Utensils } from "lucide-react"
 import { submitContactForm } from "../services/contactService.js"
 import Review from "./review.jsx"
 import { toast } from "react-toastify"
+import { Navigate, useNavigate } from "react-router-dom"
 
 const Home = () => {
+  const navigate = useNavigate()
   const onSubmit = async (e) => {
     e.preventDefault()
     const formData = {
       name: e.target.name.value,
       email: e.target.email.value,
       phone: e.target.phone.value,
-      budget: e.target.budget.value,
+      price: e.target.price.value,
       message: e.target.message.value,
     }
 
@@ -22,6 +24,16 @@ const Home = () => {
       toast.error("There was an error sending your message. Please try again later.")
     }
   }
+
+  const handleVenueClick = () => {
+    navigate('/venues');
+  };
+  const handleDishesClick = () => {
+    navigate('/dishes');
+  };
+  const handleDecorationClick = () => {
+    navigate('/decorations');
+  };
 
   return (
     <div className="font-sans text-gray-800 bg-gradient-to-br from-slate-50 via-white to-purple-50 min-h-screen">
@@ -64,7 +76,7 @@ const Home = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 lg:gap-10">
-          <div className="group bg-gradient-to-br from-white to-blue-50 rounded-2xl shadow-lg hover:shadow-2xl p-6 sm:p-8 hover:scale-105 transition-all duration-500 border border-blue-100/50">
+          <div onClick={()=> handleVenueClick() } className="group bg-gradient-to-br from-white to-blue-50 rounded-2xl shadow-lg hover:shadow-2xl p-6 sm:p-8 hover:scale-105 transition-all duration-500 border border-blue-100/50">
             <div className="flex items-center mb-4 sm:mb-6">
               <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                 <HomeIcon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
@@ -76,7 +88,7 @@ const Home = () => {
             </p>
           </div>
 
-          <div className="group bg-gradient-to-br from-white to-emerald-50 rounded-2xl shadow-lg hover:shadow-2xl p-6 sm:p-8 hover:scale-105 transition-all duration-500 border border-emerald-100/50">
+          <div onClick={()=> handleDishesClick() }  className="group bg-gradient-to-br from-white to-emerald-50 rounded-2xl shadow-lg hover:shadow-2xl p-6 sm:p-8 hover:scale-105 transition-all duration-500 border border-emerald-100/50">
             <div className="flex items-center mb-4 sm:mb-6">
               <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                 <Utensils className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
@@ -88,7 +100,7 @@ const Home = () => {
             </p>
           </div>
 
-          <div className="group bg-gradient-to-br from-white to-pink-50 rounded-2xl shadow-lg hover:shadow-2xl p-6 sm:p-8 hover:scale-105 transition-all duration-500 border border-pink-100/50">
+          <div onClick={()=> handleDecorationClick() }  className="group bg-gradient-to-br from-white to-pink-50 rounded-2xl shadow-lg hover:shadow-2xl p-6 sm:p-8 hover:scale-105 transition-all duration-500 border border-pink-100/50">
             <div className="flex items-center mb-4 sm:mb-6">
               <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r from-pink-500 to-rose-600 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                 <Flower className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
@@ -200,13 +212,13 @@ const Home = () => {
                 />
               </div>
               <div>
-                <label htmlFor="budget" className="block font-semibold mb-2 text-gray-700 text-sm sm:text-base">
-                  Budget Range
+                <label htmlFor="price" className="block font-semibold mb-2 text-gray-700 text-sm sm:text-base">
+                  price Range
                 </label>
                 <input
                   type="number"
-                  name="budget"
-                  id="budget"
+                  name="price"
+                  id="price"
                   required
                   placeholder="1000000"
                   min={1000000}

@@ -1,17 +1,16 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { getDishById, editDish } from "../services/dishService"
 import { toast } from "react-toastify"
 import { motion } from "framer-motion"
-import { ArrowLeft, ChefHat, FileText, ImageIcon, Upload, Save, Eye, X } from "lucide-react"
+import { ArrowLeft, ChefHat, FileText, ImageIcon, Upload, Save, Eye, X, Banknote } from "lucide-react"
 
 const EditDish = () => {
   const { dishId } = useParams()
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
     name: "",
+    price:"",
     description: "",
     image: "",
   })
@@ -30,6 +29,7 @@ const EditDish = () => {
         const { dish, categoryId } = data
         setFormData({
           name: dish.name,
+          price:dish.price,
           description: dish.description,
           image: dish.image,
         })
@@ -77,6 +77,7 @@ const EditDish = () => {
     setSubmitting(true)
     const data = new FormData()
     data.append("name", formData.name)
+    data.append("price", formData.price)
     data.append("description", formData.description)
     if (imageFile) {
       data.append("image", imageFile)
@@ -171,6 +172,22 @@ const EditDish = () => {
                     onChange={handleChange}
                     required
                     placeholder="Enter dish name..."
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-gray-800"
+                  />
+                </div>
+                {/* price */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                    <Banknote className="w-4 h-4 text-purple-600" />
+                    Dish Price
+                  </label>
+                  <input
+                    type="number"
+                    name="price"
+                    value={formData.price}
+                    onChange={handleChange}
+                    required
+                    placeholder="Enter Dish Price..."
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-gray-800"
                   />
                 </div>

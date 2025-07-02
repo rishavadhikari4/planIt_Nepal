@@ -5,7 +5,7 @@ import { useParams, useNavigate } from "react-router-dom"
 import { editDecoration, getOneDecoration } from "../services/decorationService"
 import { toast } from "react-toastify"
 import { motion } from "framer-motion"
-import { ArrowLeft, Palette, FileText, ImageIcon, Upload, Save, Eye, X } from "lucide-react"
+import { ArrowLeft, Palette, FileText, ImageIcon, Upload, Save, Eye, X, Banknote } from "lucide-react"
 
 const EditDecoration = () => {
   const { id } = useParams()
@@ -14,6 +14,7 @@ const EditDecoration = () => {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
+    price:"",
     image: "",
   })
 
@@ -72,6 +73,7 @@ const EditDecoration = () => {
     const data = new FormData()
     data.append("name", formData.name)
     data.append("description", formData.description)
+    data.append("price", formData.price)
     if (imageFile) {
       data.append("image", imageFile)
     }
@@ -164,6 +166,22 @@ const EditDecoration = () => {
                     onChange={handleChange}
                     required
                     placeholder="Enter decoration name..."
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-gray-800"
+                  />
+                </div>
+                {/* price */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                    <Banknote className="w-4 h-4 text-purple-600" />
+                    Decoration Price
+                  </label>
+                  <input
+                    type="number"
+                    name="price"
+                    value={formData.price}
+                    onChange={handleChange}
+                    required
+                    placeholder="Enter Becoration price..."
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-gray-800"
                   />
                 </div>

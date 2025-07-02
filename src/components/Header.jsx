@@ -134,7 +134,7 @@ const Header = () => {
                 : "text-gray-700 md:text-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:text-white hover:shadow-lg"
             }`}
           >
-            Dishes
+            Catering
           </Link>
 
           <Link
@@ -158,7 +158,7 @@ const Header = () => {
                 : "text-gray-700 md:text-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:text-white hover:shadow-lg"
             }`}
           >
-            Contact
+            About Us
           </Link>
 
           {/* Cart Icon */}

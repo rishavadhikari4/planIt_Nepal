@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom"
 import { addDecoration } from "../services/decorationService"
 import { toast } from "react-toastify"
 import { motion } from "framer-motion"
-import { ArrowLeft, Palette, FileText, Upload, X, ImageIcon, Plus } from "lucide-react"
+import { ArrowLeft, Palette, FileText, Upload, X, ImageIcon, Plus, Banknote } from "lucide-react"
 
 const AddDecoration = () => {
   const navigate = useNavigate()
@@ -14,6 +14,7 @@ const AddDecoration = () => {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
+    price:""
   })
 
   const [imageFile, setImageFile] = useState(null)
@@ -79,7 +80,7 @@ const AddDecoration = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!formData.name || !formData.description || !imageFile) {
+    if (!formData.name || !formData.description || !imageFile || !formData.price) {
       toast.error("Please fill in all fields and select an image")
       return
     }
@@ -87,6 +88,7 @@ const AddDecoration = () => {
     setLoading(true)
     const data = new FormData()
     data.append("name", formData.name)
+    data.append("price", formData.price)
     data.append("description", formData.description)
     data.append("image", imageFile)
 
@@ -167,6 +169,26 @@ const AddDecoration = () => {
                     value={formData.name}
                     onChange={handleChange}
                     placeholder="Enter decoration name"
+                    required
+                    className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-gray-800 placeholder-gray-400"
+                  />
+                </motion.div>
+                {/* price */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                  <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3">
+                    <Banknote className="w-4 h-4 text-purple-600" />
+                    <span>price</span>
+                  </label>
+                  <input
+                    type="number"
+                    name="price"
+                    value={formData.price}
+                    onChange={handleChange}
+                    placeholder="Enter Decoration price"
                     required
                     className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-gray-800 placeholder-gray-400"
                   />

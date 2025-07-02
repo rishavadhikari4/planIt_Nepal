@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom"
 import { addDish, getAllDishCategories } from "../services/dishService"
 import { toast } from "react-toastify"
 import { motion } from "framer-motion"
-import { ArrowLeft, ChefHat, Tag, FileText, Upload, X, ImageIcon, Plus, Utensils } from "lucide-react"
+import { ArrowLeft, ChefHat, Tag, FileText, Upload, X, ImageIcon, Plus, Utensils, Banknote } from "lucide-react"
 
 const AddDishForm = () => {
   const navigate = useNavigate()
@@ -14,6 +14,7 @@ const AddDishForm = () => {
   const [formData, setFormData] = useState({
     category: "",
     name: "",
+    price:"",
     description: "",
   })
 
@@ -104,9 +105,9 @@ const AddDishForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    const { category, name, description } = formData
+    const { category, name, price ,description } = formData
 
-    if (!category || !name || !imageFile) {
+    if (!category || !name || !price || !imageFile) {
       toast.error("Please fill in all required fields and select an image")
       return
     }
@@ -115,6 +116,7 @@ const AddDishForm = () => {
     const data = new FormData()
     data.append("category", category)
     data.append("name", name)
+    data.append("price", price)
     data.append("description", description)
     data.append("image", imageFile)
 
@@ -246,6 +248,26 @@ const AddDishForm = () => {
                     value={formData.name}
                     onChange={handleChange}
                     placeholder="Enter dish name"
+                    required
+                    className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-gray-800 placeholder-gray-400"
+                  />
+                </motion.div>
+                {/* price */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                >
+                  <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3">
+                    <Banknote className="w-4 h-4 text-purple-600" />
+                    <span>Dish Price</span>
+                  </label>
+                  <input
+                    type="number"
+                    name="price"
+                    value={formData.price}
+                    onChange={handleChange}
+                    placeholder="Enter Dish Price"
                     required
                     className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-gray-800 placeholder-gray-400"
                   />

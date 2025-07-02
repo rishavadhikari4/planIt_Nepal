@@ -43,6 +43,7 @@ const Venues = () => {
     toast.success("Added to cart successfully! ✨")
     addToCart({
       name: venue.name,
+      price: venue.price,
       image: venue.image,
       quantity: 1,
       price: venue.price || 0,

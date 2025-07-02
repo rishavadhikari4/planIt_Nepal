@@ -10,3 +10,16 @@ export const getAllOrders = async () => {
     return [];
   }
 };
+
+// Update order status
+export const updateOrderStatus = async (orderId, newStatus) => {
+  try {
+    const response = await API.post(`/api/orders/${orderId}`, {
+      status: newStatus
+    });
+    return response.data;
+  } catch (err) {
+    console.error("Error Updating Order Status", err);
+    throw err;
+  }
+};

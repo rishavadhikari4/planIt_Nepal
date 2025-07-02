@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom"
 import { addVenue } from "../services/venueService"
 import { toast } from "react-toastify"
 import { motion } from "framer-motion"
-import { ArrowLeft, Building2, MapPin, FileText, Upload, X, ImageIcon, Plus } from "lucide-react"
+import { ArrowLeft, Building2, MapPin, FileText, Upload, X, ImageIcon, Plus, Banknote } from "lucide-react"
 
 const AddVenue = () => {
   const navigate = useNavigate()
@@ -14,6 +14,7 @@ const AddVenue = () => {
     name: "",
     location: "",
     description: "",
+    price: "",
   })
   const [imageFile, setImageFile] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
@@ -89,6 +90,7 @@ const AddVenue = () => {
     data.append("name", formData.name)
     data.append("location", formData.location)
     data.append("description", formData.description)
+    data.append("price",formData.price)
     data.append("image", imageFile)
 
     try {
@@ -189,6 +191,27 @@ const AddVenue = () => {
                     value={formData.location}
                     onChange={handleChange}
                     placeholder="Enter venue location"
+                    required
+                    className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-gray-800 placeholder-gray-400"
+                  />
+                </motion.div>
+
+                {/* price */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                >
+                  <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3">
+                    <Banknote className="w-4 h-4 text-purple-600" />
+                    <span>Price</span>
+                  </label>
+                  <input
+                    type="number"
+                    name="price"
+                    value={formData.price}
+                    onChange={handleChange}
+                    placeholder="Enter Price of the Venue"
                     required
                     className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-gray-800 placeholder-gray-400"
                   />
