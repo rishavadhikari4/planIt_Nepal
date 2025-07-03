@@ -124,7 +124,7 @@ const [isAuthenticated, setIsAuthenticated] = useState(
       localStorage.setItem("user", JSON.stringify(fullUser));
       setUser(fullUser);
       setIsAuthenticated(true);
-      navigate("/");
+      navigate("/welcome");
     } catch (error) {
       throw new Error(error.response?.data?.message || "Login failed");
     }

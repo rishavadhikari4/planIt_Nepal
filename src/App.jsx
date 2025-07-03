@@ -16,6 +16,7 @@ import Cart from './pages/Cart';
 import ForgotPassword from './pages/forgotPassword';
 import ResetPassword from './pages/resetPassword';
 import UserProfile from './pages/userProfile';
+import Welcome from './pages/welcome';
 
 // Admin pages
 import Admin from './admin/Admin';
@@ -47,7 +48,9 @@ function AppContent() {
     '/auth-success',
     '/admin-login',
     '/not-found',
-    '/reset-password' 
+    '/reset-password' ,
+    '/welcome',
+
   ];
 
   const showHeaderForAdmin = [
@@ -86,6 +89,7 @@ function AppContent() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/auth-success" element={<AuthSuccess />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/welcome" element={<Welcome />} />
           <Route path="/register" element={<Register />}/>
           <Route path="/login/forgot-password" element={<ForgotPassword />}/>
           <Route path="/reset-password/:resetToken" element={<ResetPassword />}/>
