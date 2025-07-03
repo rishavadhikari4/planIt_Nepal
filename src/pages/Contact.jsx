@@ -347,7 +347,7 @@ const Contact = () => {
               {/* Why Choose Us */}
               <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8">
                 <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-6">
-                  Why Choose LaganGaatho?
+                  Why Choose weddingPlanner?
                 </h3>
                 <div className="space-y-4">
                   {[
@@ -477,7 +477,7 @@ const Contact = () => {
                     Call Now: (555) 987-6543
                   </a>
                   <a
-                    href="mailto:owner@Lagangaatho.com"
+                    href="mailto:owner@weddingPlanner.com"
                     className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 text-center"
                   >
                     Send Email

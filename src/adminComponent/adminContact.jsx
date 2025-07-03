@@ -8,8 +8,8 @@ const AdminContact = () => {
     {
       icon: Mail,
       title: "Email",
-      subtitle: "LaganGaatho HQ",
-      value: "owner@Lagangaatho.com",
+      subtitle: "weddingPlanner HQ",
+      value: "owner@weddingPlanner.com",
       color: "text-blue-500",
       bgColor: "bg-blue-50",
       borderColor: "border-blue-200",
@@ -28,7 +28,7 @@ const AdminContact = () => {
     {
       icon: MapPin,
       title: "Address",
-      subtitle: "LaganGaatho Headquarters",
+      subtitle: "weddingPlanner Headquarters",
       value: "Satdobato, Lalitpur",
       color: "text-red-500",
       bgColor: "bg-red-50",
@@ -53,7 +53,7 @@ const AdminContact = () => {
     {
       icon: Globe,
       title: "Website",
-      value: "www.lagangaatho.com",
+      value: "www.weddingPlanner.com",
       color: "text-indigo-500",
     },
   ]
