@@ -139,15 +139,13 @@ const [isAuthenticated, setIsAuthenticated] = useState(
         password,
         confirmPassword,
       });
-      const decodedToken = jwtDecode(data.token);
-      const user = {
-        id: decodedToken.id,
-        name: decodedToken.name,
-        email: decodedToken.email,
-      };
+
       localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(user));
-      setUser(user);
+      const fullUser = await fetchLoginUser();
+
+
+      localStorage.setItem("user", JSON.stringify(fullUser));
+      setUser(fullUser);
       setIsAuthenticated(true);
       navigate("/");
     } catch (error) {

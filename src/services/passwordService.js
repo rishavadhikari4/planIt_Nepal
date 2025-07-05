@@ -29,6 +29,24 @@ export const postResetPassword = async (token, newPassword, confirmNewPassword) 
 };
 
 
+export const changePassword = async (currentPassword, newPassword, confirmNewPassword) => {
+  try {
+    const response = await API.patch(`/api/password/changepassword`, {
+      currentPassword,
+      newPassword,
+      confirmNewPassword
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error changing password:', error);
+    throw new Error(
+      error.response?.data?.message || 'Failed to change password'
+    );
+  }
+};
+
+
+
 
 
 

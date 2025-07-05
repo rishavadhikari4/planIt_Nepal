@@ -8,7 +8,7 @@ export const fetchUsers = async () => {
 
 // Delete a user by ID
 export const deleteUser = async (id) => {
-  await API.delete(`/api/auth/${id}`);
+  await API.delete(`/api/auth/oneAccount/${id}`);
 };
 
 //fetch the login user in the ID
@@ -34,4 +34,13 @@ export const updateProfile = async (userData) => {
   const res = await API.patch('/api/auth/update-profile', userData);
   return res.data;
 };
+
+export const deleteAccountOfOwn = async (userId, password) => {
+  const res = await API.delete(`/api/auth/ownAccount/${userId}`, {
+    data: { password }, // axios requires `data` inside config object for DELETE
+  });
+  return res.data;
+};
+
+
 

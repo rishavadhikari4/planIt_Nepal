@@ -1,10 +1,49 @@
+"use client"
+
 import { useEffect, useState, useContext, useRef } from "react"
 import { AuthContext } from "../context/AuthContext"
 import { toast } from "react-toastify"
 import { useNavigate } from "react-router-dom"
-import { Edit3, Camera, LogOut, User, Mail, Calendar, Clock, Sparkles, X } from "lucide-react"
+import {
+  Edit3,
+  Camera,
+  LogOut,
+  User,
+  Mail,
+  Calendar,
+  Clock,
+  Sparkles,
+  X,
+  Lock,
+  Eye,
+  EyeOff,
+  Shield,
+  Trash2,
+  AlertTriangle,
+} from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-import { fetchLoginUser, updateProfilePicture, updateProfile } from "../services/userService"
+import { fetchLoginUser, updateProfilePicture, updateProfile,deleteAccountOfOwn } from "../services/userService"
+import API from "../services/api" // Assuming API is imported from this path
+
+// Add the changePassword API function
+const changePassword = async (currentPassword, newPassword, confirmNewPassword) => {
+  try {
+    const response = await API.patch(`/api/password/changepassword`, {
+      currentPassword,
+      newPassword,
+      confirmNewPassword,
+    })
+    return response.data
+  } catch (error) {
+    console.error("Error changing password:", error)
+    throw new Error(error.response?.data?.message || "Failed to change password")
+  }
+}
+
+// Add the deleteOwnAccount API function
+const deleteOwnAccount = async (userId,password) => {
+ await deleteAccountOfOwn(userId,password);
+}
 
 const UserProfile = () => {
   const { logout, updateUser } = useContext(AuthContext)
@@ -18,6 +57,29 @@ const UserProfile = () => {
   const [fieldToEdit, setFieldToEdit] = useState("")
   const [editValue, setEditValue] = useState("")
   const modalRef = useRef(null)
+
+  // Password change modal state
+  const [showPasswordModal, setShowPasswordModal] = useState(false)
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmNewPassword: "",
+  })
+  const [passwordLoading, setPasswordLoading] = useState(false)
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false,
+  })
+  const passwordModalRef = useRef(null)
+
+  // Delete account modal state
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deletePassword, setDeletePassword] = useState("")
+  const [showDeletePassword, setShowDeletePassword] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteConfirmation, setDeleteConfirmation] = useState("")
+  const deleteModalRef = useRef(null)
 
   useEffect(() => {
     const loadUser = async () => {
@@ -40,14 +102,22 @@ const UserProfile = () => {
       if (modalRef.current && !modalRef.current.contains(e.target)) {
         setShowModal(false)
       }
+      if (passwordModalRef.current && !passwordModalRef.current.contains(e.target)) {
+        setShowPasswordModal(false)
+      }
+      if (deleteModalRef.current && !deleteModalRef.current.contains(e.target)) {
+        setShowDeleteModal(false)
+      }
     }
-    if (showModal) {
+
+    if (showModal || showPasswordModal || showDeleteModal) {
       document.addEventListener("mousedown", handleClickOutside)
     }
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
     }
-  }, [showModal])
+  }, [showModal, showPasswordModal, showDeleteModal])
 
   const getGreeting = () => {
     const hour = new Date().getHours()
@@ -59,8 +129,6 @@ const UserProfile = () => {
 
   const handleLogout = () => {
     logout()
-    toast.success("Logged out successfully.")
-    navigate("/")
   }
 
   const handleImageChange = async (e) => {
@@ -100,6 +168,133 @@ const UserProfile = () => {
       toast.error("Update failed.")
     } finally {
       setShowModal(false)
+    }
+  }
+
+  // Password change functions
+  const openPasswordModal = () => {
+    setPasswordData({
+      currentPassword: "",
+      newPassword: "",
+      confirmNewPassword: "",
+    })
+    setShowPasswords({
+      current: false,
+      new: false,
+      confirm: false,
+    })
+    setShowPasswordModal(true)
+  }
+
+  const handlePasswordChange = (field, value) => {
+    setPasswordData((prev) => ({
+      ...prev,
+      [field]: value,
+    }))
+  }
+
+  const togglePasswordVisibility = (field) => {
+    setShowPasswords((prev) => ({
+      ...prev,
+      [field]: !prev[field],
+    }))
+  }
+
+  const validatePasswordForm = () => {
+    const { currentPassword, newPassword, confirmNewPassword } = passwordData
+
+    if (!currentPassword.trim()) {
+      toast.error("Current password is required")
+      return false
+    }
+
+    if (!newPassword.trim()) {
+      toast.error("New password is required")
+      return false
+    }
+
+    if (newPassword.length < 6) {
+      toast.error("New password must be at least 6 characters long")
+      return false
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      toast.error("New passwords do not match")
+      return false
+    }
+
+    if (currentPassword === newPassword) {
+      toast.error("New password must be different from current password")
+      return false
+    }
+
+    return true
+  }
+
+  const handlePasswordSubmit = async () => {
+    if (!validatePasswordForm()) return
+
+    setPasswordLoading(true)
+    try {
+      const { currentPassword, newPassword, confirmNewPassword } = passwordData
+      await changePassword(currentPassword, newPassword, confirmNewPassword)
+
+      toast.success("Password changed successfully!")
+      setShowPasswordModal(false)
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmNewPassword: "",
+      })
+    } catch (error) {
+      console.error("Password change error:", error)
+      toast.error(error.message || "Failed to change password")
+    } finally {
+      setPasswordLoading(false)
+    }
+  }
+
+  // Delete account functions
+  const openDeleteModal = () => {
+    setDeletePassword("")
+    setShowDeletePassword(false)
+    setDeleteConfirmation("")
+    setShowDeleteModal(true)
+  }
+
+  const validateDeleteForm = () => {
+    if (!deletePassword.trim()) {
+      toast.error("Password is required to delete your account")
+      return false
+    }
+
+    if (deleteConfirmation !== "DELETE") {
+      toast.error('Please type "DELETE" to confirm account deletion')
+      return false
+    }
+
+    return true
+  }
+
+  const handleDeleteAccount = async () => {
+    if (!validateDeleteForm()) return
+
+    setDeleteLoading(true)
+    try {
+      await deleteOwnAccount(user._id,deletePassword)
+
+      toast.success("Account deleted successfully. We're sorry to see you go!")
+
+      // Clear user data and redirect
+      setTimeout(() => {
+        logout() // This will clear the auth context
+        navigate("/")
+      }, 2000)
+    } catch (error) {
+      console.error("Delete account error:", error)
+      toast.error(error.message || "Failed to delete account. Please check your password.")
+    } finally {
+      setDeleteLoading(false)
     }
   }
 
@@ -276,6 +471,67 @@ const UserProfile = () => {
           </div>
         </motion.div>
 
+        {/* Security Settings Card */}
+        <motion.div
+          className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8 sm:p-10 mb-8"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.9, duration: 0.6 }}
+        >
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-6 flex items-center">
+            <Shield className="w-6 h-6 mr-2 text-purple-600" />
+            Security Settings
+          </h2>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Password Section */}
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 border border-blue-100/50">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                    <Lock className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Password</p>
+                    <p className="text-lg font-semibold text-gray-800">••••••••••••</p>
+                    <p className="text-xs text-gray-400 mt-1">Last changed: Never</p>
+                  </div>
+                </div>
+                <button
+                  onClick={openPasswordModal}
+                  className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 hover:scale-110 text-blue-600 hover:text-blue-700"
+                  title="Change password"
+                >
+                  <Edit3 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Delete Account Section */}
+            <div className="bg-gradient-to-r from-red-50 to-pink-50 rounded-2xl p-6 border border-red-100/50">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center">
+                    <Trash2 className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Delete Account</p>
+                    <p className="text-lg font-semibold text-gray-800">Permanently remove</p>
+                    <p className="text-xs text-gray-400 mt-1">This action cannot be undone</p>
+                  </div>
+                </div>
+                <button
+                  onClick={openDeleteModal}
+                  className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 hover:scale-110 text-red-600 hover:text-red-700"
+                  title="Delete account"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
         {/* Account Details Card */}
         <motion.div
           className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8 sm:p-10 mb-8"
@@ -359,7 +615,7 @@ const UserProfile = () => {
         </motion.div>
       </motion.div>
 
-      {/* Edit Modal */}
+      {/* Edit Profile Modal */}
       <AnimatePresence>
         {showModal && (
           <motion.div
@@ -419,6 +675,273 @@ const UserProfile = () => {
                   className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl"
                 >
                   Save Changes
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Change Password Modal */}
+      <AnimatePresence>
+        {showPasswordModal && (
+          <motion.div
+            className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50 px-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              ref={passwordModalRef}
+              className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl w-full max-w-md border border-white/20 overflow-hidden"
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ duration: 0.3 }}
+            >
+              {/* Modal Header */}
+              <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-6 text-white">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-bold flex items-center">
+                    <Lock className="w-5 h-5 mr-2" />
+                    Change Password
+                  </h2>
+                  <button
+                    onClick={() => setShowPasswordModal(false)}
+                    className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-6 space-y-4">
+                {/* Current Password */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Current Password</label>
+                  <div className="relative">
+                    <input
+                      type={showPasswords.current ? "text" : "password"}
+                      value={passwordData.currentPassword}
+                      onChange={(e) => handlePasswordChange("currentPassword", e.target.value)}
+                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 text-gray-800 pr-12"
+                      placeholder="Enter current password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => togglePasswordVisibility("current")}
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-blue-600 transition-colors duration-200"
+                    >
+                      {showPasswords.current ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* New Password */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">New Password</label>
+                  <div className="relative">
+                    <input
+                      type={showPasswords.new ? "text" : "password"}
+                      value={passwordData.newPassword}
+                      onChange={(e) => handlePasswordChange("newPassword", e.target.value)}
+                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 text-gray-800 pr-12"
+                      placeholder="Enter new password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => togglePasswordVisibility("new")}
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-blue-600 transition-colors duration-200"
+                    >
+                      {showPasswords.new ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Password must be at least 6 characters long</p>
+                </div>
+
+                {/* Confirm New Password */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Confirm New Password</label>
+                  <div className="relative">
+                    <input
+                      type={showPasswords.confirm ? "text" : "password"}
+                      value={passwordData.confirmNewPassword}
+                      onChange={(e) => handlePasswordChange("confirmNewPassword", e.target.value)}
+                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 text-gray-800 pr-12"
+                      placeholder="Confirm new password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => togglePasswordVisibility("confirm")}
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-blue-600 transition-colors duration-200"
+                    >
+                      {showPasswords.confirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Password Strength Indicator */}
+                {passwordData.newPassword && (
+                  <div className="bg-gray-50 rounded-xl p-3">
+                    <p className="text-xs font-medium text-gray-600 mb-2">Password Strength:</p>
+                    <div className="flex space-x-1">
+                      <div
+                        className={`h-2 flex-1 rounded ${passwordData.newPassword.length >= 6 ? "bg-green-400" : "bg-gray-300"}`}
+                      ></div>
+                      <div
+                        className={`h-2 flex-1 rounded ${passwordData.newPassword.length >= 8 ? "bg-green-400" : "bg-gray-300"}`}
+                      ></div>
+                      <div
+                        className={`h-2 flex-1 rounded ${/[A-Z]/.test(passwordData.newPassword) ? "bg-green-400" : "bg-gray-300"}`}
+                      ></div>
+                      <div
+                        className={`h-2 flex-1 rounded ${/[0-9]/.test(passwordData.newPassword) ? "bg-green-400" : "bg-gray-300"}`}
+                      ></div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-6 pt-0 flex space-x-3">
+                <button
+                  onClick={() => setShowPasswordModal(false)}
+                  className="flex-1 px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-xl hover:bg-gray-300 transition-colors duration-200"
+                  disabled={passwordLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handlePasswordSubmit}
+                  disabled={passwordLoading}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {passwordLoading ? (
+                    <div className="flex items-center justify-center space-x-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Changing...</span>
+                    </div>
+                  ) : (
+                    "Change Password"
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Account Modal */}
+      <AnimatePresence>
+        {showDeleteModal && (
+          <motion.div
+            className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50 px-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              ref={deleteModalRef}
+              className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl w-full max-w-md border border-white/20 overflow-hidden"
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ duration: 0.3 }}
+            >
+              {/* Modal Header */}
+              <div className="bg-gradient-to-r from-red-500 to-red-600 p-6 text-white">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-bold flex items-center">
+                    <AlertTriangle className="w-5 h-5 mr-2" />
+                    Delete Account
+                  </h2>
+                  <button
+                    onClick={() => setShowDeleteModal(false)}
+                    className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-6 space-y-6">
+                {/* Warning Message */}
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                  <div className="flex items-start space-x-3">
+                    <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <h3 className="font-semibold text-red-800 mb-1">This action cannot be undone!</h3>
+                      <p className="text-sm text-red-700">
+                        Deleting your account will permanently remove all your data, including your profile, settings,
+                        and any associated information.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Confirmation Input */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Type "DELETE" to confirm</label>
+                  <input
+                    type="text"
+                    value={deleteConfirmation}
+                    onChange={(e) => setDeleteConfirmation(e.target.value)}
+                    className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500 focus:ring-4 focus:ring-red-500/20 transition-all duration-300 text-gray-800"
+                    placeholder="Type DELETE to confirm"
+                  />
+                </div>
+
+                {/* Password Input */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Enter your password to confirm
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showDeletePassword ? "text" : "password"}
+                      value={deletePassword}
+                      onChange={(e) => setDeletePassword(e.target.value)}
+                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500 focus:ring-4 focus:ring-red-500/20 transition-all duration-300 text-gray-800 pr-12"
+                      placeholder="Enter your password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowDeletePassword(!showDeletePassword)}
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-red-600 transition-colors duration-200"
+                    >
+                      {showDeletePassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-6 pt-0 flex space-x-3">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="flex-1 px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-xl hover:bg-gray-300 transition-colors duration-200"
+                  disabled={deleteLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={deleteLoading || deleteConfirmation !== "DELETE" || !deletePassword.trim()}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold rounded-xl hover:from-red-700 hover:to-red-800 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {deleteLoading ? (
+                    <div className="flex items-center justify-center space-x-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Deleting...</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center space-x-2">
+                      <Trash2 className="w-4 h-4" />
+                      <span>Delete Account</span>
+                    </div>
+                  )}
                 </button>
               </div>
             </motion.div>

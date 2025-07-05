@@ -47,8 +47,8 @@ const Header = () => {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-gradient-to-r from-purple-600 via-purple-700 to-pink-600 shadow-2xl backdrop-blur-md">
-      <nav className="container mx-auto flex justify-between items-center px-4 sm:px-6 py-4">
+    <header className="sticky top-0 z-50 w-full bg-gradient-to-r from-purple-600/80 via-purple-800/70 to-pink-800/80 shadow-2xl backdrop-blur-md">
+      <nav className="container mx-auto flex justify-between items-center px-4 sm:px-6 py-3">
         {/* Logo */}
         <Link
           to="/"

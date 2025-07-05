@@ -1,16 +1,24 @@
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { AuthContext } from "../context/AuthContext"
 import { Eye, EyeIcon as EyeClosed, Heart, Sparkles } from "lucide-react"
-import { useState, useContext } from "react"
+import { useState, useContext, useEffect } from "react"
 import { motion } from "framer-motion"
 
 const Login = () => {
-  const { login } = useContext(AuthContext)
+  const { login, user } = useContext(AuthContext)
   const [email, setEmail] = useState("")
   const [error, setError] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate("/") // change "/" to your dashboard or homepage
+    }
+  }, [user, navigate])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
