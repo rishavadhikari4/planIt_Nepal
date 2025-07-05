@@ -131,11 +131,12 @@ const [isAuthenticated, setIsAuthenticated] = useState(
   };
 
   // User signup
-  const signup = async (name, email, password, confirmPassword) => {
+  const signup = async (name, email,number, password, confirmPassword) => {
     try {
       const { data } = await API.post("/api/auth/register", {
         name,
         email,
+        number,
         password,
         confirmPassword,
       });

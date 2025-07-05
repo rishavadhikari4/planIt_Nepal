@@ -20,30 +20,17 @@ import {
   Shield,
   Trash2,
   AlertTriangle,
+  Phone,
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-import { fetchLoginUser, updateProfilePicture, updateProfile,deleteAccountOfOwn } from "../services/userService"
-import API from "../services/api" // Assuming API is imported from this path
+import {
+  fetchLoginUser,
+  updateProfilePicture,
+  updateProfile,
+  deleteAccountOfOwn,
+} from "../services/userService"
 
-// Add the changePassword API function
-const changePassword = async (currentPassword, newPassword, confirmNewPassword) => {
-  try {
-    const response = await API.patch(`/api/password/changepassword`, {
-      currentPassword,
-      newPassword,
-      confirmNewPassword,
-    })
-    return response.data
-  } catch (error) {
-    console.error("Error changing password:", error)
-    throw new Error(error.response?.data?.message || "Failed to change password")
-  }
-}
-
-// Add the deleteOwnAccount API function
-const deleteOwnAccount = async (userId,password) => {
- await deleteAccountOfOwn(userId,password);
-}
+import { changePassword } from "../services/passwordService"
 
 const UserProfile = () => {
   const { logout, updateUser } = useContext(AuthContext)
@@ -158,11 +145,16 @@ const UserProfile = () => {
 
   const handleSaveEdit = async () => {
     try {
-      const updated = { ...user, [fieldToEdit]: editValue }
       const response = await updateProfile({ [fieldToEdit]: editValue })
-      setUser(response.user)
-      updateUser(response.user)
-      toast.success(`${fieldToEdit} updated successfully!`)
+
+      // Update local user state with the correct field name
+      const updatedUser = { ...user, [fieldToEdit]: editValue }
+      setUser(updatedUser)
+
+      // Update context and localStorage/sessionStorage
+      updateUser(updatedUser)
+
+      toast.success(`${fieldToEdit === "number" ? "Phone number" : fieldToEdit} updated successfully!`)
     } catch (error) {
       console.error("Failed to update profile:", error)
       toast.error("Update failed.")
@@ -281,7 +273,7 @@ const UserProfile = () => {
 
     setDeleteLoading(true)
     try {
-      await deleteOwnAccount(user._id,deletePassword)
+      await deleteAccountOfOwn(user._id, deletePassword)
 
       toast.success("Account deleted successfully. We're sorry to see you go!")
 
@@ -462,6 +454,27 @@ const UserProfile = () => {
                     onClick={() => openEditModal("email")}
                     className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 hover:scale-110 text-blue-600 hover:text-blue-700"
                     title="Edit email"
+                  >
+                    <Edit3 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+              {/* Phone Number */}
+              <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-6 border border-green-100/50">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
+                      <Phone className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Phone Number</p>
+                      <p className="text-lg font-semibold text-gray-800 break-all">{user.number || "Not provided"}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => openEditModal("number")} // Change from "phone" to "number"
+                    className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 hover:scale-110 text-blue-600 hover:text-blue-700"
+                    title="Edit Phone"
                   >
                     <Edit3 className="w-4 h-4" />
                   </button>
@@ -651,14 +664,20 @@ const UserProfile = () => {
               {/* Modal Body */}
               <div className="p-6">
                 <label className="block text-sm font-semibold text-gray-700 mb-2 capitalize">
-                  {fieldToEdit === "name" ? "Full Name" : "Email Address"}
+                  {fieldToEdit === "name"
+                    ? "Full Name"
+                    : fieldToEdit === "email"
+                      ? "Email Address"
+                      : fieldToEdit === "number"
+                        ? "Phone Number"
+                        : fieldToEdit}
                 </label>
                 <input
-                  type={fieldToEdit === "email" ? "email" : "text"}
+                  type={fieldToEdit === "email" ? "email" : fieldToEdit === "number" ? "tel" : "text"}
                   value={editValue}
                   onChange={(e) => setEditValue(e.target.value)}
                   className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300 text-gray-800"
-                  placeholder={`Enter your ${fieldToEdit}`}
+                  placeholder={`Enter your ${fieldToEdit === "number" ? "phone number" : fieldToEdit}`}
                 />
               </div>
 

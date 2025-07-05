@@ -8,6 +8,7 @@ const Register = () => {
   const { signup } = useContext(AuthContext);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone,setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
@@ -28,7 +29,7 @@ const Register = () => {
     if (error) return;
     setLoading(true);
     try {
-      await signup(name, email, password, confirmPassword);
+      await signup(name, email, phone, password, confirmPassword);
     } catch (err) {
       setError(err.message || "Signup failed.");
     } finally {
@@ -145,6 +146,26 @@ const Register = () => {
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300 text-gray-800 placeholder-gray-500"
+              required
+              whileFocus={{ scale: 1.02 }}
+            />
+          </motion.div>
+          {/* number */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5, duration: 0.6 }}
+          >
+            <label htmlFor="number" className="block text-sm font-semibold text-gray-700 mb-2">
+              Phone Number
+            </label>
+            <motion.input
+              id="number"
+              type="text"
+              placeholder="Enter your number"
+              value={phone} // <-- update this
+              onChange={(e) => setPhone(e.target.value)} // <-- and this
               className="w-full px-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300 text-gray-800 placeholder-gray-500"
               required
               whileFocus={{ scale: 1.02 }}
