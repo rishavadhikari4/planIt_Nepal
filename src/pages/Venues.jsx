@@ -34,8 +34,8 @@ const Venues = () => {
   }, [])
 
   const handleSelect = async (venue) => {
-    const token = localStorage.getItem("token")
-    if (!token) {
+    const accessToken = localStorage.getItem("accessToken")
+    if (!accessToken) {
       toast.info("Please login to add items to your cart.")
       navigate("/login")
       return

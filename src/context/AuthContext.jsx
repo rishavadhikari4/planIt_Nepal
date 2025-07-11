@@ -9,27 +9,27 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 const [isAuthenticated, setIsAuthenticated] = useState(
-  !!localStorage.getItem("token") || !!sessionStorage.getItem("token")
+  !!localStorage.getItem("accessToken") || !!sessionStorage.getItem("accessToken")
 );
 
-  const [isAdmin, setIsAdmin] = useState(!!sessionStorage.getItem("token"));
+  const [isAdmin, setIsAdmin] = useState(!!sessionStorage.getItem("accessToken"));
 
   const navigate = useNavigate();
   const location = useLocation();
 
   // Regular user authentication check (localStorage)
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const accessToken = localStorage.getItem("accessToken");
     const storedUser = localStorage.getItem("user");
 
-    if (token && storedUser) {
+    if (accessToken && storedUser) {
       try {
-        const decodedToken = jwtDecode(token);
+        const decodedaccessToken = jwtDecode(accessToken);
         const currentTime = Date.now() / 1000;
 
-        if (decodedToken.exp < currentTime) {
-          console.warn("User token expired");
-          localStorage.removeItem("token");
+        if (decodedaccessToken.exp < currentTime) {
+          console.warn("User accessToken expired");
+          localStorage.removeItem("accessToken");
           localStorage.removeItem("user");
           setUser(null);
           setIsAuthenticated(false);
@@ -40,8 +40,8 @@ const [isAuthenticated, setIsAuthenticated] = useState(
         setUser(JSON.parse(storedUser));
         setIsAuthenticated(true);
       } catch (error) {
-        console.error("User token decode error:", error);
-        localStorage.removeItem("token");
+        console.error("User accessToken decode error:", error);
+        localStorage.removeItem("accessToken");
         localStorage.removeItem("user");
         setUser(null);
         setIsAuthenticated(false);
@@ -52,20 +52,20 @@ const [isAuthenticated, setIsAuthenticated] = useState(
 
   // Admin authentication check (sessionStorage) on route change
   useEffect(() => {
-    const token = sessionStorage.getItem("token");
+    const accessToken = sessionStorage.getItem("accessToken");
 
-    if (token) {
+    if (accessToken) {
       try {
-        const decodedToken = jwtDecode(token);
+        const decodedaccessToken = jwtDecode(accessToken);
         const currentTime = Date.now() / 1000;
 
         if (
-          decodedToken.exp < currentTime ||
-          decodedToken.role !== "admin"
+          decodedaccessToken.exp < currentTime ||
+          decodedaccessToken.role !== "admin"
         ) {
-          // Invalid or expired token or not admin role
+          // Invalid or expired accessToken or not admin role
           setIsAdmin(false);
-          sessionStorage.removeItem("token");
+          sessionStorage.removeItem("accessToken");
           sessionStorage.removeItem("user");
           setUser(null);
           setIsAuthenticated(false);
@@ -75,7 +75,7 @@ const [isAuthenticated, setIsAuthenticated] = useState(
           return;
         }
 
-        // Valid admin token
+        // Valid admin accessToken
         setIsAdmin(true);
         const storedUser = sessionStorage.getItem("user");
         if (storedUser) {
@@ -83,7 +83,7 @@ const [isAuthenticated, setIsAuthenticated] = useState(
         }
       } catch (error) {
         setIsAdmin(false);
-        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("accessToken");
         sessionStorage.removeItem("user");
         setUser(null);
         setIsAuthenticated(false);
@@ -118,7 +118,7 @@ const [isAuthenticated, setIsAuthenticated] = useState(
   const login = async (email, password) => {
     try {
       const { data } = await API.post("/api/auth/login", { email, password });
-      localStorage.setItem("token", data.token);
+      localStorage.setItem("accessToken", data.accessToken);
       const fullUser = await fetchLoginUser();
 
       localStorage.setItem("user", JSON.stringify(fullUser));
@@ -141,7 +141,7 @@ const [isAuthenticated, setIsAuthenticated] = useState(
         confirmPassword,
       });
 
-      localStorage.setItem("token", data.token);
+      localStorage.setItem("accessToken", data.accessToken);
       const fullUser = await fetchLoginUser();
 
 
@@ -156,7 +156,7 @@ const [isAuthenticated, setIsAuthenticated] = useState(
 
   // User logout
   const logout = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem("accessToken");
     localStorage.removeItem("user");
     setUser(null);
     setIsAuthenticated(false);
@@ -167,14 +167,14 @@ const [isAuthenticated, setIsAuthenticated] = useState(
   const adminLogin = async (email, password) => {
     try {
       const { data } = await API.post("/api/auth/adminLogin", { email, password });
-      sessionStorage.setItem("token", data.token);
-      const decodedToken = jwtDecode(data.token);
+      sessionStorage.setItem("accessToken", data.accessToken);
+      const decodedaccessToken = jwtDecode(data.accessToken);
 
-      if (decodedToken.role !== "admin") {
+      if (decodedaccessToken.role !== "admin") {
         throw new Error("Not authorized as admin");
       }
 
-      const user = { email: decodedToken.email };
+      const user = { email: decodedaccessToken.email };
       sessionStorage.setItem("user", JSON.stringify(user));
       setUser(user);
       setIsAuthenticated(true);
@@ -187,7 +187,7 @@ const [isAuthenticated, setIsAuthenticated] = useState(
 
   // Admin logout
   const adminLogout = () => {
-    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("accessToken");
     sessionStorage.removeItem("user");
     setUser(null);
     setIsAuthenticated(false);
@@ -196,10 +196,10 @@ const [isAuthenticated, setIsAuthenticated] = useState(
   };
 
   const refreshAuth = () => {
-    const token = localStorage.getItem("token");
+    const accessToken = localStorage.getItem("accessToken");
     const storedUser = localStorage.getItem("user");
 
-    if (token && storedUser) {
+    if (accessToken && storedUser) {
       setUser(JSON.parse(storedUser));
       setIsAuthenticated(true);
     }

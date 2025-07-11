@@ -33,8 +33,8 @@ const Decorations = () => {
   }, [])
 
   const handleSubmit = () => {
-    const token = localStorage.getItem("token")
-    if (!token) {
+    const accessToken = localStorage.getItem("accessToken")
+    if (!accessToken) {
       toast.info("Please login to add items to the cart")
       navigate("/login")
       return

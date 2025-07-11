@@ -15,9 +15,9 @@ function AuthSuccess() {
   useEffect(() => {
     const handleGoogleLogin = async () => {
       const query = new URLSearchParams(window.location.search)
-      const token = query.get("token")
+      const accessToken = query.get("accessToken")
 
-      if (!token) {
+      if (!accessToken) {
         setStatus("error")
         setTimeout(() => navigate("/login"), 3000)
         return
@@ -35,7 +35,7 @@ function AuthSuccess() {
           })
         }, 200)
 
-        localStorage.setItem("token", token)
+        localStorage.setItem("accessToken", accessToken)
         const fullUser = await fetchLoginUser()
         localStorage.setItem("user", JSON.stringify(fullUser))
 

@@ -23,8 +23,8 @@ const Cart = () => {
   const handleCheckout = async () => {
     setCheckoutLoading(true)
     try {
-      const token = localStorage.getItem("token")
-      if (!token) {
+      const accessToken = localStorage.getItem("accessToken")
+      if (!accessToken) {
         toast.info("Please login to proceed with checkout")
         navigate("/login")
         return
