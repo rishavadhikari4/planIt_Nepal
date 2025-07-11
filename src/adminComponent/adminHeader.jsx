@@ -22,7 +22,7 @@ import {
 const AdminHeader = () => {
   const location = useLocation()
   const navigate = useNavigate()
-  const { isAuthenticated, isAdmin, adminLogout } = useContext(AuthContext)
+  const {  isAdmin, adminLogout } = useContext(AuthContext)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const toggleMenu = () => setIsMenuOpen((prev) => !prev)
@@ -117,7 +117,7 @@ const AdminHeader = () => {
             </button>
 
             {/* Profile & Logout */}
-            {isAuthenticated && isAdmin && (
+            {isAdmin && (
               <div className="flex items-center space-x-2">
                 <button
                   onClick={handleLogout}
@@ -195,7 +195,7 @@ const AdminHeader = () => {
                 </div>
 
                 {/* Mobile Logout */}
-                {isAuthenticated && isAdmin && (
+                { isAdmin && (
                   <button
                     onClick={handleLogout}
                     className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200"

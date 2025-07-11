@@ -8,7 +8,7 @@ const Review = () => {
   const [hoverRating, setHoverRating] = useState(0)
   const [comment, setComment] = useState("")
   const [reviews, setReviews] = useState([])
-  const { isAuthenticated } = useContext(AuthContext)
+  const { isCustomer } = useContext(AuthContext)
 
   useEffect(() => {
     getVerifiedReviews().then(setReviews)
@@ -112,7 +112,7 @@ const Review = () => {
       )}
 
       {/* Review Form */}
-      {isAuthenticated ? (
+      {isCustomer ? (
         <div className="max-w-2xl mx-auto">
           <div className="bg-gradient-to-br from-white to-purple-50 shadow-2xl rounded-2xl p-8 sm:p-10 border border-purple-100/50">
             <div className="text-center mb-8">

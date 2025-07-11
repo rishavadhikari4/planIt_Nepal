@@ -1,92 +1,101 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import API from "../services/api";
 import { fetchLoginUser } from "../services/userService";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-const [isAuthenticated, setIsAuthenticated] = useState(
-  !!localStorage.getItem("accessToken") || !!sessionStorage.getItem("accessToken")
-);
-
+  const [isCustomer, setisCustomer] = useState(!!localStorage.getItem("accessToken")
+  );
   const [isAdmin, setIsAdmin] = useState(!!sessionStorage.getItem("accessToken"));
+  const [error, setError] = useState(null);
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Regular user authentication check (localStorage)
+  // Helper: Show error (replace with your toast/snackbar)
+  const showError = (msg) => {
+    setError(msg);
+    // TODO: Replace with toast/snackbar
+    console.error(msg);
+  };
+
+  // Helper: Check token expiry
+  const isTokenExpired = (token) => {
+    try {
+      const decoded = jwtDecode(token);
+      const currentTime = Date.now() / 1000;
+      return decoded.exp < currentTime;
+    } catch {
+      return true;
+    }
+  };
+
+  // Automatic token refresh
+  const getNewAccessToken = useCallback(async () => {
+    try {
+      const { data } = await API.post("/api/auth/refresh-token");
+      if (data.accessToken) {
+        localStorage.setItem("accessToken", data.accessToken);
+        setisCustomer(true);
+        return data.accessToken;
+      }
+      throw new Error("No access token returned");
+    } catch (err) {
+      showError("Session expired. Please login again.");
+      logout();
+      return null;
+    }
+  }, []);
+
+  // Regular user authentication check
   useEffect(() => {
     const accessToken = localStorage.getItem("accessToken");
     const storedUser = localStorage.getItem("user");
 
     if (accessToken && storedUser) {
-      try {
-        const decodedaccessToken = jwtDecode(accessToken);
-        const currentTime = Date.now() / 1000;
-
-        if (decodedaccessToken.exp < currentTime) {
-          console.warn("User accessToken expired");
-          localStorage.removeItem("accessToken");
-          localStorage.removeItem("user");
-          setUser(null);
-          setIsAuthenticated(false);
-          navigate("/");
-          return;
-        }
-
-        setUser(JSON.parse(storedUser));
-        setIsAuthenticated(true);
-      } catch (error) {
-        console.error("User accessToken decode error:", error);
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("user");
-        setUser(null);
-        setIsAuthenticated(false);
-        navigate("/");
+      if (isTokenExpired(accessToken)) {
+        getNewAccessToken();
+        return;
       }
+      setUser(JSON.parse(storedUser));
+      setisCustomer(true);
+    } else {
+      setUser(null);
+      setisCustomer(false);
     }
-  }, [navigate]);
+  }, [getNewAccessToken]);
 
-  // Admin authentication check (sessionStorage) on route change
+  // Admin authentication check
   useEffect(() => {
     const accessToken = sessionStorage.getItem("accessToken");
-
     if (accessToken) {
       try {
-        const decodedaccessToken = jwtDecode(accessToken);
+        const decoded = jwtDecode(accessToken);
         const currentTime = Date.now() / 1000;
-
-        if (
-          decodedaccessToken.exp < currentTime ||
-          decodedaccessToken.role !== "admin"
-        ) {
-          // Invalid or expired accessToken or not admin role
+        if (decoded.exp < currentTime || decoded.role !== "admin") {
           setIsAdmin(false);
           sessionStorage.removeItem("accessToken");
           sessionStorage.removeItem("user");
           setUser(null);
-          setIsAuthenticated(false);
+          setisCustomer(false);
           if (location.pathname.startsWith("/admin")) {
             navigate("/admin-login");
           }
           return;
         }
-
-        // Valid admin accessToken
         setIsAdmin(true);
         const storedUser = sessionStorage.getItem("user");
-        if (storedUser) {
-          setUser(JSON.parse(storedUser));
-        }
-      } catch (error) {
+        if (storedUser) setUser(JSON.parse(storedUser));
+      } catch {
         setIsAdmin(false);
         sessionStorage.removeItem("accessToken");
         sessionStorage.removeItem("user");
         setUser(null);
-        setIsAuthenticated(false);
+        setisCustomer(false);
         if (location.pathname.startsWith("/admin")) {
           navigate("/admin-login");
         }
@@ -104,7 +113,6 @@ const [isAuthenticated, setIsAuthenticated] = useState(
     if (isAdmin && location.pathname === "/admin-login") {
       navigate("/admin");
     }
-
     if (
       location.pathname.startsWith("/admin") &&
       location.pathname !== "/admin-login" &&
@@ -120,46 +128,47 @@ const [isAuthenticated, setIsAuthenticated] = useState(
       const { data } = await API.post("/api/auth/login", { email, password });
       localStorage.setItem("accessToken", data.accessToken);
       const fullUser = await fetchLoginUser();
-
       localStorage.setItem("user", JSON.stringify(fullUser));
       setUser(fullUser);
-      setIsAuthenticated(true);
+      setisCustomer(true);
       navigate("/welcome");
     } catch (error) {
-      throw new Error(error.response?.data?.message || "Login failed");
+      showError(error.response?.data?.message || "Login failed");
+      throw error;
     }
   };
 
   // User signup
-  const signup = async (name, email,number, password, confirmPassword) => {
+  const signup = async (name, email, number, password, confirmPassword) => {
     try {
-      const { data } = await API.post("/api/auth/register", {
+      await API.post("/api/auth/register", {
         name,
         email,
         number,
         password,
         confirmPassword,
       });
-
-      localStorage.setItem("accessToken", data.accessToken);
-      const fullUser = await fetchLoginUser();
-
-
-      localStorage.setItem("user", JSON.stringify(fullUser));
-      setUser(fullUser);
-      setIsAuthenticated(true);
-      navigate("/");
+      navigate("/login");
     } catch (error) {
-      throw new Error(error.response?.data?.message || "Signup failed");
+      showError(error.response?.data?.message || "Signup failed");
+      throw error;
     }
   };
 
   // User logout
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await API.post("/api/auth/logout");
+    } catch (error) {
+      showError(error.response?.data?.message || "Logout failed");
+    }
     localStorage.removeItem("accessToken");
     localStorage.removeItem("user");
+    sessionStorage.removeItem("accessToken");
+    sessionStorage.removeItem("user");
     setUser(null);
-    setIsAuthenticated(false);
+    setisCustomer(false);
+    setIsAdmin(false);
     navigate("/");
   };
 
@@ -168,63 +177,54 @@ const [isAuthenticated, setIsAuthenticated] = useState(
     try {
       const { data } = await API.post("/api/auth/adminLogin", { email, password });
       sessionStorage.setItem("accessToken", data.accessToken);
-      const decodedaccessToken = jwtDecode(data.accessToken);
-
-      if (decodedaccessToken.role !== "admin") {
+      const decoded = jwtDecode(data.accessToken);
+      if (decoded.role !== "admin") {
+        showError("Not authorized as admin");
         throw new Error("Not authorized as admin");
       }
-
-      const user = { email: decodedaccessToken.email };
+      const user = { email: decoded.email };
       sessionStorage.setItem("user", JSON.stringify(user));
       setUser(user);
-      setIsAuthenticated(true);
+      setisCustomer(true);
       setIsAdmin(true);
       navigate("/admin");
     } catch (error) {
-      throw new Error(error.response?.data?.message || "Admin login failed");
+      showError(error.response?.data?.message || "Admin login failed");
+      throw error;
     }
   };
 
   // Admin logout
-  const adminLogout = () => {
+  const adminLogout = async () => {
     sessionStorage.removeItem("accessToken");
     sessionStorage.removeItem("user");
     setUser(null);
-    setIsAuthenticated(false);
+    setisCustomer(false);
     setIsAdmin(false);
     navigate("/");
   };
 
-  const refreshAuth = () => {
-    const accessToken = localStorage.getItem("accessToken");
-    const storedUser = localStorage.getItem("user");
-
-    if (accessToken && storedUser) {
-      setUser(JSON.parse(storedUser));
-      setIsAuthenticated(true);
-    }
+  // Update user info
+  const updateUser = (updatedUser) => {
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    setUser(updatedUser);
   };
 
-const updateUser = (updatedUser) => {
-  localStorage.setItem("user", JSON.stringify(updatedUser));
-  setUser(updatedUser);
-};
-
-
-
+  // Expose context
   return (
     <AuthContext.Provider
       value={{
         user,
-        isAuthenticated,
+        isCustomer,
         isAdmin,
+        error,
         signup,
         login,
         logout,
         adminLogin,
         adminLogout,
-        refreshAuth,
-        updateUser
+        updateUser,
+        getNewAccessToken,
       }}
     >
       {children}

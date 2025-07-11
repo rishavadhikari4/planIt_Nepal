@@ -9,7 +9,7 @@ import { toast } from "react-toastify"
 const Header = () => {
   const location = useLocation()
   const navigate = useNavigate()
-  const { isAuthenticated, user } = useContext(AuthContext)
+  const { isCustomer, user } = useContext(AuthContext)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef(null)
@@ -19,7 +19,7 @@ const Header = () => {
 
   const handleCartClick = (e) => {
     setIsMenuOpen(false)
-    if (!isAuthenticated) {
+    if (!isCustomer) {
       e.preventDefault()
       toast.info("Please log in to view your cart.")
       setTimeout(() => {
@@ -87,7 +87,7 @@ const Header = () => {
   shadow-xl md:shadow-none md:gap-2 lg:gap-4 gap-3 p-6 md:p-0 transition-all duration-500 ease-in-out
   ${isMenuOpen ? "flex opacity-100 translate-y-0" : "hidden md:flex opacity-0 md:opacity-100 -translate-y-4 md:translate-y-0"}`}
         >
-          {!isAuthenticated && (
+          {!isCustomer && (
             <Link
               to="/login"
               onClick={() => setIsMenuOpen(false)}
@@ -176,7 +176,7 @@ const Header = () => {
           </Link>
 
           {/* User Profile */}
-          {isAuthenticated && user && (
+          {isCustomer && user && (
             <div className="relative inline-block" ref={dropdownRef}>
               <div
                 onClick={handleProfileClick}
