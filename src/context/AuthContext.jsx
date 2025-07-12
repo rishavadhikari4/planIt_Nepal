@@ -1,3 +1,12 @@
+/**
+ * @module AuthContext
+ * @description Authentication context provider for the Wedding Planner application
+ * @requires react
+ * @requires react-router-dom
+ * @requires jwt-decode
+ * @requires ../services/api
+ * @requires ../services/userService
+ */
 import { createContext, useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import API from "../services/api";
@@ -6,24 +15,43 @@ import { jwtDecode } from "jwt-decode";
 
 export const AuthContext = createContext();
 
+/**
+ * Authentication Provider Component
+ * 
+ * Manages authentication state and provides authentication methods to the application.
+ * Handles two separate authentication flows:
+ * 1. Regular user authentication (stored in localStorage)
+ * 2. Admin authentication (stored in sessionStorage)
+ * 
+ * @component
+ * @param {Object} props
+ * @param {React.ReactNode} props.children - Child components
+ */
 export const AuthProvider = ({ children }) => {
+  // Authentication state
   const [user, setUser] = useState(null);
-  const [isCustomer, setisCustomer] = useState(!!localStorage.getItem("accessToken")
-  );
+  const [isCustomer, setisCustomer] = useState(!!localStorage.getItem("accessToken"));
   const [isAdmin, setIsAdmin] = useState(!!sessionStorage.getItem("accessToken"));
   const [error, setError] = useState(null);
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Helper: Show error (replace with your toast/snackbar)
+  /**
+   * Displays error messages
+   * @param {string} msg - Error message to display
+   */
   const showError = (msg) => {
     setError(msg);
     // TODO: Replace with toast/snackbar
     console.error(msg);
   };
 
-  // Helper: Check token expiry
+  /**
+   * Checks if a JWT token has expired
+   * @param {string} token - JWT token to check
+   * @returns {boolean} True if token has expired, false otherwise
+   */
   const isTokenExpired = (token) => {
     try {
       const decoded = jwtDecode(token);
@@ -34,7 +62,10 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Automatic token refresh
+  /**
+   * Requests a new access token using refresh token (stored in HTTP-only cookie)
+   * @returns {Promise<string|null>} New access token or null if refresh failed
+   */
   const getNewAccessToken = useCallback(async () => {
     try {
       const { data } = await API.post("/api/auth/refresh-token");
@@ -51,7 +82,9 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Regular user authentication check
+  /**
+   * Effect: Check regular user authentication on mount and token refresh
+   */
   useEffect(() => {
     const accessToken = localStorage.getItem("accessToken");
     const storedUser = localStorage.getItem("user");
@@ -69,7 +102,10 @@ export const AuthProvider = ({ children }) => {
     }
   }, [getNewAccessToken]);
 
-  // Admin authentication check
+  /**
+   * Effect: Check admin authentication on route changes
+   * Uses sessionStorage for admin tokens (cleared when browser is closed)
+   */
   useEffect(() => {
     const accessToken = sessionStorage.getItem("accessToken");
     if (accessToken) {
@@ -108,7 +144,9 @@ export const AuthProvider = ({ children }) => {
     }
   }, [location.pathname, navigate]);
 
-  // Redirect logic for admin routes and login page
+  /**
+   * Effect: Route protection for admin pages
+   */
   useEffect(() => {
     if (isAdmin && location.pathname === "/admin-login") {
       navigate("/admin");
@@ -122,7 +160,13 @@ export const AuthProvider = ({ children }) => {
     }
   }, [isAdmin, location.pathname, navigate]);
 
-  // Regular user login
+  /**
+   * Authenticates a regular user with email and password
+   * @param {string} email - User email
+   * @param {string} password - User password
+   * @returns {Promise<void>}
+   * @throws {Error} If authentication fails
+   */
   const login = async (email, password) => {
     try {
       const { data } = await API.post("/api/auth/login", { email, password });
@@ -138,7 +182,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // User signup
+  /**
+   * Registers a new user
+   * @param {string} name - User's full name
+   * @param {string} email - User's email
+   * @param {string} number - User's phone number
+   * @param {string} password - User's password
+   * @param {string} confirmPassword - Password confirmation
+   * @returns {Promise<void>}
+   * @throws {Error} If registration fails
+   */
   const signup = async (name, email, number, password, confirmPassword) => {
     try {
       await API.post("/api/auth/register", {
@@ -155,7 +208,10 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // User logout
+  /**
+   * Logs out the current user (both customer and admin)
+   * @returns {Promise<void>}
+   */
   const logout = async () => {
     try {
       await API.post("/api/auth/logout");
@@ -172,7 +228,13 @@ export const AuthProvider = ({ children }) => {
     navigate("/");
   };
 
-  // Admin login
+  /**
+   * Authenticates an admin user
+   * @param {string} email - Admin email
+   * @param {string} password - Admin password
+   * @returns {Promise<void>}
+   * @throws {Error} If authentication fails
+   */
   const adminLogin = async (email, password) => {
     try {
       const { data } = await API.post("/api/auth/adminLogin", { email, password });
@@ -194,7 +256,10 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Admin logout
+  /**
+   * Logs out admin user
+   * @returns {Promise<void>}
+   */
   const adminLogout = async () => {
     sessionStorage.removeItem("accessToken");
     sessionStorage.removeItem("user");
@@ -204,13 +269,42 @@ export const AuthProvider = ({ children }) => {
     navigate("/");
   };
 
-  // Update user info
+  /**
+   * Updates user information in state and storage
+   * @param {Object} updatedUser - Updated user object
+   */
   const updateUser = (updatedUser) => {
     localStorage.setItem("user", JSON.stringify(updatedUser));
     setUser(updatedUser);
   };
 
-  // Expose context
+  /**
+   * Refreshes authentication state after OAuth login or token expiry
+   * @returns {Promise<boolean>} Success status
+   */
+  const refreshAuth = useCallback(async () => {
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+      
+      if (!accessToken) {
+        throw new Error("No access token found");
+      }
+      
+      if (isTokenExpired(accessToken)) {
+        await getNewAccessToken();
+      }
+      
+      const fullUser = await fetchLoginUser();
+      localStorage.setItem("user", JSON.stringify(fullUser));
+      setUser(fullUser);
+      setisCustomer(true);
+      return true;
+    } catch (err) {
+      console.error("Error refreshing authentication state:", err);
+      return false;
+    }
+  }, [getNewAccessToken]);
+
   return (
     <AuthContext.Provider
       value={{
@@ -225,6 +319,7 @@ export const AuthProvider = ({ children }) => {
         adminLogout,
         updateUser,
         getNewAccessToken,
+        refreshAuth
       }}
     >
       {children}
