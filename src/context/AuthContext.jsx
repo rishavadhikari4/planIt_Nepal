@@ -282,28 +282,14 @@ export const AuthProvider = ({ children }) => {
    * Refreshes authentication state after OAuth login or token expiry
    * @returns {Promise<boolean>} Success status
    */
-  const refreshAuth = useCallback(async () => {
-    try {
-      const accessToken = localStorage.getItem("accessToken");
-      
-      if (!accessToken) {
-        throw new Error("No access token found");
-      }
-      
-      if (isTokenExpired(accessToken)) {
-        await getNewAccessToken();
-      }
-      
-      const fullUser = await fetchLoginUser();
-      localStorage.setItem("user", JSON.stringify(fullUser));
-      setUser(fullUser);
+
+  const refreshAuth = () => {
+    const accessToken = localStorage.getItem("accessToken");
+    const storedUser = localStorage.getItem("user");
+    if (accessToken && storedUser) {
+      setUser(JSON.parse(storedUser));
       setisCustomer(true);
-      return true;
-    } catch (err) {
-      console.error("Error refreshing authentication state:", err);
-      return false;
-    }
-  }, [getNewAccessToken]);
+    }};
 
   return (
     <AuthContext.Provider
