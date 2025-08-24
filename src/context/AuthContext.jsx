@@ -1,16 +1,7 @@
-/**
- * @module AuthContext
- * @description Authentication context provider for the Wedding Planner application
- * @requires react
- * @requires react-router-dom
- * @requires jwt-decode
- * @requires ../services/api
- * @requires ../services/userService
- */
 import { createContext, useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import API from "../services/api";
-import { fetchLoginUser } from "../services/userService";
+import { fetchLoginUser } from "../services/users";
 import { jwtDecode } from "jwt-decode";
 
 export const AuthContext = createContext();
@@ -30,9 +21,10 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   // Authentication state
   const [user, setUser] = useState(null);
-  const [isCustomer, setisCustomer] = useState(!!localStorage.getItem("accessToken"));
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("accessToken"));
   const [isAdmin, setIsAdmin] = useState(!!sessionStorage.getItem("accessToken"));
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -43,7 +35,6 @@ export const AuthProvider = ({ children }) => {
    */
   const showError = (msg) => {
     setError(msg);
-    // TODO: Replace with toast/snackbar
     console.error(msg);
   };
 
@@ -68,10 +59,10 @@ export const AuthProvider = ({ children }) => {
    */
   const getNewAccessToken = useCallback(async () => {
     try {
-      const { data } = await API.post("/api/auth/refresh-token");
-      if (data.accessToken) {
+      const { data } = await API.post("/api/auths/refresh-token");
+      if (data.success && data.accessToken) {
         localStorage.setItem("accessToken", data.accessToken);
-        setisCustomer(true);
+        setIsAuthenticated(true);
         return data.accessToken;
       }
       throw new Error("No access token returned");
@@ -95,17 +86,13 @@ export const AuthProvider = ({ children }) => {
         return;
       }
       setUser(JSON.parse(storedUser));
-      setisCustomer(true);
+      setIsAuthenticated(true);
     } else {
       setUser(null);
-      setisCustomer(false);
+      setIsAuthenticated(false);
     }
   }, [getNewAccessToken]);
 
-  /**
-   * Effect: Check admin authentication on route changes
-   * Uses sessionStorage for admin tokens (cleared when browser is closed)
-   */
   useEffect(() => {
     const accessToken = sessionStorage.getItem("accessToken");
     if (accessToken) {
@@ -116,8 +103,6 @@ export const AuthProvider = ({ children }) => {
           setIsAdmin(false);
           sessionStorage.removeItem("accessToken");
           sessionStorage.removeItem("user");
-          setUser(null);
-          setisCustomer(false);
           if (location.pathname.startsWith("/admin")) {
             navigate("/admin-login");
           }
@@ -130,8 +115,6 @@ export const AuthProvider = ({ children }) => {
         setIsAdmin(false);
         sessionStorage.removeItem("accessToken");
         sessionStorage.removeItem("user");
-        setUser(null);
-        setisCustomer(false);
         if (location.pathname.startsWith("/admin")) {
           navigate("/admin-login");
         }
@@ -144,9 +127,6 @@ export const AuthProvider = ({ children }) => {
     }
   }, [location.pathname, navigate]);
 
-  /**
-   * Effect: Route protection for admin pages
-   */
   useEffect(() => {
     if (isAdmin && location.pathname === "/admin-login") {
       navigate("/admin");
@@ -160,152 +140,228 @@ export const AuthProvider = ({ children }) => {
     }
   }, [isAdmin, location.pathname, navigate]);
 
-  /**
-   * Authenticates a regular user with email and password
-   * @param {string} email - User email
-   * @param {string} password - User password
-   * @returns {Promise<void>}
-   * @throws {Error} If authentication fails
-   */
-  const login = async (email, password) => {
-    try {
-      const { data } = await API.post("/api/auth/login", { email, password });
-      localStorage.setItem("accessToken", data.accessToken);
-      const fullUser = await fetchLoginUser();
-      localStorage.setItem("user", JSON.stringify(fullUser));
-      setUser(fullUser);
-      setisCustomer(true);
-      navigate("/welcome");
-    } catch (error) {
-      showError(error.response?.data?.message || "Login failed");
-      throw error;
-    }
-  };
-
-  /**
-   * Registers a new user
-   * @param {string} name - User's full name
-   * @param {string} email - User's email
-   * @param {string} number - User's phone number
-   * @param {string} password - User's password
-   * @param {string} confirmPassword - Password confirmation
-   * @returns {Promise<void>}
-   * @throws {Error} If registration fails
-   */
   const signup = async (name, email, number, password, confirmPassword) => {
+    setLoading(true);
     try {
-      await API.post("/api/auth/register", {
+      const response = await API.post("/api/auths/signup", {
         name,
         email,
         number,
         password,
         confirmPassword,
       });
-      navigate("/login");
+      
+      if (response.data.success) {
+        navigate("/login");
+        return response.data;
+      }
     } catch (error) {
       showError(error.response?.data?.message || "Signup failed");
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
-  /**
-   * Logs out the current user (both customer and admin)
-   * @returns {Promise<void>}
-   */
-  const logout = async () => {
+  const login = async (email, password) => {
+    setLoading(true);
     try {
-      await API.post("/api/auth/logout");
+      const { data } = await API.post("/api/auths/login", { email, password });
+      
+      if (data.success && data.accessToken) {
+        localStorage.setItem("accessToken", data.accessToken);
+        
+        try {
+          const fullUser = await fetchLoginUser();
+          localStorage.setItem("user", JSON.stringify(fullUser));
+          setUser(fullUser);
+        } catch (userError) {
+          const decoded = jwtDecode(data.accessToken);
+          const basicUser = { 
+            id: decoded.id, 
+            email: decoded.email, 
+            role: decoded.role 
+          };
+          localStorage.setItem("user", JSON.stringify(basicUser));
+          setUser(basicUser);
+        }
+        
+        setIsAuthenticated(true);
+        navigate("/welcome");
+        return data;
+      }
     } catch (error) {
-      showError(error.response?.data?.message || "Logout failed");
+      showError(error.response?.data?.message || "Login failed");
+      throw error;
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const adminLogin = async (email, password) => {
+    setLoading(true);
+    try {
+      const { data } = await API.post("/api/auths/admin-login", { email, password });
+      
+      if (data.success && data.accessToken) {
+        sessionStorage.setItem("accessToken", data.accessToken);
+        const decoded = jwtDecode(data.accessToken);
+        
+        if (decoded.role !== "admin") {
+          showError("Not authorized as admin");
+          throw new Error("Not authorized as admin");
+        }
+        
+        const adminUser = { 
+          id: decoded.id, 
+          email: decoded.email, 
+          role: decoded.role 
+        };
+        sessionStorage.setItem("user", JSON.stringify(adminUser));
+        setUser(adminUser);
+        setIsAdmin(true);
+        navigate("/admin");
+        return data;
+      }
+    } catch (error) {
+      showError(error.response?.data?.message || "Admin login failed");
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    setLoading(true);
+    try {
+      await API.post("/api/auths/logout");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+    
     localStorage.removeItem("accessToken");
     localStorage.removeItem("user");
     sessionStorage.removeItem("accessToken");
     sessionStorage.removeItem("user");
     setUser(null);
-    setisCustomer(false);
+    setIsAuthenticated(false);
     setIsAdmin(false);
+    setLoading(false);
     navigate("/");
   };
 
-  /**
-   * Authenticates an admin user
-   * @param {string} email - Admin email
-   * @param {string} password - Admin password
-   * @returns {Promise<void>}
-   * @throws {Error} If authentication fails
-   */
-  const adminLogin = async (email, password) => {
+  const adminLogout = async () => {
+    setLoading(true);
     try {
-      const { data } = await API.post("/api/auth/adminLogin", { email, password });
-      sessionStorage.setItem("accessToken", data.accessToken);
-      const decoded = jwtDecode(data.accessToken);
-      if (decoded.role !== "admin") {
-        showError("Not authorized as admin");
-        throw new Error("Not authorized as admin");
-      }
-      const user = { email: decoded.email };
-      sessionStorage.setItem("user", JSON.stringify(user));
-      setUser(user);
-      setisCustomer(true);
-      setIsAdmin(true);
-      navigate("/admin");
+      await API.post("/api/auths/logout");
     } catch (error) {
-      showError(error.response?.data?.message || "Admin login failed");
+      console.error("Admin logout error:", error);
+    }
+    
+    sessionStorage.removeItem("accessToken");
+    sessionStorage.removeItem("user");
+    setUser(null);
+    setIsAuthenticated(false);
+    setIsAdmin(false);
+    setLoading(false);
+    navigate("/");
+  };
+
+  const verifyUser = async () => {
+    try {
+      const response = await API.get("/api/auths/verify/user");
+      return response.data;
+    } catch (error) {
+      showError(error.response?.data?.message || "User verification failed");
       throw error;
     }
   };
 
-  /**
-   * Logs out admin user
-   * @returns {Promise<void>}
-   */
-  const adminLogout = async () => {
-    sessionStorage.removeItem("accessToken");
-    sessionStorage.removeItem("user");
-    setUser(null);
-    setisCustomer(false);
-    setIsAdmin(false);
-    navigate("/");
+  const sendVerificationMail = async () => {
+    try {
+      const response = await API.post("/api/auths/verify/mail");
+      return response.data;
+    } catch (error) {
+      showError(error.response?.data?.message || "Failed to send verification email");
+      throw error;
+    }
   };
 
-  /**
-   * Updates user information in state and storage
-   * @param {Object} updatedUser - Updated user object
-   */
+  const verifyMail = async (otp) => {
+    try {
+      const response = await API.patch("/api/auths/verify/mail", { otp });
+      if (response.data.success) {
+        const updatedUser = { ...user, verified: true };
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+        setUser(updatedUser);
+      }
+      return response.data;
+    } catch (error) {
+      showError(error.response?.data?.message || "Email verification failed");
+      throw error;
+    }
+  };
+
   const updateUser = (updatedUser) => {
-    localStorage.setItem("user", JSON.stringify(updatedUser));
+    if (isAdmin) {
+      sessionStorage.setItem("user", JSON.stringify(updatedUser));
+    } else {
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+    }
     setUser(updatedUser);
   };
-
-  /**
-   * Refreshes authentication state after OAuth login or token expiry
-   * @returns {Promise<boolean>} Success status
-   */
 
   const refreshAuth = () => {
     const accessToken = localStorage.getItem("accessToken");
     const storedUser = localStorage.getItem("user");
     if (accessToken && storedUser) {
       setUser(JSON.parse(storedUser));
-      setisCustomer(true);
-    }};
+      setIsAuthenticated(true);
+      return true;
+    }
+    return false;
+  };
+
+  const handleGoogleAuthSuccess = async (accessToken) => {
+    try {
+      localStorage.setItem("accessToken", accessToken);
+      const fullUser = await fetchLoginUser();
+      localStorage.setItem("user", JSON.stringify(fullUser));
+      setUser(fullUser);
+      setIsAuthenticated(true);
+      navigate("/welcome");
+    } catch (error) {
+      showError("Failed to complete Google authentication");
+      console.error(error);
+    }
+  };
+
+  const clearError = () => {
+    setError(null);
+  };
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        isCustomer,
+        isAuthenticated,
         isAdmin,
         error,
+        loading,
         signup,
         login,
         logout,
         adminLogin,
         adminLogout,
+        verifyUser,
+        sendVerificationMail,
+        verifyMail,
         updateUser,
         getNewAccessToken,
-        refreshAuth
+        refreshAuth,
+        handleGoogleAuthSuccess,
+        clearError,
+        isCustomer: isAuthenticated,
       }}
     >
       {children}

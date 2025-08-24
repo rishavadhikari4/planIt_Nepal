@@ -19,7 +19,6 @@ API.interceptors.request.use((req) => {
     return req;
 });
 
-// Define refresh logic here
 const getNewAccessToken = async () => {
     try {
         const { data } = await API.post("/api/auth/refresh-token");

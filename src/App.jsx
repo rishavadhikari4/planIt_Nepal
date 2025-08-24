@@ -1,38 +1,54 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 
+// Auth pages
+import AuthSuccess from './pages/auth/AuthSuccess';
+import Register from './pages/auth/Register';
+import Login from './pages/auth/Login';
+import ForgotPassword from './pages/auth/ForgotPassword';
+import ResetPassword from './pages/auth/ResetPassword';
+import Welcome from './pages/auth/Welcome';
+
+// Public pages
+import Home from './pages/public/Home';
+import Contact from './pages/public/Contact';
+import NotFound from './pages/public/NotFound';
+
+// Service pages
+import Venues from './pages/services/Venues';
+import VenueDetails from './pages/services/VenueDetails';
+import Cuisines from './pages/services/Cuisines';
+import Studios from './pages/services/Studios';
+import StudioDetails from './pages/services/StudioDetails';
+
 // User pages
-import AuthSuccess from './pages/AuthSuccess';
-import Header from './components/Header';
-import Home from './pages/Home';
-import Venues from './pages/Venues';
-import Dishes from './pages/Dishes';
-import Decorations from './pages/Decorations';
-import Contact from './pages/Contact';
-import NotFound from './pages/NotFound';
-import Register from './pages/Register';
-import Login from './pages/Login';
-import Cart from './pages/Cart';
-import ForgotPassword from './pages/forgotPassword';
-import ResetPassword from './pages/resetPassword';
-import UserProfile from './pages/userProfile';
-import Welcome from './pages/welcome';
+import Cart from './pages/user/Cart';
+import UserProfile from './pages/user/Profile';
+import PaymentSelection from './pages/user/PaymentSelection';
+import OrderSuccess from './pages/user/OrderSuccess';
 
 // Admin pages
-import Admin from './admin/Admin';
-import AdminLogin from './admin/adminLogin';
-import AdminHeader from './adminComponent/adminHeader';
-import AdminDecorations from './adminComponent/adminDecorations';
-import AdminDishes from './adminComponent/adminDishes';
-import AdminVenues from './adminComponent/adminVenues';
-import AdminContact from './adminComponent/adminContact';
-import EditDecoration from './utillsComponents/editDecorations';
-import EditVenue from './utillsComponents/editVenues';
-import EditDish from './utillsComponents/editDishes';
-import AdminOrderList from './adminComponent/adminOrders';
-import AddDishForm from './utillsComponents/addDishForm';
-import AddVenueForm from './utillsComponents/addVenuesFrom';
-import AddDecorationForm from './utillsComponents/addDecorationForm';
+import Admin from './pages/admin/AdminDashboard';
+import AdminLogin from './pages/admin/AdminLogin';
+import Adminstudios from './pages/admin/StudioManagement';
+import AdminCuisines from './pages/admin/CuisineManagement';
+import AdminVenues from './pages/admin/VenueManagement';
+import AdminContact from './pages/admin/ContactManagement';
+import AdminOrderList from './pages/admin/OrderManagement';
+import OrderDetails from './pages/admin/OrderDetails'; // Add this import
+import UserInspection from './pages/admin/UserInspection';
+
+// Common components
+import Header from './components/common/Header';
+import AdminHeader from './components/common/AdminHeader';
+
+// Form components
+import AddstudioForm from './components/forms/AddStudioForm';
+import AddVenueForm from './components/forms/AddVenueForm';
+import AddCuisineForm from './components/forms/AddCuisineForm';
+import EditVenue from './components/forms/EditVenueForm';
+import EditCuisines from './components/forms/EditCuisineForm';
+import Editstudio from './components/forms/EditStudioForm';
 
 // Contexts
 import { AuthProvider } from './context/AuthContext';
@@ -48,21 +64,25 @@ function AppContent() {
     '/auth-success',
     '/admin-login',
     '/not-found',
-    '/reset-password' ,
+    '/reset-password',
     '/welcome',
-
   ];
 
   const showHeaderForAdmin = [
     '/admin',
     '/admin-orders',
-    '/admin-decorations',
-    '/admin-dishes',
+    '/admin-studios',
+    '/admin-cuisines',
     '/admin-venues',
     '/admin-contact',
-    '/admin-decorations/edit',
+    '/admin-studios/edit',
     '/admin-venues/edit',
-    '/admin-dishes/edit'
+    '/admin-cuisines/edit',
+    '/admin-cuisines/add',
+    '/admin-cuisines/addCuisine',
+    '/admin-venues/addVenue',
+    '/admin-studios/addstudio',
+    '/admin/users/inspect' // Add this for user inspection
   ];
 
   const shouldHideHeader = hideHeaderRoutes.some(route =>
@@ -75,41 +95,53 @@ function AppContent() {
 
   return (
     <AuthProvider>
+      <CartProvider>
       {!shouldHideHeader && !shouldShowAdminHeader && <Header />}
       {shouldShowAdminHeader && <AdminHeader />}
 
-      <CartProvider>
         <Routes>
           {/* User Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/venues" element={<Venues />} />
-          <Route path="/dishes" element={<Dishes />} />
-          <Route path="/decorations" element={<Decorations />} />
+          <Route path="/venues/:venueId" element={<VenueDetails />} />
+          <Route path="/studios/:studioId" element={<StudioDetails />} />
+          <Route path="/cuisines" element={<Cuisines />} />
+          <Route path="/studios" element={<Studios />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/auth-success" element={<AuthSuccess />} />
           <Route path="/login" element={<Login />} />
           <Route path="/welcome" element={<Welcome />} />
-          <Route path="/register" element={<Register />}/>
-          <Route path="/login/forgot-password" element={<ForgotPassword />}/>
-          <Route path="/reset-password/:resetToken" element={<ResetPassword />}/>
-          <Route path="/user-profile/:id" element={<UserProfile />}/>
-          
+          <Route path="/register" element={<Register />} />
+          <Route path="/login/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:resetToken" element={<ResetPassword />} />
+          <Route path="/user-profile/:id" element={<UserProfile />} />
+          <Route path="/payment/:orderId" element={<PaymentSelection />} />
+          <Route path="/order-success" element={<OrderSuccess />} />
 
           {/* Admin Routes */}
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/admin-orders" element={<AdminOrderList />} />
-          <Route path="/admin-decorations" element={<AdminDecorations />} />
-          <Route path="/admin-dishes" element={<AdminDishes />} />
+          <Route path="/admin/orders/:orderId" element={<OrderDetails />} />
+          <Route path="/admin-studios" element={<Adminstudios />} />
+          <Route path="/admin-cuisines" element={<AdminCuisines />} />
           <Route path="/admin-venues" element={<AdminVenues />} />
           <Route path="/admin-contact" element={<AdminContact />} />
-          <Route path="/admin-decorations/edit/:id" element={<EditDecoration />} />
+          
+          {/* Admin Edit Routes */}
+          <Route path="/admin-studios/edit/:id" element={<Editstudio />} />
           <Route path="/admin-venues/edit/:id" element={<EditVenue />} />
-          <Route path="/admin-dishes/edit/:categoryName/:dishId" element={<EditDish />} />
-          <Route path="/admin-dishes/addDishes" element={<AddDishForm />} />
+          <Route path="/admin-cuisines/edit/:categoryId/:dishId" element={<EditCuisines />} />
+          
+          {/* Admin Add Routes */}
+          <Route path="/admin-cuisines/add" element={<AddCuisineForm />} />
+          <Route path="/admin-cuisines/addCuisine" element={<AddCuisineForm />} />
           <Route path="/admin-venues/addVenue" element={<AddVenueForm />} />
-          <Route path="/admin-decorations/addDecoration" element={<AddDecorationForm />} />
+          <Route path="/admin-studios/addstudio" element={<AddstudioForm />} />
+
+          {/* User Inspection Route */}
+          <Route path="/admin/users/inspect/:userId" element={<UserInspection />} />
 
           {/* Not Found Route */}
           <Route path="/not-found" element={<NotFound />} />
@@ -126,6 +158,9 @@ function AppContent() {
           pauseOnFocusLoss
           draggable
           theme="light"
+          toastStyle={{
+            fontFamily: 'Inter, system-ui, sans-serif',
+          }}
         />
       </CartProvider>
     </AuthProvider>
