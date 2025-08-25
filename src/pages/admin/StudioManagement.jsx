@@ -1,5 +1,3 @@
-"use client"
-
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { deleteStudio, getAllStudios, searchStudios } from "../../services/studios"
@@ -33,16 +31,15 @@ const Adminstudios = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [sortField, setSortField] = useState("createdAt")
   const [sortOrder, setSortOrder] = useState("desc")
-  const [isSearchMode, setIsSearchMode] = useState(false) // Track if we're in search mode
+  const [isSearchMode, setIsSearchMode] = useState(false)
   const navigate = useNavigate()
 
-  // Fetch studios with pagination and filters
   const fetchStudios = async (page = 1, filters = {}) => {
     setLoading(true)
     try {
       const params = {
         page,
-        limit: 8, // Show 8 studios per page for better admin view
+        limit: 8, 
         sortField,
         sortOrder,
         ...filters
@@ -50,10 +47,10 @@ const Adminstudios = () => {
 
       const response = await getAllStudios(params)
       setstudios(response.studios || [])
-      setAllStudios(response.studios || []) // Store all studios for client-side filtering
+      setAllStudios(response.studios || []) 
       setPagination(response.pagination || {})
       setCurrentPage(page)
-      setIsSearchMode(false) // Reset search mode
+      setIsSearchMode(false)
     } catch (err) {
       console.error("Failed to fetch studios:", err)
       toast.error("Failed to load studios.")
