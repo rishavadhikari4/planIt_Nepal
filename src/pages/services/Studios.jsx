@@ -12,12 +12,11 @@ import {
   List, 
   Heart, 
   Eye,
-  ArrowLeft,
-  ArrowRight,
   ChevronLeft,
   ChevronRight
 } from "lucide-react"
 import { toast } from "react-toastify"
+import { getAllStudios, searchStudios } from "../../services/studios"
 
 const Studios = () => {
   const [studios, setStudios] = useState([])
@@ -44,35 +43,36 @@ const Studios = () => {
   const fetchStudios = async (page = 1, filters = {}) => {
     try {
       setLoading(true)
-      const queryParams = new URLSearchParams({
-        page: page.toString(),
-        sortBy: sortField,
-        sortOrder: sortOrder,
-        ...filters
-      })
-
-      const response = await fetch(`/api/studios?${queryParams}`)
-      const data = await response.json()
       
-      if (data.success && data.data) {
-        setStudios(data.data.studios || [])
-        setPagination({
-          totalStudios: data.data.pagination?.totalStudios || 0,
-          totalPages: data.data.pagination?.totalPages || 1,
-          currentPage: data.data.pagination?.currentPage || 1,
-          hasNextPage: data.data.pagination?.hasNextPage || false,
-          hasPrevPage: data.data.pagination?.hasPrevPage || false
-        })
-      } else {
-        setStudios([])
-        setPagination({
-          totalStudios: 0,
-          totalPages: 1,
-          currentPage: 1,
-          hasNextPage: false,
-          hasPrevPage: false
-        })
+      const params = {
+        page,
+        limit: 12, // You can adjust this based on your needs
+        sortField,
+        sortOrder,
+        ...filters
       }
+
+      // Add price filters if they exist
+      if (priceRange.min) params.minPrice = priceRange.min
+      if (priceRange.max) params.maxPrice = priceRange.max
+      if (locationFilter) params.location = locationFilter
+
+      const response = await getAllStudios(params)
+      
+      setStudios(response.studios || [])
+      
+      // Map the response to match your existing pagination structure
+      const paginationData = response.pagination || {}
+      setPagination({
+        totalStudios: paginationData.totalStudios || response.studios?.length || 0,
+        totalPages: paginationData.totalPages || 1,
+        currentPage: paginationData.currentPage || page,
+        hasNextPage: paginationData.hasNextPage || false,
+        hasPrevPage: paginationData.hasPrevPage || false
+      })
+      
+      setCurrentPage(page)
+      setIsSearchActive(false)
     } catch (error) {
       console.error("Error fetching studios:", error)
       toast.error("Failed to load studios")
@@ -100,39 +100,30 @@ const Studios = () => {
       setLoading(true)
       setIsSearchActive(true)
       
-      const searchParams = new URLSearchParams({
-        search: searchTerm,
-        page: page.toString(),
-        sortBy: sortField,
-        sortOrder: sortOrder
-      })
-
-      if (priceRange.min) searchParams.append("minPrice", priceRange.min)
-      if (priceRange.max) searchParams.append("maxPrice", priceRange.max)
-      if (locationFilter) searchParams.append("location", locationFilter)
-
-      const response = await fetch(`/api/studios/search?${searchParams}`)
-      const data = await response.json()
-      
-      if (data.success && data.data) {
-        setStudios(data.data.studios || [])
-        setPagination({
-          totalStudios: data.data.pagination?.totalStudios || 0,
-          totalPages: data.data.pagination?.totalPages || 1,
-          currentPage: data.data.pagination?.currentPage || 1,
-          hasNextPage: data.data.pagination?.hasNextPage || false,
-          hasPrevPage: data.data.pagination?.hasPrevPage || false
-        })
-      } else {
-        setStudios([])
-        setPagination({
-          totalStudios: 0,
-          totalPages: 1,
-          currentPage: 1,
-          hasNextPage: false,
-          hasPrevPage: false
-        })
+      const searchOptions = {
+        q: searchTerm,
+        page,
+        limit: 12,
+        ...(priceRange.min && { minPrice: priceRange.min }),
+        ...(priceRange.max && { maxPrice: priceRange.max }),
+        ...(locationFilter && { location: locationFilter })
       }
+
+      const response = await searchStudios(searchOptions)
+      
+      setStudios(response.studios || [])
+      
+      // Map the search response to match your existing pagination structure
+      const paginationData = response.pagination || {}
+      setPagination({
+        totalStudios: paginationData.totalStudios || response.studios?.length || 0,
+        totalPages: paginationData.totalPages || 1,
+        currentPage: paginationData.currentPage || page,
+        hasNextPage: paginationData.hasNextPage || false,
+        hasPrevPage: paginationData.hasPrevPage || false
+      })
+      
+      setCurrentPage(page)
     } catch (error) {
       console.error("Error searching studios:", error)
       toast.error("Search failed. Please try again.")
@@ -163,11 +154,12 @@ const Studios = () => {
     if (isSearchActive) {
       performSearch(page)
     } else {
-      fetchStudios(page, {
-        ...(priceRange.min && { minPrice: priceRange.min }),
-        ...(priceRange.max && { maxPrice: priceRange.max }),
-        ...(locationFilter && { location: locationFilter })
-      })
+      const filters = {}
+      if (priceRange.min) filters.minPrice = priceRange.min
+      if (priceRange.max) filters.maxPrice = priceRange.max
+      if (locationFilter) filters.location = locationFilter
+      
+      fetchStudios(page, filters)
     }
   }
 
