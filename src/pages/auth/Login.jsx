@@ -180,7 +180,11 @@ const Login = () => {
           className="w-full flex items-center justify-center gap-3 py-4 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 text-gray-700 font-semibold transition-all duration-300 hover:border-purple-300 hover:shadow-lg group"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
+<<<<<<< HEAD
           onClick={() => (window.location.href = `${import.meta.env.VITE_API_BASE_URL}/api/auth/google/`)}
+=======
+          onClick={() => (window.location.href = `${import.meta.env.VITE_API_BASE_URL}/api/auths/google/`)}
+>>>>>>> Rishav_Branch
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.6 }}
