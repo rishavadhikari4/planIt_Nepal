@@ -104,13 +104,16 @@ const AdminReviews = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
         <div className="relative">
-          <div className="w-16 h-16 border-4 border-purple-200 rounded-full animate-spin"></div>
           <div
-            className="w-16 h-16 border-4 border-purple-600 rounded-full animate-spin absolute top-0 left-0"
-            style={{ clipPath: "inset(0 50% 0 0)" }}
+            className="w-16 h-16 border-4 border-indigo-200 rounded-full animate-spin"
+            style={{ animationDuration: "0.8s" }}
+          ></div>
+          <div
+            className="w-16 h-16 border-4 border-gradient-to-r from-indigo-600 to-purple-600 rounded-full animate-spin absolute top-0 left-0"
+            style={{ clipPath: "inset(0 50% 0 0)", animationDuration: "0.8s", animationDirection: "reverse" }}
           ></div>
         </div>
-        <p className="text-gray-600 font-medium">Loading reviews...</p>
+        <p className="text-slate-600 font-medium">Loading reviews...</p>
       </div>
     )
   }
@@ -118,14 +121,14 @@ const AdminReviews = () => {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
-          <MessageSquare className="w-8 h-8 text-red-600" />
+        <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center shadow-lg">
+          <MessageSquare className="w-8 h-8 text-red-500" />
         </div>
         <div className="text-center">
           <p className="text-red-600 font-semibold mb-2">{error}</p>
           <button
             onClick={fetchReviews}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            className="px-6 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-150 shadow-lg hover:shadow-xl transform hover:scale-105"
           >
             Try Again
           </button>
@@ -135,233 +138,266 @@ const AdminReviews = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header Section */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div>
-          <h2 className="text-2xl lg:text-3xl font-bold text-gray-800 mb-2">Customer Reviews</h2>
-          <p className="text-gray-600">Manage and moderate customer feedback and ratings</p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl">
-            <Download className="w-4 h-4" />
-            <span className="hidden sm:inline">Export</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          {
-            label: "Total Reviews",
-            value: stats.total,
-            icon: MessageSquare,
-            color: "text-blue-600",
-            bg: "bg-blue-100",
-          },
-          { label: "Verified", value: stats.verified, icon: ShieldCheck, color: "text-green-600", bg: "bg-green-100" },
-          { label: "Pending", value: stats.unverified, icon: Shield, color: "text-orange-600", bg: "bg-orange-100" },
-          { label: "Avg Rating", value: stats.avgRating, icon: Star, color: "text-yellow-600", bg: "bg-yellow-100" },
-        ].map((stat, index) => {
-          const IconComponent = stat.icon
-          return (
-            <motion.div
-              key={stat.label}
-              className="bg-white/80 backdrop-blur-xl rounded-2xl p-4 lg:p-6 border border-gray-200/50 shadow-sm hover:shadow-lg transition-all duration-300"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ scale: 1.02, y: -2 }}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl ${stat.bg} flex items-center justify-center`}>
-                  <IconComponent className={`w-5 h-5 lg:w-6 lg:h-6 ${stat.color}`} />
-                </div>
-              </div>
-              <div>
-                <p className="text-xl lg:text-2xl font-bold text-gray-800 mb-1">{stat.value}</p>
-                <p className="text-gray-500 text-xs lg:text-sm">{stat.label}</p>
-              </div>
-            </motion.div>
-          )
-        })}
-      </div>
-
-      {/* Search and Filter Section */}
-      <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-4 lg:p-6 border border-gray-200/50 shadow-sm">
-        <div className="flex flex-col sm:flex-row gap-4">
-          {/* Search */}
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Search reviews by user or content..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
-            />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-4 sm:p-6 lg:p-8">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Header Section */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div className="space-y-2">
+            <h2 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+              Customer Reviews
+            </h2>
+            <p className="text-slate-600 text-lg">Manage and moderate customer feedback and ratings</p>
           </div>
 
-          {/* Filter */}
-          <div className="relative">
-            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="pl-10 pr-8 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 appearance-none cursor-pointer min-w-[140px]"
-            >
-              <option value="all">All Reviews</option>
-              <option value="verified">Verified</option>
-              <option value="unverified">Pending</option>
-            </select>
+          <div className="flex items-center gap-3">
+            <button className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white rounded-xl hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 transition-all duration-150 shadow-lg hover:shadow-xl transform hover:scale-105">
+              <Download className="w-5 h-5" />
+              <span className="font-medium">Export</span>
+            </button>
           </div>
         </div>
-      </div>
 
-      {/* Reviews List */}
-      <div className="space-y-4">
-        {filteredReviews.length === 0 ? (
-          <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-8 lg:p-12 border border-gray-200/50 shadow-sm text-center">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <MessageSquare className="w-8 h-8 text-gray-400" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">No Reviews Found</h3>
-            <p className="text-gray-600">
-              {searchTerm || filterStatus !== "all"
-                ? "Try adjusting your search or filter criteria"
-                : "No customer reviews available yet"}
-            </p>
-          </div>
-        ) : (
-          <AnimatePresence>
-            {filteredReviews.map((review, index) => (
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-2">
+          {[
+            {
+              label: "Total Reviews",
+              value: stats.total,
+              icon: MessageSquare,
+              gradient: "from-blue-500 to-cyan-500",
+              bg: "bg-gradient-to-br from-blue-50 to-cyan-50",
+            },
+            {
+              label: "Verified",
+              value: stats.verified,
+              icon: ShieldCheck,
+              gradient: "from-emerald-500 to-green-500",
+              bg: "bg-gradient-to-br from-emerald-50 to-green-50",
+            },
+            {
+              label: "Pending",
+              value: stats.unverified,
+              icon: Shield,
+              gradient: "from-amber-500 to-orange-500",
+              bg: "bg-gradient-to-br from-amber-50 to-orange-50",
+            },
+            {
+              label: "Avg Rating",
+              value: stats.avgRating,
+              icon: Star,
+              gradient: "from-yellow-500 to-amber-500",
+              bg: "bg-gradient-to-br from-yellow-50 to-amber-50",
+            },
+          ].map((stat, index) => {
+            const IconComponent = stat.icon
+            return (
               <motion.div
-                key={review._id}
-                className="bg-white/80 backdrop-blur-xl rounded-2xl border border-gray-200/50 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden"
+                key={stat.label}
+                className={`${stat.bg} backdrop-blur-xl rounded-2xl p-6 lg:p-8 border border-white/20 shadow-lg hover:shadow-xl transition-all duration-200`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ delay: index * 0.05 }}
-                whileHover={{ scale: 1.01 }}
+                transition={{ delay: index * 0.05, duration: 0.2 }}
+                whileHover={{ scale: 1.02, y: -2 }}
               >
-                <div className="p-4 lg:p-6">
-                  {/* Header */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between mb-4">
+                  <div
+                    className={`w-14 h-14 rounded-xl bg-gradient-to-r ${stat.gradient} flex items-center justify-center shadow-lg`}
+                  >
+                    <IconComponent className="w-7 h-7 text-white" />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-3xl font-bold text-slate-800">{stat.value}</p>
+                  <p className="text-slate-500 text-sm font-medium">{stat.label}</p>
+                </div>
+              </motion.div>
+            )
+          })}
+        </div>
+
+        {/* Search and Filter Section */}
+        <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-6 lg:p-8 border border-white/20 shadow-lg">
+          <div className="flex flex-col sm:flex-row gap-6">
+            {/* Search */}
+            <div className="flex-1 relative">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search reviews by user or content..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-12 pr-6 py-4 bg-slate-50/80 border border-slate-200/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-300 transition-all duration-150 backdrop-blur-sm text-base"
+              />
+            </div>
+
+            {/* Filter */}
+            <div className="relative">
+              <Filter className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="pl-12 pr-10 py-4 bg-slate-50/80 border border-slate-200/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-300 transition-all duration-150 appearance-none cursor-pointer min-w-[160px] backdrop-blur-sm text-base"
+              >
+                <option value="all">All Reviews</option>
+                <option value="verified">Verified</option>
+                <option value="unverified">Pending</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Reviews List */}
+        <div className="space-y-6">
+          {filteredReviews.length === 0 ? (
+            <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-12 lg:p-16 border border-white/20 shadow-lg text-center">
+              <div className="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                <MessageSquare className="w-10 h-10 text-slate-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-slate-800 mb-3">No Reviews Found</h3>
+              <p className="text-slate-600 text-lg">
+                {searchTerm || filterStatus !== "all"
+                  ? "Try adjusting your search or filter criteria"
+                  : "No customer reviews available yet"}
+              </p>
+            </div>
+          ) : (
+            <AnimatePresence>
+              {filteredReviews.map((review, index) => (
+                <motion.div
+                  key={review._id}
+                  className="bg-white/90 backdrop-blur-xl rounded-2xl border border-white/20 shadow-lg hover:shadow-xl transition-all duration-200 overflow-hidden"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ delay: index * 0.02, duration: 0.15 }}
+                  whileHover={{ scale: 1.005, y: -2 }}
+                >
+                  <div className="p-6 lg:p-8">
+                    {/* Header */}
+                    <div className="flex items-start justify-between mb-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold shadow-lg">
                           {review.user?.profileImage ? (
                             <img
-                              src={review.user.profileImage}
+                              src={review.user.profileImage || "/placeholder.svg"}
                               alt={review.user.name}
-                              className="w-12 h-12 rounded-full object-cover"
+                              className="w-14 h-14 rounded-full object-cover"
                             />
                           ) : (
-                            review.user?.name?.charAt(0)?.toUpperCase() || <User className="w-5 h-5" />
+                            review.user?.name?.charAt(0)?.toUpperCase() || <User className="w-6 h-6" />
                           )}
-                      <div>
-                        <h3 className="font-semibold text-gray-800 text-sm lg:text-base">
-                          {review.user?.name || "Anonymous User"}
-                        </h3>
-                        <div className="flex items-center gap-2 mt-1">
-                          <div className="flex items-center gap-1">{renderStars(review.rating)}</div>
-                          <span className="text-sm text-gray-500">{review.rating}/5</span>
+                        </div>
+                        <div className="space-y-2">
+                          <h3 className="font-semibold text-slate-800 text-lg">
+                            {review.user?.name || "Anonymous User"}
+                          </h3>
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-1">{renderStars(review.rating)}</div>
+                            <span className="text-base text-slate-500 font-medium">{review.rating}/5</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        {/* Verification Status */}
+                        <div
+                          className={`px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 shadow-sm ${
+                            review.verified
+                              ? "bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-700 border border-emerald-200/50"
+                              : "bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700 border border-amber-200/50"
+                          }`}
+                        >
+                          {review.verified ? (
+                            <>
+                              <ShieldCheck className="w-4 h-4" />
+                              Verified
+                            </>
+                          ) : (
+                            <>
+                              <Shield className="w-4 h-4" />
+                              Pending
+                            </>
+                          )}
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      {/* Verification Status */}
-                      <div
-                        className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${
-                          review.verified ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"
+                    {/* Review Content */}
+                    <div className="mb-6">
+                      <p
+                        className={`text-gray-700 text-base lg:text-lg leading-relaxed ${
+                          expandedReview === review._id ? "" : "line-clamp-3"
                         }`}
                       >
-                        {review.verified ? (
-                          <>
-                            <ShieldCheck className="w-3 h-3" />
-                            Verified
-                          </>
-                        ) : (
-                          <>
-                            <Shield className="w-3 h-3" />
-                            Pending
-                          </>
-                        )}
+                        {review.comment}
+                      </p>
+                      {review.comment && review.comment.length > 150 && (
+                        <button
+                          onClick={() => setExpandedReview(expandedReview === review._id ? null : review._id)}
+                          className="text-purple-600 hover:text-purple-700 text-sm font-medium mt-3 flex items-center gap-2"
+                        >
+                          <Eye className="w-4 h-4" />
+                          {expandedReview === review._id ? "Show Less" : "Read More"}
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center justify-between pt-6 border-t border-slate-100">
+                      <div className="flex items-center gap-2 text-sm text-slate-500">
+                        <Calendar className="w-4 h-4" />
+                        <span className="font-medium">
+                          {new Date(review.createdAt || Date.now()).toLocaleDateString()}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => handleToggleVerified(review._id)}
+                          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-150 flex items-center gap-2 shadow-sm hover:shadow-md transform hover:scale-105 ${
+                            review.verified
+                              ? "bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700 hover:from-amber-200 hover:to-orange-200 border border-amber-200/50"
+                              : "bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-700 hover:from-emerald-200 hover:to-green-200 border border-emerald-200/50"
+                          }`}
+                        >
+                          {review.verified ? (
+                            <>
+                              <Shield className="w-4 h-4" />
+                              Unverify
+                            </>
+                          ) : (
+                            <>
+                              <ShieldCheck className="w-4 h-4" />
+                              Verify
+                            </>
+                          )}
+                        </button>
+
+                        <button
+                          onClick={() => handleDeleteReview(review._id)}
+                          disabled={deletingReviewId === review._id}
+                          className="px-4 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-red-100 to-rose-100 text-red-700 hover:from-red-200 hover:to-rose-200 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm hover:shadow-md transform hover:scale-105 border border-red-200/50"
+                        >
+                          {deletingReviewId === review._id ? (
+                            <div
+                              className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"
+                              style={{ animationDuration: "0.6s" }}
+                            />
+                          ) : (
+                            <>
+                              <Trash2 className="w-4 h-4" />
+                              Delete
+                            </>
+                          )}
+                        </button>
                       </div>
                     </div>
                   </div>
-
-                  {/* Review Content */}
-                  <div className="mb-4">
-                    <p
-                      className={`text-gray-700 text-sm lg:text-base leading-relaxed ${
-                        expandedReview === review._id ? "" : "line-clamp-3"
-                      }`}
-                    >
-                      {review.comment}
-                    </p>
-                    {review.comment && review.comment.length > 150 && (
-                      <button
-                        onClick={() => setExpandedReview(expandedReview === review._id ? null : review._id)}
-                        className="text-purple-600 hover:text-purple-700 text-sm font-medium mt-2 flex items-center gap-1"
-                      >
-                        <Eye className="w-4 h-4" />
-                        {expandedReview === review._id ? "Show Less" : "Read More"}
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
-                      <Calendar className="w-4 h-4" />
-                      {new Date(review.createdAt || Date.now()).toLocaleDateString()}
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => handleToggleVerified(review._id)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-1 ${
-                          review.verified
-                            ? "bg-orange-100 text-orange-700 hover:bg-orange-200"
-                            : "bg-green-100 text-green-700 hover:bg-green-200"
-                        }`}
-                      >
-                        {review.verified ? (
-                          <>
-                            <Shield className="w-3 h-3" />
-                            Unverify
-                          </>
-                        ) : (
-                          <>
-                            <ShieldCheck className="w-3 h-3" />
-                            Verify
-                          </>
-                        )}
-                      </button>
-
-                      <button
-                        onClick={() => handleDeleteReview(review._id)}
-                        disabled={deletingReviewId === review._id}
-                        className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-100 text-red-700 hover:bg-red-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
-                      >
-                        {deletingReviewId === review._id ? (
-                          <div className="w-3 h-3 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
-                        ) : (
-                          <>
-                            <Trash2 className="w-3 h-3" />
-                            Delete
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        )}
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          )}
+        </div>
       </div>
     </div>
   )

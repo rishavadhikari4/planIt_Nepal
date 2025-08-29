@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { getAllCuisines, deleteDish, deleteCuisine } from "../../services/cuisines"
@@ -228,16 +226,17 @@ const AdminCuisine = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-rose-100 flex items-center justify-center">
         <motion.div
-          className="flex flex-col items-center space-y-4 relative"
+          className="flex flex-col items-center space-y-4"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6 }}
         >
           <div className="relative">
+            <div className="w-16 h-16 border-4 border-purple-200 rounded-full animate-spin"></div>
             <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
           </div>
           <p className="text-lg font-medium bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Loading delicious cuisines...
+            Loading Delicious Cuisines...
           </p>
         </motion.div>
       </div>

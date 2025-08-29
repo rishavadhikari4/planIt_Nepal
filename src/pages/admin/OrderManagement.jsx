@@ -392,31 +392,39 @@ const AdminOrderList = () => {
         </motion.div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
-          {stats.map((stat, index) => {
-            const IconComponent = stat.icon
-            return (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="bg-white/80 backdrop-blur-xl rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 border border-gray-200/50 shadow-sm hover:shadow-lg transition-all duration-300"
-              >
-                <div className="flex items-center justify-between mb-2 sm:mb-3">
-                  <div
-                    className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-lg sm:rounded-xl bg-gradient-to-r ${stat.color} flex items-center justify-center shadow-lg`}
-                  >
-                    <IconComponent className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
-                  </div>
-                </div>
-                <div>
-                  <p className="text-lg sm:text-2xl lg:text-3xl font-bold text-gray-800 mb-1">{stat.value}</p>
-                  <p className="text-gray-500 text-xs sm:text-sm lg:text-base">{stat.label}</p>
-                </div>
-              </motion.div>
-            )
-          })}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-2">
+          {stats.map((stat, idx) => (
+            <div
+              key={stat.label}
+              className="bg-white/90 rounded-xl p-3 border border-slate-200/50 shadow flex items-center gap-2"
+            >
+              <stat.icon className="w-4 h-4" />
+              <div>
+                <div className="text-lg font-bold">{stat.value}</div>
+                <div className="text-xs text-slate-500">{stat.label}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="flex flex-col sm:flex-row gap-2 mb-2">
+          <input
+            className="flex-1 p-2 rounded-lg border border-slate-200/50 bg-slate-50/80 text-sm"
+            placeholder="Search orders..."
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+          />
+          <select
+            className="p-2 rounded-lg border border-slate-200/50 bg-slate-50/80 text-sm"
+            value={statusFilter}
+            onChange={e => setStatusFilter(e.target.value)}
+          >
+            <option value="all">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="processing">Processing</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
         </div>
 
         {/* Orders List */}

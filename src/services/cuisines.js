@@ -82,7 +82,7 @@ export const getDishById = async (dishId) => {
 
 export const addDish = async (category, formData, onSuccess, onError) => {
   try {
-    const response = await API.post(`/api/cuisines/${category}`, formData, {
+    const response = await API.post(`/api/cuisines/categories/${category}/dishes`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
