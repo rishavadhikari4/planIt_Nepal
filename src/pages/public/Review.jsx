@@ -14,7 +14,7 @@ const Review = () => {
     getVerifiedReviews()
       .then((res) => {
         if (res?.data) {
-          setReviews(res.data) // extract only the "data" array
+          setReviews(res.data)
         }
       })
       .catch(() => {
@@ -29,10 +29,9 @@ const Review = () => {
       toast.success("Review submitted successfully! 🎉")
       setRating(0)
       setComment("")
-      // Refresh reviews after submission
       getVerifiedReviews().then((res) => {
         if (res?.data) {
-          setReviews(res.data) // update reviews after submission
+          setReviews(res.data) 
         }
       })
     } catch (err) {
@@ -68,11 +67,6 @@ const Review = () => {
               key={review._id}
               className="group bg-gradient-to-br from-white to-purple-50 border border-purple-100/50 rounded-2xl shadow-lg hover:shadow-2xl p-6 sm:p-8 transition-all duration-500 hover:scale-105 hover:-translate-y-2"
             >
-              {/* Quote Icon */}
-              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                <span className="text-white text-xl font-bold">"</span>
-              </div>
-
               {/* Review Text */}
               <p className="text-gray-700 text-base sm:text-lg leading-relaxed mb-6 italic">
                 "{review.comment}"
@@ -133,101 +127,83 @@ const Review = () => {
         </div>
       )}
 
-      {/* Review Form */}
+      {/* Review Form - Only show if user is logged in */}
       {isCustomer ? (
         <div className="max-w-2xl mx-auto">
-          <div className="bg-gradient-to-br from-white to-purple-50 shadow-2xl rounded-2xl p-8 sm:p-10 border border-purple-100/50">
-            <div className="text-center mb-8">
-              <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-                Share Your Experience
-              </h3>
-              <p className="text-gray-600">Help other clients by sharing your event story</p>
-            </div>
+            <div className="bg-gradient-to-br from-white to-purple-50 shadow-2xl rounded-2xl p-8 sm:p-10 border border-purple-100/50">
+              <div className="text-center mb-8">
+                <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+                  Share Your Experience
+                </h3>
+                <p className="text-gray-600">Help other clients by sharing your event story</p>
+              </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Star Rating */}
-              <div className="text-center">
-                <label className="block text-lg font-semibold text-gray-700 mb-4">
-                  How was your experience?
-                </label>
-                <div className="flex justify-center items-center space-x-2 mb-2">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      type="button"
-                      className={`text-4xl sm:text-5xl transition-all duration-200 transform hover:scale-125 focus:outline-none ${
-                        (hoverRating || rating) >= star
-                          ? "text-yellow-400 drop-shadow-lg"
-                          : "text-gray-300 hover:text-yellow-200"
-                      }`}
-                      onMouseEnter={() => setHoverRating(star)}
-                      onMouseLeave={() => setHoverRating(0)}
-                      onClick={() => setRating(star)}
-                      aria-label={`${star} Star`}
-                    >
-                      ★
-                    </button>
-                  ))}
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Star Rating */}
+                <div className="text-center">
+                  <label className="block text-lg font-semibold text-gray-700 mb-4">
+                    How was your experience?
+                  </label>
+                  <div className="flex justify-center items-center space-x-2 mb-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        className={`text-4xl sm:text-5xl transition-all duration-200 transform hover:scale-125 focus:outline-none ${
+                          (hoverRating || rating) >= star
+                            ? "text-yellow-400 drop-shadow-lg"
+                            : "text-gray-300 hover:text-yellow-200"
+                        }`}
+                        onMouseEnter={() => setHoverRating(star)}
+                        onMouseLeave={() => setHoverRating(0)}
+                        onClick={() => setRating(star)}
+                        aria-label={`${star} Star`}
+                      >
+                        ★
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    {rating > 0 && (
+                      <span className="font-medium">
+                        {rating === 1 && "Poor"}
+                        {rating === 2 && "Fair"}
+                        {rating === 3 && "Good"}
+                        {rating === 4 && "Very Good"}
+                        {rating === 5 && "Excellent"}
+                      </span>
+                    )}
+                  </p>
                 </div>
-                <p className="text-sm text-gray-500">
-                  {rating > 0 && (
-                    <span className="font-medium">
-                      {rating === 1 && "Poor"}
-                      {rating === 2 && "Fair"}
-                      {rating === 3 && "Good"}
-                      {rating === 4 && "Very Good"}
-                      {rating === 5 && "Excellent"}
-                    </span>
-                  )}
-                </p>
-              </div>
 
-              {/* Comment Textarea */}
-              <div>
-                <label htmlFor="comment" className="block text-lg font-semibold text-gray-700 mb-3">
-                  Tell us about your experience
-                </label>
-                <textarea
-                  id="comment"
-                  className="w-full p-4 text-base border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300 bg-gray-50 focus:bg-white resize-none"
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  placeholder="Share your thoughts about our service, venues, catering, photography, or overall event management experience..."
-                  rows={5}
-                  required
-                />
-              </div>
+                {/* Comment Textarea */}
+                <div>
+                  <label htmlFor="comment" className="block text-lg font-semibold text-gray-700 mb-3">
+                    Tell us about your experience
+                  </label>
+                  <textarea
+                    id="comment"
+                    className="w-full p-4 text-base border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300 bg-gray-50 focus:bg-white resize-none"
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    placeholder="Share your thoughts about our service, venues, catering, photography, or overall event management experience..."
+                    rows={5}
+                    required
+                  />
+                </div>
 
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={!rating || !comment.trim()}
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-400 disabled:to-gray-500 text-white py-4 px-6 rounded-xl text-lg font-semibold transition-all duration-300 transform hover:scale-[1.02] disabled:hover:scale-100 shadow-lg hover:shadow-xl disabled:cursor-not-allowed"
-              >
-                {rating && comment.trim() ? "Submit Review ✨" : "Please rate and comment"}
-              </button>
-            </form>
-          </div>
-        </div>
-      ) : (
-        <div className="max-w-2xl mx-auto text-center">
-          <div className="bg-gradient-to-br from-white to-purple-50 shadow-xl rounded-2xl p-8 sm:p-10 border border-purple-100/50">
-            <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-              <span className="text-3xl">🔒</span>
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  disabled={!rating || !comment.trim()}
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-400 disabled:to-gray-500 text-white py-4 px-6 rounded-xl text-lg font-semibold transition-all duration-300 transform hover:scale-[1.02] disabled:hover:scale-100 shadow-lg hover:shadow-xl disabled:cursor-not-allowed"
+                >
+                  {rating && comment.trim() ? "Submit Review ✨" : "Please rate and comment"}
+                </button>
+              </form>
             </div>
-            <h3 className="text-2xl font-bold text-gray-800 mb-4">Login Required</h3>
-            <p className="text-gray-600 mb-6">
-              Please log in to share your experience and help other event organizers make informed decisions.
-            </p>
-            <button
-              onClick={() => (window.location.href = "/login")}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-3 px-8 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-            >
-              Login to Review
-            </button>
           </div>
-        </div>
-      )}
+        ) : null}
     </div>
   )
 }

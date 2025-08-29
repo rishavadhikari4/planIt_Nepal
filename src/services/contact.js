@@ -26,8 +26,34 @@ export const getContacts = async ({ page = 1, limit = 10, subject = "" } = {}) =
     console.error('Error fetching contacts:', err);
     return {
       success: false,
-      message: err.response?.data?.message || 'Failed to fetch contacts'
+      message: err.response?.data?.message || 'Failed to fetch contacts form'
     };
   }
 };
+
+export const getContactById = async (id) =>{
+  try{
+    const response = await API.get(`/api/contacts/form/${id}`);
+    return response.data;
+  }catch(error){
+    console.error("Error Fetching Contacts: ", error);
+    return{
+      success:false,
+      message:err.response?.data?.message || "Failed to fetch the Contact Form"
+    }
+  }
+}
+
+export const deleteContactById = async(id) =>{
+  try{
+    const response = await API.delete(`/api/contacts/form/${id}`);
+    return response.data;
+  }catch(error){
+    console.error("Error Fetching Contacts: ", error);
+    return {
+      success:false,
+      message: err.response?.data?.message || 'Failed to delete the contacts form'
+    }
+  }
+}
 
