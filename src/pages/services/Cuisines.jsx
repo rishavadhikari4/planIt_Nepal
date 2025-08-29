@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Search,
@@ -114,11 +114,20 @@ const Cuisines = () => {
   const [sortField, setSortField] = useState("name")
   const [sortOrder, setSortOrder] = useState("asc")
   const [isSearchActive, setIsSearchActive] = useState(false)
+  
+  // Add refs to track initialization and prevent double loading
+  const isInitialized = useRef(false)
+  const isInitialFetch = useRef(true)
+  
   const { addToCart } = useCart()
   const navigate = useNavigate()
 
-  const fetchCuisines = async (page = 1, filters = {}) => {
-    setLoading(true)
+  const fetchCuisines = async (page = 1, filters = {}, skipLoading = false) => {
+    // Only show loading if not skipping and it's not a sort-only update
+    if (!skipLoading) {
+      setLoading(true)
+    }
+    
     try {
       const params = {
         page,
@@ -133,6 +142,12 @@ const Cuisines = () => {
       setPagination(response.pagination || {})
       setCurrentPage(page)
       setIsSearchActive(false)
+      
+      // Mark as initialized after first successful fetch
+      if (isInitialFetch.current) {
+        isInitialized.current = true
+        isInitialFetch.current = false
+      }
     } catch (err) {
       console.error("Failed to fetch cuisines:", err)
       toast.error("Failed to load cuisines. Please try again.")
@@ -179,8 +194,19 @@ const Cuisines = () => {
     }
   }
 
+  // Initial load effect - only runs once
   useEffect(() => {
-    fetchCuisines(1)
+    if (!isInitialized.current) {
+      fetchCuisines(1)
+    }
+  }, [])
+
+  // Sort effect - only runs after initialization and skips loading for sort-only changes
+  useEffect(() => {
+    if (isInitialized.current && !isInitialFetch.current) {
+      // Skip loading screen for sort changes, just update the data quietly
+      fetchCuisines(1, {}, true)
+    }
   }, [sortField, sortOrder])
 
   const handleSearch = () => {
@@ -864,7 +890,7 @@ const Cuisines = () => {
                   <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-gray-200 to-purple-200 rounded-full flex items-center justify-center">
                     <Search className="w-12 h-12 text-gray-400" />
                   </div>
-                  <h3 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">No dishes found</h3>
+                  <h3 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4">No dishes found</h3>
                   <p className="text-gray-600 mb-6">Try adjusting your search or filter criteria</p>
                   <motion.button
                     onClick={clearFilters}

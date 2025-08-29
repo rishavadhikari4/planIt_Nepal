@@ -1,8 +1,6 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Package, Users, Star, Settings, Menu, Bell, HandCoins, AlertCircle, X } from "lucide-react"
+import { Package, Users, Star, Settings, Menu, HandCoins, AlertCircle, X } from "lucide-react"
 import { toast } from "react-toastify"
 import AdminOrderList from "./OrderManagement"
 import AdminUserList from "./UserManagement"
@@ -240,7 +238,7 @@ const Admin = () => {
   const handleTabChange = (tabId) => {
     if (tabId !== "settings") {
       setActiveTab(tabId)
-      setSidebarOpen(false) // Close sidebar on mobile after selection
+      setSidebarOpen(false)
     }
   }
 
