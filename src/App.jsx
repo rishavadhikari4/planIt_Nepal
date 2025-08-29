@@ -35,7 +35,8 @@ import AdminCuisines from './pages/admin/CuisineManagement';
 import AdminVenues from './pages/admin/VenueManagement';
 import AdminContact from './pages/admin/ContactManagement';
 import AdminOrderList from './pages/admin/OrderManagement';
-import OrderDetails from './pages/admin/OrderDetails'; // Add this import
+import OrderDetails from './pages/admin/OrderDetails';
+import ContactDetails from './pages/admin/ContactDetails';
 import UserInspection from './pages/admin/UserInspection';
 
 // Common components
@@ -128,6 +129,7 @@ function AppContent() {
           <Route path="/admin-cuisines" element={<AdminCuisines />} />
           <Route path="/admin-venues" element={<AdminVenues />} />
           <Route path="/admin-contact" element={<AdminContact />} />
+          <Route path="/admin-contact/:contactId" element={<ContactDetails/>}/>
           
           {/* Admin Edit Routes */}
           <Route path="/admin-studios/edit/:id" element={<Editstudio />} />

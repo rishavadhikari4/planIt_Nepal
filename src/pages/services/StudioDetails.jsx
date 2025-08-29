@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { motion, AnimatePresence } from "framer-motion"
-import { ArrowLeft, Calendar, MapPin, Star, Users, Camera, Clock, Mail, Phone, Shield, Award, CheckCircle, Heart, ShoppingCart, Eye, XCircle } from "lucide-react"
+import { motion } from "framer-motion"
+import { ArrowLeft, Calendar, MapPin, Star,  Camera, Clock, Shield, Award, CheckCircle, Heart, ShoppingCart, XCircle } from "lucide-react"
 import { toast } from "react-toastify"
 import { useCart } from "../../context/CartContext"
 import { getStudioById } from "../../services/studios"
@@ -11,14 +11,13 @@ const StudioDetails = () => {
   const { studioId } = useParams()
   const navigate = useNavigate()
   const { addToCart } = useCart()
-  
+   
   const [studio, setStudio] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [bookedDates, setBookedDates] = useState([])
   const [totalBookings, setTotalBookings] = useState(0)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const [showBookingCalendar, setShowBookingCalendar] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
   const [selectedBookingDates, setSelectedBookingDates] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);

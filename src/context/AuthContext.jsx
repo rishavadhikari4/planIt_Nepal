@@ -6,20 +6,8 @@ import { jwtDecode } from "jwt-decode";
 
 export const AuthContext = createContext();
 
-/**
- * Authentication Provider Component
- * 
- * Manages authentication state and provides authentication methods to the application.
- * Handles two separate authentication flows:
- * 1. Regular user authentication (stored in localStorage)
- * 2. Admin authentication (stored in sessionStorage)
- * 
- * @component
- * @param {Object} props
- * @param {React.ReactNode} props.children - Child components
- */
 export const AuthProvider = ({ children }) => {
-  // Authentication state
+
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("accessToken"));
   const [isAdmin, setIsAdmin] = useState(!!sessionStorage.getItem("accessToken"));
@@ -29,20 +17,11 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  /**
-   * Displays error messages
-   * @param {string} msg - Error message to display
-   */
   const showError = (msg) => {
     setError(msg);
     console.error(msg);
   };
 
-  /**
-   * Checks if a JWT token has expired
-   * @param {string} token - JWT token to check
-   * @returns {boolean} True if token has expired, false otherwise
-   */
   const isTokenExpired = (token) => {
     try {
       const decoded = jwtDecode(token);
@@ -53,10 +32,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  /**
-   * Requests a new access token using refresh token (stored in HTTP-only cookie)
-   * @returns {Promise<string|null>} New access token or null if refresh failed
-   */
   const getNewAccessToken = useCallback(async () => {
     try {
       const { data } = await API.post("/api/auths/refresh-token");
@@ -73,9 +48,6 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  /**
-   * Effect: Check regular user authentication on mount and token refresh
-   */
   useEffect(() => {
     const accessToken = localStorage.getItem("accessToken");
     const storedUser = localStorage.getItem("user");

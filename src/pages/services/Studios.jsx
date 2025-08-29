@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence, useSpring, useMotionValue, useTransform } from "framer-motion"
 import { 
   Search, 
   MapPin, 
@@ -13,7 +13,8 @@ import {
   Heart, 
   Eye,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  X
 } from "lucide-react"
 import { toast } from "react-toastify"
 import { getAllStudios, searchStudios } from "../../services/studios"
@@ -40,19 +41,123 @@ const Studios = () => {
   const [viewMode, setViewMode] = useState("grid")
   const navigate = useNavigate()
 
+  // Enhanced animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.06,
+        delayChildren: 0.1
+      }
+    }
+  }
+
+  const cardVariants = {
+    hidden: { 
+      opacity: 0, 
+      y: 30,
+      scale: 0.95
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 120,
+        damping: 14,
+        mass: 0.8
+      }
+    },
+    exit: {
+      opacity: 0,
+      y: -20,
+      scale: 0.95,
+      transition: {
+        duration: 0.2,
+        ease: "easeInOut"
+      }
+    }
+  }
+
+  const hoverVariants = {
+    hover: {
+      y: -8,
+      scale: 1.02,
+      boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 20
+      }
+    }
+  }
+
+  const imageVariants = {
+    hover: {
+      scale: 1.08,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut"
+      }
+    }
+  }
+
+  const buttonVariants = {
+    hover: {
+      scale: 1.05,
+      transition: {
+        type: "spring",
+        stiffness: 400,
+        damping: 10
+      }
+    },
+    tap: {
+      scale: 0.98
+    }
+  }
+
+  const modalVariants = {
+    hidden: {
+      opacity: 0,
+      scale: 0.8,
+      y: 50
+    },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 200,
+        damping: 20,
+        mass: 1
+      }
+    },
+    exit: {
+      opacity: 0,
+      scale: 0.9,
+      y: 30,
+      transition: {
+        duration: 0.2,
+        ease: "easeInOut"
+      }
+    }
+  }
+
   const fetchStudios = async (page = 1, filters = {}) => {
     try {
       setLoading(true)
       
       const params = {
         page,
-        limit: 12, // You can adjust this based on your needs
+        limit: 12, 
         sortField,
         sortOrder,
         ...filters
       }
 
-      // Add price filters if they exist
       if (priceRange.min) params.minPrice = priceRange.min
       if (priceRange.max) params.maxPrice = priceRange.max
       if (locationFilter) params.location = locationFilter
@@ -61,7 +166,6 @@ const Studios = () => {
       
       setStudios(response.studios || [])
       
-      // Map the response to match your existing pagination structure
       const paginationData = response.pagination || {}
       setPagination({
         totalStudios: paginationData.totalStudios || response.studios?.length || 0,
@@ -113,7 +217,6 @@ const Studios = () => {
       
       setStudios(response.studios || [])
       
-      // Map the search response to match your existing pagination structure
       const paginationData = response.pagination || {}
       setPagination({
         totalStudios: paginationData.totalStudios || response.studios?.length || 0,
@@ -179,7 +282,7 @@ const Studios = () => {
       toast.success("Removed from favorites")
     } else {
       newFavorites.add(studioId)
-      toast.success("Added to favorites! ❤️")
+      toast.success("Added to favorites!")
     }
     setFavorites(newFavorites)
   }
@@ -216,15 +319,35 @@ const Studios = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-rose-100 flex items-center justify-center">
         <motion.div
-          className="flex flex-col items-center space-y-4"
+          className="flex flex-col items-center space-y-6"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6 }}
+          transition={{ 
+            duration: 0.6,
+            type: "spring",
+            stiffness: 100
+          }}
         >
-          <div className="w-16 h-16 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin"></div>
-          <p className="text-lg font-medium bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <motion.div 
+            className="w-16 h-16 border-4 border-purple-200 border-t-purple-600 rounded-full"
+            animate={{ rotate: 360 }}
+            transition={{
+              duration: 1,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+          />
+          <motion.p 
+            className="text-lg font-medium bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
             Loading studios...
-          </p>
+          </motion.p>
         </motion.div>
       </div>
     )
@@ -232,44 +355,94 @@ const Studios = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-rose-100 relative overflow-hidden">
-      {/* Background Decorative Elements */}
+      {/* Enhanced Background Decorative Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-200/20 to-pink-200/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-pink-200/20 to-purple-200/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-purple-100/10 to-pink-100/10 rounded-full blur-3xl"></div>
+        <motion.div 
+          className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-200/20 to-pink-200/20 rounded-full blur-3xl"
+          animate={{ 
+            scale: [1, 1.1, 1],
+            rotate: [0, 180, 360]
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+        />
+        <motion.div 
+          className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-pink-200/20 to-purple-200/20 rounded-full blur-3xl"
+          animate={{ 
+            scale: [1.1, 1, 1.1],
+            rotate: [360, 180, 0]
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+        />
       </div>
 
       <div className="relative z-10 px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Header Section */}
         <motion.div
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: -20 }}
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ 
+            duration: 0.8,
+            type: "spring",
+            stiffness: 100
+          }}
         >
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
-              <Camera className="w-8 h-8 text-white" />
+          <motion.div 
+            className="flex justify-center mb-6"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ 
+              delay: 0.2,
+              type: "spring",
+              stiffness: 200,
+              damping: 15
+            }}
+          >
+            <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-xl">
+              <Camera className="w-10 h-10 text-white" />
             </div>
-          </div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+          </motion.div>
+          <motion.h1 
+            className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+          >
             Photography Studios
-          </h1>
-          <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
+          </motion.h1>
+          <motion.p 
+            className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.8 }}
+          >
             Capture your precious moments with professional photography studios that specialize in creating timeless wedding memories
-          </p>
+          </motion.p>
         </motion.div>
 
         {/* Search and Filters */}
         <motion.div
-          className="max-w-6xl mx-auto mb-12"
-          initial={{ opacity: 0, y: 20 }}
+          className="max-w-6xl mx-auto mb-16"
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.8 }}
+          transition={{ 
+            delay: 0.5, 
+            duration: 0.8,
+            type: "spring",
+            stiffness: 100
+          }}
         >
-          <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-6">
+          <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl border border-white/30 p-8">
             {/* Search Bar */}
-            <div className="flex flex-col lg:flex-row gap-4 mb-6">
+            <div className="flex flex-col lg:flex-row gap-4 mb-8">
               <div className="flex-1 relative">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
@@ -278,41 +451,38 @@ const Studios = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                  className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300 text-gray-800 placeholder-gray-500"
+                  className="w-full pl-12 pr-4 py-4 bg-gray-50/70 border-2 border-gray-200/60 rounded-2xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300 text-gray-800 placeholder-gray-500"
                 />
               </div>
-              <button
+              <motion.button
                 onClick={handleSearch}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center space-x-2"
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl flex items-center space-x-2"
+                variants={buttonVariants}
+                whileHover="hover"
+                whileTap="tap"
               >
                 <Search className="w-5 h-5" />
                 <span>Search</span>
-              </button>
+              </motion.button>
             </div>
 
-            {/* Filters Row */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
-              {/* Price Range */}
-              <div className="relative">
-                <input
-                  type="number"
-                  placeholder="Min Price"
-                  value={priceRange.min}
-                  onChange={(e) => setPriceRange(prev => ({ ...prev, min: e.target.value }))}
-                  className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300"
-                />
-              </div>
-              <div className="relative">
-                <input
-                  type="number"
-                  placeholder="Max Price"
-                  value={priceRange.max}
-                  onChange={(e) => setPriceRange(prev => ({ ...prev, max: e.target.value }))}
-                  className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300"
-                />
-              </div>
+            {/* Filters Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+              <input
+                type="number"
+                placeholder="Min Price"
+                value={priceRange.min}
+                onChange={(e) => setPriceRange(prev => ({ ...prev, min: e.target.value }))}
+                className="w-full px-4 py-3 bg-gray-50/70 border-2 border-gray-200/60 rounded-2xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300"
+              />
+              <input
+                type="number"
+                placeholder="Max Price"
+                value={priceRange.max}
+                onChange={(e) => setPriceRange(prev => ({ ...prev, max: e.target.value }))}
+                className="w-full px-4 py-3 bg-gray-50/70 border-2 border-gray-200/60 rounded-2xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300"
+              />
 
-              {/* Location Filter */}
               <div className="relative">
                 <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
@@ -320,11 +490,10 @@ const Studios = () => {
                   placeholder="Location"
                   value={locationFilter}
                   onChange={(e) => setLocationFilter(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300"
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50/70 border-2 border-gray-200/60 rounded-2xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300"
                 />
               </div>
 
-              {/* Sort Options */}
               <div className="relative">
                 <SortAsc className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <select
@@ -334,7 +503,7 @@ const Studios = () => {
                     setSortField(field)
                     setSortOrder(order)
                   }}
-                  className="w-full pl-12 pr-8 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300 appearance-none cursor-pointer"
+                  className="w-full pl-12 pr-8 py-3 bg-gray-50/70 border-2 border-gray-200/60 rounded-2xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300 appearance-none cursor-pointer"
                 >
                   <option value="createdAt-desc">Newest First</option>
                   <option value="createdAt-asc">Oldest First</option>
@@ -345,43 +514,54 @@ const Studios = () => {
                 </select>
               </div>
 
-              {/* Clear Filters */}
-              <button
+              <motion.button
                 onClick={clearFilters}
-                className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2"
+                className="bg-gray-100/70 hover:bg-gray-200/70 text-gray-700 px-6 py-3 rounded-2xl font-medium transition-all duration-300 flex items-center space-x-2"
+                variants={buttonVariants}
+                whileHover="hover"
+                whileTap="tap"
               >
                 <Filter className="w-4 h-4" />
                 <span>Clear</span>
-              </button>
+              </motion.button>
             </div>
 
-            {/* View Mode Toggle */}
+            {/* View Mode Toggle and Stats */}
             <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-600">
+              <motion.div 
+                className="text-sm text-gray-600"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8 }}
+              >
                 {isSearchActive ? (
-                  <span>Search results: {pagination?.totalStudios || 0} studios found</span>
+                  <span>Search results: <span className="font-semibold text-purple-600">{pagination?.totalStudios || 0}</span> studios found</span>
                 ) : (
-                  <span>Showing {pagination?.totalStudios || 0} studios</span>
+                  <span>Showing <span className="font-semibold text-purple-600">{pagination?.totalStudios || 0}</span> studios</span>
                 )}
-              </div>
+              </motion.div>
               
-              <div className="flex bg-gray-100 rounded-xl p-1">
-                <button
+              <div className="flex bg-gray-100/70 rounded-2xl p-1">
+                <motion.button
                   onClick={() => setViewMode("grid")}
-                  className={`p-2 rounded-lg transition-all duration-200 ${
+                  className={`p-3 rounded-xl transition-all duration-200 ${
                     viewMode === "grid" ? "bg-white shadow-sm text-purple-600" : "text-gray-500 hover:text-gray-700"
                   }`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   <Grid3X3 className="w-5 h-5" />
-                </button>
-                <button
+                </motion.button>
+                <motion.button
                   onClick={() => setViewMode("list")}
-                  className={`p-2 rounded-lg transition-all duration-200 ${
+                  className={`p-3 rounded-xl transition-all duration-200 ${
                     viewMode === "list" ? "bg-white shadow-sm text-purple-600" : "text-gray-500 hover:text-gray-700"
                   }`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   <List className="w-5 h-5" />
-                </button>
+                </motion.button>
               </div>
             </div>
           </div>
@@ -391,14 +571,27 @@ const Studios = () => {
         <div className="max-w-7xl mx-auto">
           {studios.length === 0 ? (
             <motion.div
-              className="text-center py-16"
+              className="text-center py-20"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4, duration: 0.6 }}
+              transition={{ 
+                delay: 0.6, 
+                duration: 0.6,
+                type: "spring",
+                stiffness: 100
+              }}
             >
-              <div className="w-32 h-32 mx-auto mb-8 bg-gradient-to-r from-gray-200 to-purple-200 rounded-full flex items-center justify-center">
+              <motion.div 
+                className="w-32 h-32 mx-auto mb-8 bg-gradient-to-r from-gray-200 to-purple-200 rounded-full flex items-center justify-center"
+                animate={{ rotate: [0, 5, -5, 0] }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              >
                 <Camera className="w-16 h-16 text-gray-400" />
-              </div>
+              </motion.div>
               <h3 className="text-3xl font-bold text-gray-800 mb-4">No Studios Found</h3>
               <p className="text-gray-600 mb-8 text-lg">
                 {isSearchActive 
@@ -407,59 +600,67 @@ const Studios = () => {
                 }
               </p>
               {isSearchActive && (
-                <button
+                <motion.button
                   onClick={clearFilters}
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
+                  variants={buttonVariants}
+                  whileHover="hover"
+                  whileTap="tap"
                 >
                   Clear Search
-                </button>
+                </motion.button>
               )}
             </motion.div>
           ) : (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.8 }}
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
             >
               <div className={viewMode === "grid" 
                 ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8" 
                 : "space-y-6"
               }>
-                <AnimatePresence>
+                <AnimatePresence mode="popLayout">
                   {studios.map((studio, index) => (
                     <motion.div
                       key={studio._id}
-                      className={`group bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 overflow-hidden hover:shadow-2xl transition-all duration-500 hover:scale-105 ${
+                      className={`group bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl border border-white/30 overflow-hidden transition-all duration-500 ${
                         viewMode === "list" ? "flex flex-row" : ""
                       }`}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ delay: index * 0.1, duration: 0.4 }}
+                      variants={cardVariants}
+                      whileHover={hoverVariants.hover}
                       layout
                     >
                       {/* Studio Image */}
                       <div className={`relative overflow-hidden ${
                         viewMode === "list" ? "w-64 h-48" : "h-48 sm:h-56"
                       }`}>
-                        <img
+                        <motion.img
                           src={studio.studioImage || "/placeholder.svg"}
                           alt={studio.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                          className="w-full h-full object-cover"
+                          variants={imageVariants}
                         />
 
-                        {/* Overlay Gradient */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        {/* Enhanced Overlay Gradient */}
+                        <motion.div 
+                          className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"
+                          initial={{ opacity: 0 }}
+                          whileHover={{ opacity: 1 }}
+                          transition={{ duration: 0.3 }}
+                        />
 
-                        {/* Action Buttons */}
+                        {/* Action Buttons with better positioning */}
                         <div className="absolute top-4 right-4 flex space-x-2">
-                          {/* Favorite Button */}
-                          <button
+                          <motion.button
                             onClick={(e) => {
                               e.stopPropagation()
                               toggleFavorite(studio._id)
                             }}
-                            className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+                            className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg transition-all duration-300"
+                            whileHover={{ scale: 1.1, y: -2 }}
+                            whileTap={{ scale: 0.9 }}
                           >
                             <Heart
                               className={`w-5 h-5 transition-colors duration-200 ${
@@ -468,40 +669,45 @@ const Studios = () => {
                                   : "text-gray-600 hover:text-red-500"
                               }`}
                             />
-                          </button>
+                          </motion.button>
 
-                          {/* Preview Button */}
-                          <button
+                          <motion.button
                             onClick={(e) => {
                               e.stopPropagation()
                               setShowPreview(studio)
                             }}
-                            className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+                            className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg transition-all duration-300"
+                            whileHover={{ scale: 1.1, y: -2 }}
+                            whileTap={{ scale: 0.9 }}
                           >
                             <Eye className="w-5 h-5 text-gray-600 hover:text-purple-600 transition-colors duration-200" />
-                          </button>
+                          </motion.button>
                         </div>
 
                         {/* Studio Rating */}
                         {studio.rating && (
-                          <div className="absolute bottom-4 left-4">
-                            <div className="flex items-center space-x-1 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 shadow-lg">
+                          <motion.div 
+                            className="absolute bottom-4 left-4"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                          >
+                            <div className="flex items-center space-x-1 bg-white/95 backdrop-blur-sm rounded-full px-3 py-2 shadow-lg">
                               <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
                               <span className="text-sm font-semibold text-gray-800">{studio.rating}</span>
                             </div>
-                          </div>
+                          </motion.div>
                         )}
                       </div>
 
                       {/* Studio Details */}
                       <div className={`p-6 ${viewMode === "list" ? "flex-1" : ""}`}>
                         <div className="flex items-start justify-between mb-3">
-                          <h3 className="text-xl font-bold text-gray-800 group-hover:text-purple-600 transition-colors duration-200 line-clamp-2">
+                          <h3 className="text-xl font-bold text-gray-800 group-hover:text-purple-600 transition-colors duration-300 line-clamp-2">
                             {studio.name}
                           </h3>
                         </div>
 
-                        {/* Location */}
                         {studio.location && (
                           <div className="flex items-center text-gray-600 mb-3">
                             <MapPin className="w-4 h-4 mr-2 text-purple-500" />
@@ -509,25 +715,24 @@ const Studios = () => {
                           </div>
                         )}
 
-                        {/* Description */}
-                        <p className="text-gray-600 text-sm line-clamp-2 mb-4">
+                        <p className="text-gray-600 text-sm line-clamp-2 mb-4 leading-relaxed">
                           {studio.description || "Professional photography studio specializing in wedding photography"}
                         </p>
 
-                        {/* Services */}
                         {studio.services && studio.services.length > 0 && (
-                          <div className="mb-3">
-                            <div className="flex flex-wrap gap-1">
+                          <div className="mb-4">
+                            <div className="flex flex-wrap gap-2">
                               {studio.services.slice(0, 2).map((service, idx) => (
-                                <span
+                                <motion.span
                                   key={idx}
-                                  className="px-2 py-1 bg-purple-100 text-purple-600 text-xs rounded-full"
+                                  className="px-3 py-1 bg-purple-100/80 text-purple-600 text-xs rounded-full"
+                                  whileHover={{ scale: 1.05 }}
                                 >
                                   {service}
-                                </span>
+                                </motion.span>
                               ))}
                               {studio.services.length > 2 && (
-                                <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                                <span className="px-3 py-1 bg-gray-100/80 text-gray-600 text-xs rounded-full">
                                   +{studio.services.length - 2} more
                                 </span>
                               )}
@@ -535,22 +740,9 @@ const Studios = () => {
                           </div>
                         )}
 
-                        {/* Stats Row */}
-                        <div className="flex items-center justify-between mb-4 text-xs text-gray-500">
-                          <div className="flex items-center">
-                            <Heart className="w-3 h-3 mr-1" />
-                            <span>{studio.likes || "24"} likes</span>
-                          </div>
-                          <div className="flex items-center">
-                            <Star className="w-3 h-3 text-yellow-400 fill-yellow-400 mr-1" />
-                            <span>{studio.rating || "4.9"}</span>
-                          </div>
-                        </div>
-
-                        {/* Price */}
                         {studio.price && (
                           <div className="mb-4">
-                            <span className="text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                            <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                               ${studio.price.toLocaleString()}
                             </span>
                             <span className="text-gray-500 text-sm ml-1">per session</span>
@@ -558,13 +750,16 @@ const Studios = () => {
                         )}
 
                         {/* View Details Button */}
-                        <button
+                        <motion.button
                           onClick={() => navigate(`/studios/${studio._id}`)}
-                          className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
+                          className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 px-6 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
+                          variants={buttonVariants}
+                          whileHover="hover"
+                          whileTap="tap"
                         >
                           <Eye className="w-4 h-4" />
                           <span>View Details</span>
-                        </button>
+                        </motion.button>
                       </div>
                     </motion.div>
                   ))}
@@ -574,130 +769,155 @@ const Studios = () => {
           )}
         </div>
 
-        {/* Pagination */}
+        {/* Enhanced Pagination */}
         {(pagination?.totalPages || 1) > 1 && (
           <motion.div
-            className="flex justify-center mt-12"
+            className="flex justify-center mt-16"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
+            transition={{ 
+              delay: 0.8, 
+              duration: 0.6,
+              type: "spring",
+              stiffness: 100
+            }}
           >
-            <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-2">
+            <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl border border-white/30 p-3">
               <div className="flex items-center space-x-2">
                 {/* Previous Button */}
-                <button
+                <motion.button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="p-3 rounded-xl bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                  className="p-3 rounded-2xl bg-gray-100/70 hover:bg-gray-200/70 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                  whileHover={currentPage !== 1 ? { scale: 1.05 } : {}}
+                  whileTap={currentPage !== 1 ? { scale: 0.95 } : {}}
                 >
                   <ChevronLeft className="w-5 h-5" />
-                </button>
+                </motion.button>
 
                 {/* Page Numbers */}
                 {getPageNumbers().map((page, index) => (
-                  <button
+                  <motion.button
                     key={index}
                     onClick={() => typeof page === "number" && handlePageChange(page)}
                     disabled={typeof page !== "number"}
-                    className={`px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
+                    className={`px-4 py-3 rounded-2xl font-medium transition-all duration-200 ${
                       page === currentPage
                         ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg"
                         : typeof page === "number"
-                        ? "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                        ? "bg-gray-100/70 hover:bg-gray-200/70 text-gray-700"
                         : "text-gray-400 cursor-default"
                     }`}
+                    whileHover={typeof page === "number" && page !== currentPage ? { scale: 1.05 } : {}}
+                    whileTap={typeof page === "number" && page !== currentPage ? { scale: 0.95 } : {}}
                   >
                     {page}
-                  </button>
+                  </motion.button>
                 ))}
 
                 {/* Next Button */}
-                <button
+                <motion.button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === (pagination?.totalPages || 1)}
-                  className="p-3 rounded-xl bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                  className="p-3 rounded-2xl bg-gray-100/70 hover:bg-gray-200/70 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                  whileHover={currentPage !== (pagination?.totalPages || 1) ? { scale: 1.05 } : {}}
+                  whileTap={currentPage !== (pagination?.totalPages || 1) ? { scale: 0.95 } : {}}
                 >
                   <ChevronRight className="w-5 h-5" />
-                </button>
+                </motion.button>
               </div>
             </div>
           </motion.div>
         )}
 
-        {/* Preview Modal */}
+        {/* Enhanced Preview Modal */}
         <AnimatePresence>
           {showPreview && (
             <motion.div
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+              className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowPreview(null)}
             >
               <motion.div
-                className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
+                className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+                variants={modalVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="relative">
-                  <img
+                  <motion.img
                     src={showPreview.studioImage || "/placeholder.svg"}
                     alt={showPreview.name}
-                    className="w-full h-64 object-cover rounded-t-2xl"
+                    className="w-full h-64 object-cover rounded-t-3xl"
+                    initial={{ scale: 1.1, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.5 }}
                   />
-                  <button
+                  <motion.button
                     onClick={() => setShowPreview(null)}
-                    className="absolute top-4 right-4 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white transition-all duration-200"
+                    className="absolute top-4 right-4 w-12 h-12 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white transition-all duration-200"
+                    whileHover={{ scale: 1.1, rotate: 90 }}
+                    whileTap={{ scale: 0.9 }}
                   >
-                    ×
-                  </button>
+                    <X className="w-6 h-6" />
+                  </motion.button>
                 </div>
                 
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-2xl font-bold text-gray-800">{showPreview.name}</h2>
-                    <button
+                <motion.div 
+                  className="p-8"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2, duration: 0.5 }}
+                >
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-3xl font-bold text-gray-800">{showPreview.name}</h2>
+                    <motion.button
                       onClick={(e) => {
                         e.stopPropagation()
                         toggleFavorite(showPreview._id)
                       }}
-                      className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors duration-200"
+                      className="p-3 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors duration-200"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
                     >
                       <Heart
-                        className={`w-5 h-5 ${
+                        className={`w-6 h-6 ${
                           favorites.has(showPreview._id)
                             ? "text-red-500 fill-red-500"
                             : "text-gray-600"
                         }`}
                       />
-                    </button>
+                    </motion.button>
                   </div>
 
                   {showPreview.location && (
-                    <div className="flex items-center text-gray-600 mb-3">
-                      <MapPin className="w-4 h-4 mr-2 text-purple-500" />
-                      <span>{showPreview.location}</span>
+                    <div className="flex items-center text-gray-600 mb-4">
+                      <MapPin className="w-5 h-5 mr-2 text-purple-500" />
+                      <span className="text-lg">{showPreview.location}</span>
                     </div>
                   )}
 
-                  <p className="text-gray-600 mb-4 leading-relaxed">
+                  <p className="text-gray-600 mb-6 leading-relaxed text-lg">
                     {showPreview.description || "Professional photography studio specializing in wedding photography"}
                   </p>
 
                   {/* Services in preview */}
                   {showPreview.services && showPreview.services.length > 0 && (
-                    <div className="mb-4">
-                      <h3 className="font-semibold text-gray-800 mb-2">Services:</h3>
+                    <div className="mb-6">
+                      <h3 className="font-semibold text-gray-800 mb-3 text-lg">Services:</h3>
                       <div className="flex flex-wrap gap-2">
                         {showPreview.services.map((service, idx) => (
-                          <span
+                          <motion.span
                             key={idx}
-                            className="px-3 py-1 bg-purple-100 text-purple-600 text-sm rounded-full"
+                            className="px-4 py-2 bg-purple-100 text-purple-600 text-sm rounded-full"
+                            whileHover={{ scale: 1.05 }}
                           >
                             {service}
-                          </span>
+                          </motion.span>
                         ))}
                       </div>
                     </div>
@@ -706,24 +926,27 @@ const Studios = () => {
                   <div className="flex items-center justify-between">
                     {showPreview.price && (
                       <div className="text-right">
-                        <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                        <span className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                           ${showPreview.price.toLocaleString()}
                         </span>
                         <span className="text-gray-500 text-sm ml-1">per session</span>
                       </div>
                     )}
-                    <button
+                    <motion.button
                       onClick={() => {
                         navigate(`/studios/${showPreview._id}`)
                         setShowPreview(null)
                       }}
-                      className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2 rounded-xl font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-300 flex items-center space-x-2"
+                      className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-2xl font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-300 flex items-center space-x-2 shadow-lg"
+                      variants={buttonVariants}
+                      whileHover="hover"
+                      whileTap="tap"
                     >
-                      <Eye className="w-4 h-4" />
+                      <Eye className="w-5 h-5" />
                       <span>View Details</span>
-                    </button>
+                    </motion.button>
                   </div>
-                </div>
+                </motion.div>
               </motion.div>
             </motion.div>
           )}
