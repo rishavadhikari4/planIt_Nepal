@@ -72,23 +72,6 @@ export const searchStudios = async (searchOptions = {}) => {
 export const getStudioById = async (id) => {
   try {
     const response = await API.get(`/api/studios/${id}`);
-
-    if (response.data && response.data.data && response.data.data.studio) {
-      const studio = response.data.data.studio;
-
-      const processedStudio = {
-        ...studio,
-        mainImage: studio.studioImage || studio.image,
-        galleryImages: studio.photos || [],
-        bookedDates: studio.bookedDates || []
-      };
-      
-      return {
-        success: true,
-        data: processedStudio
-      };
-    }
-
     return response.data;
   } catch (error) {
     console.error('Error fetching studio by ID:', error);

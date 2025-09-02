@@ -218,7 +218,7 @@ const AdminVenues = () => {
       {/* Image Container */}
       <div className="relative overflow-hidden">
         <img
-          src={venue.image || "/placeholder.svg?height=200&width=300"}
+          src={venue.venueImage || "/placeholder.svg?height=200&width=300"}
           alt={venue.name}
           className="w-full h-40 sm:h-48 object-cover group-hover:scale-110 transition-transform duration-700"
         />

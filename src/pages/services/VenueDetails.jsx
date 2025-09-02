@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useCart } from "../../context/CartContext"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 import { 
   MapPin, 
   Users, 
@@ -21,7 +21,7 @@ import {
   Building
 } from "lucide-react"
 import { toast } from "react-toastify"
-import API from "../../services/api"
+import {getVenueById} from "../../services/venues"
 import DateRangePicker from '../../components/ui/DateRangePicker';
 
 const VenueDetails = () => {
@@ -41,11 +41,10 @@ const VenueDetails = () => {
     const fetchVenueDetails = async () => {
       try {
         setLoading(true)
-        const response = await API.get(`/api/venues/${venueId}`)
-        
-        if (response.data.success) {
-          setVenue(response.data.data.venue)
-          setBookedDates(response.data.data.bookedDates || [])
+        const response = await getVenueById(venueId);
+        if (response.success) {
+          setVenue(response.data.venue)
+          setBookedDates(response.data.bookedDates || [])
         } else {
           setError("Venue not found")
         }
@@ -82,7 +81,7 @@ const VenueDetails = () => {
         _id: venue._id,
         name: venue.name,
         price: venue.price,
-        image: venue.image,
+        image: venue.venueImage,
         type: "venue",
         description: venue.description,
         location: venue.location,
@@ -200,7 +199,7 @@ const VenueDetails = () => {
           >
             <div className="relative rounded-2xl overflow-hidden shadow-2xl">
               <img
-                src={venue.image || "/placeholder.svg"}
+                src={venue.venueImage || "/placeholder.svg"}
                 alt={venue.name}
                 className="w-full h-96 object-cover"
               />

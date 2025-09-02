@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { editVenue, getOneVenue } from "../../services/venues"
+import { editVenue, getVenueById } from "../../services/venues"
 import { toast } from "react-toastify"
 import { motion } from "framer-motion"
 import { ArrowLeft, MapPin, FileText, ImageIcon, Upload, Save, Eye, X, Banknote, Users, Building2 } from "lucide-react"
@@ -24,7 +24,7 @@ const EditVenue = () => {
   useEffect(() => {
     const fetchVenue = async () => {
       try {
-        const response = await getOneVenue(id)
+        const response = await getVenueById(id)
         if (response && response.data) {
           const { venue } = response.data
           const { name, location, description, capacity, price, image } = venue

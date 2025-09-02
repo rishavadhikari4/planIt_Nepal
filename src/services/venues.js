@@ -35,7 +35,7 @@ export const getAllVenues = async (params = {}) => {
   }
 };
 
-export const getOneVenue = async (id) => {
+export const getVenueById = async (id) => {
   try {
     const response = await API.get(`/api/venues/${id}`);
     return response.data;

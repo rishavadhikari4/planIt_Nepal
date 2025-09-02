@@ -461,8 +461,7 @@ const Studios = () => {
                 whileHover="hover"
                 whileTap="tap"
               >
-                <Search className="w-5 h-5" />
-                <span>Search</span>
+                <Search className="w-5 h-5 sm:w-6 sm:h-6" />
               </motion.button>
             </div>
 
@@ -540,29 +539,6 @@ const Studios = () => {
                   <span>Showing <span className="font-semibold text-purple-600">{pagination?.totalStudios || 0}</span> studios</span>
                 )}
               </motion.div>
-              
-              <div className="flex bg-gray-100/70 rounded-2xl p-1">
-                <motion.button
-                  onClick={() => setViewMode("grid")}
-                  className={`p-3 rounded-xl transition-all duration-200 ${
-                    viewMode === "grid" ? "bg-white shadow-sm text-purple-600" : "text-gray-500 hover:text-gray-700"
-                  }`}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Grid3X3 className="w-5 h-5" />
-                </motion.button>
-                <motion.button
-                  onClick={() => setViewMode("list")}
-                  className={`p-3 rounded-xl transition-all duration-200 ${
-                    viewMode === "list" ? "bg-white shadow-sm text-purple-600" : "text-gray-500 hover:text-gray-700"
-                  }`}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <List className="w-5 h-5" />
-                </motion.button>
-              </div>
             </div>
           </div>
         </motion.div>

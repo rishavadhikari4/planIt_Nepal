@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { getAllVenues, searchVenues } from "../../services/venues"
-import { useCart } from "../../context/CartContext"
 import { toast } from "react-toastify"
 import { MapPin, Users, Star, Heart, Search, Filter, Sparkles, Eye, ChevronLeft, ChevronRight } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -21,7 +20,6 @@ const Venues = () => {
   const [sortField, setSortField] = useState("createdAt")
   const [sortOrder, setSortOrder] = useState("desc")
   const [isSearchActive, setIsSearchActive] = useState(false)
-  const { addToCart } = useCart()
   const navigate = useNavigate()
   const [showPreview, setShowPreview] = useState(null)
 
@@ -254,23 +252,6 @@ const Venues = () => {
     fetchVenues(1)
   }
 
-  const handleSelect = async (venue) => {
-    const accessToken = localStorage.getItem("accessToken")
-    if (!accessToken) {
-      toast.info("Please login to add items to your cart.")
-      navigate("/login")
-      return
-    }
-    toast.success("Added to cart successfully! ✨")
-    addToCart({
-      name: venue.name,
-      price: venue.price,
-      image: venue.image,
-      quantity: 1,
-      type: "venue",
-    })
-  }
-
   const toggleFavorite = (venueId) => {
     const newFavorites = new Set(favorites)
     if (newFavorites.has(venueId)) {
@@ -430,30 +411,27 @@ const Venues = () => {
         >
           <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl border border-white/30 p-4 sm:p-6 md:p-8">
             {/* Main Search Bar - Full Width */}
-            <div className="mb-6 sm:mb-8">
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                <div className="flex-1 relative">
-                  <Search className="absolute left-4 sm:left-6 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 sm:w-6 sm:h-6" />
-                  <input
-                    type="text"
-                    placeholder="Search venues by name, location, or specialty..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                    className="w-full pl-12 sm:pl-16 pr-4 sm:pr-6 py-4 sm:py-5 text-base sm:text-lg bg-gray-50/70 border-2 border-gray-200/60 rounded-xl sm:rounded-2xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300 text-gray-800 placeholder-gray-500 shadow-sm"
-                  />
-                </div>
-                <motion.button
-                  onClick={handleSearch}
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 sm:px-10 py-4 sm:py-5 rounded-xl sm:rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2 sm:space-x-3 text-base sm:text-lg min-w-[120px] sm:min-w-[140px]"
-                  variants={buttonVariants}
-                  whileHover="hover"
-                  whileTap="tap"
-                >
-                  <Search className="w-5 h-5 sm:w-6 sm:h-6" />
-                  <span className="hidden xs:inline">Search</span>
-                </motion.button>
+            <div className="flex flex-col lg:flex-row gap-4 mb-8">
+              <div className="flex-1 relative">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="text"
+                  placeholder="Search studios by name, location, or specialty..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                  className="w-full pl-12 pr-4 py-4 bg-gray-50/70 border-2 border-gray-200/60 rounded-2xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300 text-gray-800 placeholder-gray-500"
+                />
               </div>
+              <motion.button
+                onClick={handleSearch}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl flex items-center space-x-2"
+                variants={buttonVariants}
+                whileHover="hover"
+                whileTap="tap"
+              >
+                <Search className="w-5 h-5 sm:w-6 sm:h-6" />
+              </motion.button>
             </div>
 
             {/* Filters Grid */}
@@ -597,7 +575,7 @@ const Venues = () => {
                       {/* Venue Image */}
                       <div className="relative overflow-hidden h-32 xs:h-40 sm:h-48 md:h-56">
                         <motion.img
-                          src={venue.image || "/placeholder.svg"}
+                          src={venue.venueImage || "/placeholder.svg"}
                           alt={venue.name}
                           className="w-full h-full object-cover"
                           variants={imageVariants}
@@ -777,38 +755,6 @@ const Venues = () => {
             </div>
           </motion.div>
         )}
-
-        {/* Bottom CTA Section */}
-        {venues.length > 0 && (
-          <motion.div
-            className="text-center mt-20"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
-          >
-            <motion.div
-              className="bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl shadow-purple-500/10 border border-white/30 p-10 max-w-2xl mx-auto"
-              whileHover={{ scale: 1.02, y: -5 }}
-              transition={{ duration: 0.3 }}
-            >
-              <h3 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-6 text-balance">
-                Need Help Choosing?
-              </h3>
-              <p className="text-gray-600 mb-8 text-lg leading-relaxed text-pretty">
-                Our event planning experts are here to help you find the perfect venue for your special occasion.
-              </p>
-              <motion.button
-                onClick={() => navigate("/contact")}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-10 py-4 rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-purple-500/25"
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Contact Our Experts
-              </motion.button>
-            </motion.div>
-          </motion.div>
-        )}
-
         {/* Enhanced Preview Modal */}
         <AnimatePresence>
           {showPreview && (
@@ -829,7 +775,7 @@ const Venues = () => {
               >
                 <div className="relative">
                   <motion.img
-                    src={showPreview.image || "/placeholder.svg"}
+                    src={showPreview.venueImage || "/placeholder.svg"}
                     alt={showPreview.name}
                     className="w-full h-48 sm:h-64 object-cover rounded-t-2xl sm:rounded-t-3xl"
                     initial={{ scale: 1.1, opacity: 0 }}
