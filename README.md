@@ -1,6 +1,6 @@
 # 🎉 PlanIt Nepal - Event Planning Platform
 
-> A comprehensive Event planning platform built with React that connects couples with venues, studios, and catering services across Nepal.
+> A comprehensive Event planning platform built with React that connects clients with venues, studios, and catering services across Nepal.
 
 [![React](https://img.shields.io/badge/React-18.3.1-blue.svg)](https://reactjs.org/)
 [![Vite](https://img.shields.io/badge/Vite-5.4.1-646CFF.svg)](https://vitejs.dev/)
