@@ -16,7 +16,6 @@
 - [Project Structure](#project-structure)
 - [Installation](#installation)
 - [Usage](#usage)
-- [API Integration](#api-integration)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -268,46 +267,6 @@ npm run lint
 - Quantity management for cuisine items
 - Seamless checkout process
 
-## 🔌 API Integration
-
-### Base Configuration
-```javascript
-// services/api.js
-const API = axios.create({
-  baseURL: 'http://localhost:5000',
-  headers: {
-    'Content-Type': 'application/json'
-  }
-});
-```
-
-### Service Examples
-```javascript
-// Venue booking
-const venueItem = {
-  _id: venue._id,
-  name: venue.name,
-  type: "venue",
-  bookingDates: { from: startDate, till: endDate }
-};
-
-// Studio booking  
-const studioItem = {
-  _id: studio._id,
-  name: studio.name,
-  type: "studio",
-  bookingDates: { from: startDate, till: endDate }
-};
-
-// Cuisine ordering
-const cuisineItem = {
-  _id: dish._id,
-  name: dish.name,
-  type: "dish", // normalized from "cuisine"
-  quantity: selectedQuantity
-};
-```
-
 ## 🎨 UI/UX Features
 
 ### Animations & Interactions
@@ -322,16 +281,6 @@ const cuisineItem = {
 - **Responsive Design**: Mobile-first approach with breakpoint optimization
 - **Accessibility**: WCAG compliant with proper contrast ratios
 
-### Gallery System
-```javascript
-// Professional gallery with multiple view modes
-const galleryFeatures = {
-  layouts: ['masonry', 'grid'],
-  lightbox: 'full-screen with navigation',
-  animations: 'staggered loading effects',
-  optimization: 'lazy loading for performance'
-};
-```
 
 ## 🔒 Authentication & Authorization
 
