@@ -55,7 +55,7 @@ const UserProfile = () => {
   const [orders, setOrders] = useState([])
   const [ordersLoading, setOrdersLoading] = useState(true)
   const [expandedOrders, setExpandedOrders] = useState(new Set())
-  const [orderFilter, setOrderFilter] = useState('all') // all, pending, confirmed, completed, cancelled
+  const [orderFilter, setOrderFilter] = useState('all') 
   const [orderSearchTerm, setOrderSearchTerm] = useState('')
 
   // Email verification state

@@ -38,7 +38,7 @@ export const getAllVenues = async (params = {}) => {
 export const getVenueById = async (id) => {
   try {
     const response = await API.get(`/api/venues/${id}`);
-    return response.data;
+    return response.data
   } catch (error) {
     console.error('Error Fetching the single venue', error);
     throw error;
@@ -129,3 +129,8 @@ export const searchVenues = async (searchOptions = {}) => {
     throw error;
   }
 };
+
+// TODO: Implement API POST request for adding venue photos
+
+//TODO: Implement API DELETE request for deleting the venue photos
+

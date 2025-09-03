@@ -134,15 +134,6 @@ const StudioDetails = () => {
     })
   }
 
-  const isDateBooked = (date) => {
-    return bookedDates.some(booking => {
-      const bookingStart = new Date(booking.bookedFrom)
-      const bookingEnd = new Date(booking.bookedTill)
-      const checkDate = new Date(date)
-      return checkDate >= bookingStart && checkDate <= bookingEnd
-    })
-  }
-
   // Gallery functions
   const openLightbox = (index) => {
     setLightboxIndex(index)
