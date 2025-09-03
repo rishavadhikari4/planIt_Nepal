@@ -1,6 +1,6 @@
 # 🎉 PlanIt Nepal - Event Planning Platform
 
-> A comprehensive Event planning platform built with React that connects clients with venues, studios, and catering services across Nepal.
+> A comprehensive event planning platform built with React that connects users with venues, studios, and catering services across Nepal.
 
 [![React](https://img.shields.io/badge/React-18.3.1-blue.svg)](https://reactjs.org/)
 [![Vite](https://img.shields.io/badge/Vite-5.4.1-646CFF.svg)](https://vitejs.dev/)
@@ -21,12 +21,12 @@
 
 ## 🌟 Overview
 
-PlanIt Nepal is a modern, full-featured Event planning platform that simplifies the process of organizing Events in Nepal. The platform connects couples with venues, photography studios, and catering services while providing comprehensive booking management and administrative tools.
+PlanIt Nepal is a modern, full-featured event planning platform that simplifies organizing events in Nepal. The platform connects users with venues, photography studios, and catering providers, making it easy to plan any event—from birthdays, seminars, parties to corporate gatherings.
 
 ### Key Highlights
 
-- 🏛️ **Venue Booking** - Browse and book Event venues with availability tracking
-- 📸 **Studio Services** - Professional photography studios with portfolio galleries
+- 🏛️ **Venue Booking** - Browse and book event venues with availability tracking
+- 📸 **Studio Services** - Find professional photography studios with portfolio galleries
 - 🍽️ **Catering Services** - Diverse cuisine options with customizable menus
 - 🛒 **Shopping Cart** - Seamless booking experience with date management
 - 💳 **Payment Integration** - Secure payment processing
@@ -35,7 +35,7 @@ PlanIt Nepal is a modern, full-featured Event planning platform that simplifies 
 
 ## ✨ Features
 
-### For Customers
+### For Users
 - **Service Discovery**: Browse venues, studios, and cuisines with advanced filtering
 - **Interactive Galleries**: Professional photo galleries with lightbox viewing
 - **Date Selection**: Real-time availability checking and booking
@@ -47,7 +47,7 @@ PlanIt Nepal is a modern, full-featured Event planning platform that simplifies 
 - **Dashboard Analytics**: Order statistics and business insights
 - **Content Management**: Add, edit, and delete services
 - **Order Management**: Track and update booking statuses
-- **User Management**: Customer account oversight
+- **User Management**: Account oversight
 - **Review System**: Customer feedback management
 
 ## 🏗️ Architecture
@@ -281,11 +281,10 @@ npm run lint
 - **Responsive Design**: Mobile-first approach with breakpoint optimization
 - **Accessibility**: WCAG compliant with proper contrast ratios
 
-
 ## 🔒 Authentication & Authorization
 
 ### User Roles
-- **Customers**: Browse services, make bookings, manage profiles
+- **Users**: Browse services, make bookings, manage profiles
 - **Administrators**: Full platform management capabilities
 
 ### Security Features
@@ -369,7 +368,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 <div align="center">
-  <p>Made with ❤️ for couples planning their perfect day in Nepal</p>
+  <p>Made with ❤️ for anyone planning their perfect event in Nepal</p>
   <p>
     <a href="#top">Back to Top ⬆️</a>
   </p>
