@@ -160,10 +160,6 @@ const Cuisines = () => {
       }
     } catch (err) {
       console.error("Error fetching cuisines:", err)
-      // Only show toast error for actual API failures, not empty results
-      if (err.message !== "Failed to fetch cuisines" || !err.response?.data?.success) {
-        toast.error("Failed to load cuisines. Please try again.")
-      }
       setCuisines([])
       setPagination({})
     } finally {
