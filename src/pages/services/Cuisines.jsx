@@ -6,7 +6,6 @@ import { toast } from "react-toastify"
 import {
   Search,
   Filter,
-  MapPin,
   ChefHat,
   Utensils,
   Plus,
@@ -98,6 +97,7 @@ const imageVariants = {
   },
 }
 
+//TODO: make the fix the loading ui
 const Cuisines = () => {
   const [cuisines, setCuisines] = useState([])
   const [pagination, setPagination] = useState({})
@@ -156,11 +156,15 @@ const Cuisines = () => {
         setCurrentPage(page)
         setIsSearchActive(false)
       } else {
+        // Only show error if it's actually a failure, not empty results
         throw new Error("Failed to fetch cuisines")
       }
     } catch (err) {
       console.error("Error fetching cuisines:", err)
-      toast.error("Failed to load cuisines. Please try again.")
+      // Only show toast error for actual API failures, not empty results
+      if (err.message !== "Failed to fetch cuisines" || !err.response?.data?.success) {
+        toast.error("Failed to load cuisines. Please try again.")
+      }
       setCuisines([])
       setPagination({})
     } finally {
@@ -180,7 +184,7 @@ const Cuisines = () => {
 
         const response = await searchCuisines(searchOptions)
         
-        // Handle search response structure
+        // Handle search response structure - don't show error for empty results
         setCuisines(response.cuisines || [])
         setPagination({
           totalPages: Math.ceil((response.totalResults || 0) / 12),
@@ -202,6 +206,7 @@ const Cuisines = () => {
       }
     } catch (err) {
       console.error("Error searching cuisines:", err)
+      // Only show toast error for actual search failures, not empty results
       toast.error("Failed to search cuisines. Please try again.")
       setCuisines([])
       setPagination({})
@@ -547,31 +552,31 @@ const Cuisines = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-rose-100 flex items-center justify-center">
         <motion.div
-          className="text-center"
+          className="flex flex-col items-center space-y-6"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{
+          transition={{ 
             duration: 0.6,
             type: "spring",
-            stiffness: 100,
+            stiffness: 100
           }}
         >
-          <motion.div
+          <motion.div 
             className="w-16 h-16 border-4 border-purple-200 border-t-purple-600 rounded-full"
             animate={{ rotate: 360 }}
             transition={{
               duration: 1,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "linear",
+              repeat: Infinity,
+              ease: "linear"
             }}
           />
-          <motion.p
+          <motion.p 
             className="text-lg font-medium bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent"
             animate={{ opacity: [0.5, 1, 0.5] }}
             transition={{
               duration: 2,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "easeInOut",
+              repeat: Infinity,
+              ease: "easeInOut"
             }}
           >
             Loading delicious cuisines...
