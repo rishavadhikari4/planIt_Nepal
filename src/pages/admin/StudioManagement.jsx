@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { deleteStudio, getAllStudios, searchStudios } from "../../services/studios"
+import { deleteStudio, getAllStudios } from "../../services/studios"
 import { toast } from "react-toastify"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Camera,
   MapPin,
-  Calendar,
   Edit3,
   Trash2,
   Plus,
@@ -17,21 +16,20 @@ import {
   Star,
   Eye,
   Users,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react"
 
-const Adminstudios = () => {
-  const [studios, setstudios] = useState([])
-  const [allStudios, setAllStudios] = useState([])
+const AdminStudios = () => {
+  const [studios, setStudios] = useState([])
   const [pagination, setPagination] = useState({})
   const [loading, setLoading] = useState(true)
   const [deletingId, setDeletingId] = useState(null)
   const [searchTerm, setSearchTerm] = useState("")
-  const [filterStatus, setFilterStatus] = useState("all")
   const [viewMode, setViewMode] = useState("grid")
   const [currentPage, setCurrentPage] = useState(1)
   const [sortField, setSortField] = useState("createdAt")
   const [sortOrder, setSortOrder] = useState("desc")
-  const [isSearchMode, setIsSearchMode] = useState(false)
   const navigate = useNavigate()
 
   const fetchStudios = async (page = 1, filters = {}) => {
@@ -46,134 +44,47 @@ const Adminstudios = () => {
       }
 
       const response = await getAllStudios(params)
-      setstudios(response.studios || [])
-      setAllStudios(response.studios || []) 
+      setStudios(response.studios || [])
       setPagination(response.pagination || {})
       setCurrentPage(page)
-      setIsSearchMode(false)
     } catch (err) {
       console.error("Failed to fetch studios:", err)
-      toast.error("Failed to load studios.")
-      setstudios([])
-      setAllStudios([])
+      // Don't show toast error for empty arrays
+      if (!Array.isArray(err.response?.data) || err.response?.data.length > 0) {
+        toast.error("Failed to load studios.")
+      }
+      setStudios([])
       setPagination({})
     } finally {
       setLoading(false)
     }
   }
 
-  // Search studios using backend search endpoint
-  const performSearch = async (page = 1) => {
-    if (!searchTerm.trim()) {
-      // If no search term, fetch all studios
-      fetchStudios(page)
-      return
-    }
-
-    setLoading(true)
-    try {
-      const searchOptions = {
-        page,
-        limit: 8,
-        q: searchTerm.trim()
-      }
-
-      const response = await searchStudios(searchOptions)
-      setstudios(response.studios || [])
-      setPagination(response.pagination || {})
-      setCurrentPage(page)
-      setIsSearchMode(true) // Set search mode
-    } catch (err) {
-      console.error("Failed to search studios:", err)
-      toast.error("Failed to search studios.")
-      // Fallback to client-side search if backend search fails
-      performClientSideSearch()
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // Client-side search through already fetched studios
-  const performClientSideSearch = () => {
-    if (!searchTerm.trim()) {
-      setstudios(allStudios)
-      setIsSearchMode(false)
-      return
-    }
-
-    const filtered = allStudios.filter(studio => 
-      studio.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      studio.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      studio.location?.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-
-    setstudios(filtered)
-    setIsSearchMode(true)
-    // Update pagination for client-side search
-    setPagination({
-      totalStudios: filtered.length,
-      currentPage: 1,
-      totalPages: 1,
-      limit: filtered.length
-    })
-  }
-
   useEffect(() => {
     fetchStudios(1)
   }, [sortField, sortOrder])
 
-  // Handle search with hybrid approach
   const handleSearch = () => {
-    if (!searchTerm.trim()) {
-      // If no search term, show all studios
-      fetchStudios(currentPage)
-      return
+    const filters = {}
+    if (searchTerm.trim()) {
+      filters.name = searchTerm.trim()
     }
-
-    // First try client-side search through already loaded studios
-    const clientResults = allStudios.filter(studio => 
-      studio.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      studio.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      studio.location?.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-
-    if (clientResults.length > 0) {
-      // If we found results in already loaded studios, use them
-      setstudios(clientResults)
-      setIsSearchMode(true)
-      setPagination({
-        totalStudios: clientResults.length,
-        currentPage: 1,
-        totalPages: 1,
-        limit: clientResults.length
-      })
-    } else {
-      // If no results found in loaded studios, search backend
-      performSearch(1)
-    }
+    fetchStudios(1, filters)
   }
 
-  // Handle page change
   const handlePageChange = (page) => {
     if (page >= 1 && page <= pagination.totalPages) {
-      if (isSearchMode) {
-        performSearch(page)
-      } else {
-        const filters = {}
-        if (searchTerm.trim()) {
-          filters.name = searchTerm.trim()
-        }
-        fetchStudios(page, filters)
+      const filters = {}
+      if (searchTerm.trim()) {
+        filters.name = searchTerm.trim()
       }
+      fetchStudios(page, filters)
     }
   }
 
-  // Clear filters and search
   const clearFilters = () => {
     setSearchTerm("")
-    setFilterStatus("all")
     setCurrentPage(1)
-    setIsSearchMode(false)
     fetchStudios(1)
   }
 
@@ -185,9 +96,7 @@ const Adminstudios = () => {
       const result = await deleteStudio(id)
       if (result.success) {
         toast.success(result.message)
-        // Remove from both arrays
-        setstudios((prev) => prev.filter((studio) => studio._id !== id))
-        setAllStudios((prev) => prev.filter((studio) => studio._id !== id))
+        fetchStudios(currentPage)
       } else {
         toast.error(result.message)
       }
@@ -199,15 +108,6 @@ const Adminstudios = () => {
     }
   }
 
-  // Client-side filtering for status (since backend doesn't have status field yet)
-  const filteredstudios = studios.filter((studio) => {
-    const matchesFilter = filterStatus === "all" || 
-      (filterStatus === "active" && studio._id) || // All studios are considered active if they exist
-      (filterStatus === "services" && studio.services && studio.services.length > 0)
-    return matchesFilter
-  })
-
-  // Generate page numbers for pagination
   const getPageNumbers = () => {
     const pageNumbers = []
     const totalPages = pagination.totalPages || 1
@@ -237,17 +137,14 @@ const Adminstudios = () => {
     return pageNumbers
   }
 
-  // Calculate stats based on actual data
+  // Calculate real stats
   const totalStudios = pagination.totalStudios || studios.length
-  const activeStudios = studios.length // All fetched studios are considered active
   const studiosWithPhotos = studios.filter((s) => s.photos && s.photos.length > 0).length
-  const avgRating = 4.9 // This would come from your actual rating data
 
   const stats = [
     { label: "Total Studios", value: totalStudios, icon: Camera, color: "text-blue-600" },
-    { label: "Active Studios", value: activeStudios || totalStudios, icon: Calendar, color: "text-green-600" },
-    { label: "With Photos", value: studiosWithPhotos, icon: Eye, color: "text-yellow-600" },
-    { label: "Avg Rating", value: avgRating, icon: Star, color: "text-purple-600" },
+    { label: "Current Page", value: studios.length, icon: Eye, color: "text-green-600" },
+    { label: "With Photos", value: studiosWithPhotos, icon: Users, color: "text-yellow-600" },
   ]
 
   const StudioCard = ({ studio }) => (
@@ -334,7 +231,7 @@ const Adminstudios = () => {
         {/* Price */}
         <div className="mb-3">
           <span className="text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            ${studio.price || "0"}
+            ₹{studio.price?.toLocaleString() || "0"}
           </span>
           <span className="text-gray-500 text-sm ml-1">per session</span>
         </div>
@@ -370,20 +267,16 @@ const Adminstudios = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-rose-100 flex items-center justify-center">
-        <motion.div
-          className="flex flex-col items-center space-y-4"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6 }}
-        >
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-2">
+        <motion.div className="flex flex-col items-center space-y-4 p-4 max-w-xs w-full">
           <div className="relative">
-            <div className="w-16 h-16 border-4 border-purple-200 rounded-full animate-spin"></div>
-            <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
+            <div className="w-10 h-10 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+            <div className="w-7 h-7 border-2 border-purple-200 border-t-purple-600 rounded-full absolute top-1.5 left-1.5 animate-spin" style={{ animationDirection: "reverse", animationDuration: "1.2s" }}></div>
           </div>
-          <p className="text-lg font-medium bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Loading beautiful studios...
-          </p>
+          <div className="text-center">
+            <h3 className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-1">Loading...</h3>
+            <p className="text-slate-500 text-xs">Fetching studios...</p>
+          </div>
         </motion.div>
       </div>
     )
@@ -428,7 +321,7 @@ const Adminstudios = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.6 }}
         >
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+          <div className="grid grid-cols-3 gap-4 lg:gap-6">
             {stats.map((stat, index) => {
               const IconComponent = stat.icon
               return (
@@ -471,7 +364,7 @@ const Adminstudios = () => {
                     <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                     <input
                       type="text"
-                      placeholder="Search studios by name, location, or description..."
+                      placeholder="Search studios by name..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
@@ -524,10 +417,9 @@ const Adminstudios = () => {
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                   {/* Results Count */}
                   <div className="text-gray-600">
-                    {isSearchMode ? "Search results: " : "Showing "} 
-                    <span className="font-semibold text-purple-600">{filteredstudios.length}</span> of{" "}
+                    Showing <span className="font-semibold text-purple-600">{studios.length}</span> of{" "}
                     <span className="font-semibold">{totalStudios}</span> studios
-                    {pagination.totalPages > 1 && !isSearchMode && (
+                    {pagination.totalPages > 1 && (
                       <span className="ml-2">
                         (Page {currentPage} of {pagination.totalPages})
                       </span>
@@ -587,7 +479,7 @@ const Adminstudios = () => {
                 <span>Add Your First Studio</span>
               </button>
             </motion.div>
-          ) : filteredstudios.length === 0 ? (
+          ) : studios.length === 0 ? (
             <motion.div
               className="text-center py-16"
               initial={{ opacity: 0, scale: 0.9 }}
@@ -598,7 +490,7 @@ const Adminstudios = () => {
                 <Search className="w-12 h-12 text-gray-400" />
               </div>
               <h3 className="text-2xl font-bold text-gray-800 mb-2">No studios found</h3>
-              <p className="text-gray-600 mb-6">Try adjusting your search or filter criteria</p>
+              <p className="text-gray-600 mb-6">Try adjusting your search criteria</p>
               <button
                 onClick={clearFilters}
                 className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-300"
@@ -615,7 +507,7 @@ const Adminstudios = () => {
                 }`}
               >
                 <AnimatePresence>
-                  {filteredstudios.map((studio, index) => (
+                  {studios.map((studio, index) => (
                     <motion.div
                       key={studio._id}
                       initial={{ opacity: 0, y: 20 }}
@@ -630,8 +522,8 @@ const Adminstudios = () => {
                 </AnimatePresence>
               </div>
 
-              {/* Pagination - Only show if not in client-side search mode */}
-              {pagination.totalPages > 1 && !isSearchMode && (
+              {/* Pagination */}
+              {pagination.totalPages > 1 && (
                 <motion.div
                   className="flex justify-center items-center space-x-2 mt-12"
                   initial={{ opacity: 0, y: 20 }}
@@ -642,9 +534,9 @@ const Adminstudios = () => {
                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
-                    className="px-4 py-2 bg-white/80 backdrop-blur-xl border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+                    className="p-2 rounded-lg bg-white/80 backdrop-blur-sm border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-purple-50 transition-colors duration-200"
                   >
-                    Previous
+                    <ChevronLeft className="w-5 h-5" />
                   </button>
 
                   {/* Page Numbers */}
@@ -653,12 +545,12 @@ const Adminstudios = () => {
                       key={index}
                       onClick={() => typeof pageNum === 'number' && handlePageChange(pageNum)}
                       disabled={pageNum === '...'}
-                      className={`px-4 py-2 rounded-xl font-semibold transition-all duration-300 ${
+                      className={`px-3 py-2 rounded-lg transition-all duration-200 ${
                         pageNum === currentPage
                           ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
                           : pageNum === '...'
-                          ? 'text-gray-400 cursor-not-allowed'
-                          : 'bg-white/80 backdrop-blur-xl border border-gray-200 text-gray-600 hover:bg-gray-50'
+                          ? 'text-gray-400 cursor-default'
+                          : 'bg-white/80 backdrop-blur-sm border border-gray-200 hover:bg-purple-50'
                       }`}
                     >
                       {pageNum}
@@ -669,9 +561,9 @@ const Adminstudios = () => {
                   <button
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === pagination.totalPages}
-                    className="px-4 py-2 bg-white/80 backdrop-blur-xl border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+                    className="p-2 rounded-lg bg-white/80 backdrop-blur-sm border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-purple-50 transition-colors duration-200"
                   >
-                    Next
+                    <ChevronRight className="w-5 h-5" />
                   </button>
                 </motion.div>
               )}
@@ -683,4 +575,4 @@ const Adminstudios = () => {
   )
 }
 
-export default Adminstudios
+export default AdminStudios

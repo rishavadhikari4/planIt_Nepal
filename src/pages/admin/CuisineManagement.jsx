@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { getAllCuisines, deleteDish, deleteCuisine } from "../../services/cuisines"
 import { toast } from "react-toastify"
 import { motion, AnimatePresence } from "framer-motion"
-import { Plus, Search, Filter, Grid3X3, List, Edit3, Trash2, ChefHat, Star, Clock, Users, Eye } from "lucide-react"
+import { Plus, Search, Filter, Edit3, Trash2, ChefHat, Star, Clock, Users, Eye } from "lucide-react"
 
 const AdminCuisine = () => {
   const [categories, setCategories] = useState([])
@@ -12,19 +12,21 @@ const AdminCuisine = () => {
   const [deletingCategoryId, setDeletingCategoryId] = useState(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
-  const [viewMode, setViewMode] = useState("grid")
   const navigate = useNavigate()
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fix: Use the cuisine service which returns { cuisines: [...], pagination: {...}, success: true }
         const response = await getAllCuisines()
         const categoriesData = response.cuisines || []
         setCategories(categoriesData)
       } catch (err) {
-        toast.error("Failed to fetch cuisines")
         console.error("Failed to fetch cuisines:", err)
+        // Don't show toast error for empty arrays
+        if (!Array.isArray(err.response?.data) || err.response?.data.length > 0) {
+          toast.error("Failed to fetch cuisines")
+        }
+        setCategories([])
       } finally {
         setLoading(false)
       }
@@ -41,7 +43,6 @@ const AdminCuisine = () => {
         categoryId,
         dishId,
         (successMessage, updatedCategory) => {
-          // Update the category with the updated version from backend
           setCategories((prevCategories) =>
             prevCategories.map((category) => 
               category._id === categoryId ? updatedCategory : category
@@ -82,37 +83,45 @@ const AdminCuisine = () => {
     }
   }
 
-  // Filter categories and dishes based on search and category filter
+  // Simplified filtering logic
   const getFilteredCategories = () => {
+    if (!searchTerm.trim() && selectedCategory === "all") {
+      return categories
+    }
+
     return categories
       .map((category) => ({
         ...category,
-        dishes: category.dishes?.filter((dish) => {
-          const matchesSearch =
-            dish.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        dishes: (category.dishes || []).filter((dish) => {
+          const matchesSearch = !searchTerm.trim() || 
+            dish.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             dish.description?.toLowerCase().includes(searchTerm.toLowerCase())
+          
           const matchesCategory = selectedCategory === "all" || category.category === selectedCategory
+          
           return matchesSearch && matchesCategory
-        }) || []
+        })
       }))
       .filter((category) => category.dishes.length > 0)
   }
 
   const filteredCategories = getFilteredCategories()
-  const categoryNames = ["all", ...categories.map((cat) => cat.category)]
+  const categoryNames = ["all", ...new Set(categories.map((cat) => cat.category).filter(Boolean))]
 
-  // Calculate stats
+  // Calculate real stats
   const totalDishes = categories.reduce((sum, cat) => sum + (cat.dishes?.length || 0), 0)
   const totalCategories = categories.length
-  const avgRating = 4.8 // This would come from your data
-  const popularDishes = 12 // This would come from your data
 
   const stats = [
     { label: "Total Dishes", value: totalDishes, icon: ChefHat, color: "text-blue-600" },
-    { label: "Categories", value: totalCategories, icon: Grid3X3, color: "text-green-600" },
-    { label: "Avg Rating", value: avgRating, icon: Star, color: "text-yellow-600" },
-    { label: "Popular", value: popularDishes, icon: Users, color: "text-purple-600" },
+    { label: "Categories", value: totalCategories, icon: Filter, color: "text-green-600" },
+    { label: "Filtered", value: filteredCategories.reduce((sum, cat) => sum + cat.dishes.length, 0), icon: Search, color: "text-purple-600" },
   ]
+
+  const clearFilters = () => {
+    setSearchTerm("")
+    setSelectedCategory("all")
+  }
 
   const DishCard = ({ dish, categoryId, categoryName }) => (
     <motion.div
@@ -127,7 +136,7 @@ const AdminCuisine = () => {
       {/* Image Container */}
       <div className="relative overflow-hidden">
         <img
-          src={dish.image || "/placeholder.svg?height=200&width=300"}
+          src={dish.dishImage || dish.image || "/placeholder.svg?height=200&width=300"}
           alt={dish.name}
           className="w-full h-40 sm:h-48 object-cover group-hover:scale-110 transition-transform duration-700"
         />
@@ -186,7 +195,7 @@ const AdminCuisine = () => {
         {dish.price && (
           <div className="mb-3">
             <span className="text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              ${dish.price}
+              ₹{dish.price?.toLocaleString()}
             </span>
             <span className="text-gray-500 text-sm ml-1">per serving</span>
           </div>
@@ -224,20 +233,16 @@ const AdminCuisine = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-rose-100 flex items-center justify-center">
-        <motion.div
-          className="flex flex-col items-center space-y-4"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6 }}
-        >
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-2">
+        <motion.div className="flex flex-col items-center space-y-4 p-4 max-w-xs w-full">
           <div className="relative">
-            <div className="w-16 h-16 border-4 border-purple-200 rounded-full animate-spin"></div>
-            <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
+            <div className="w-10 h-10 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+            <div className="w-7 h-7 border-2 border-purple-200 border-t-purple-600 rounded-full absolute top-1.5 left-1.5 animate-spin" style={{ animationDirection: "reverse", animationDuration: "1.2s" }}></div>
           </div>
-          <p className="text-lg font-medium bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Loading Delicious Cuisines...
-          </p>
+          <div className="text-center">
+            <h3 className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-1">Loading...</h3>
+            <p className="text-slate-500 text-xs">Fetching cuisines...</p>
+          </div>
         </motion.div>
       </div>
     )
@@ -282,7 +287,7 @@ const AdminCuisine = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.6 }}
         >
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+          <div className="grid grid-cols-3 gap-4 lg:gap-6">
             {stats.map((stat, index) => {
               const IconComponent = stat.icon
               return (
@@ -342,34 +347,22 @@ const AdminCuisine = () => {
                     >
                       {categoryNames.map((category) => (
                         <option key={category} value={category}>
-                          {category === "all" ? "All Categories" : category}
+                          {category === "all" ? "All Categories" : category.charAt(0).toUpperCase() + category.slice(1)}
                         </option>
                       ))}
                     </select>
                   </div>
 
-                  {/* View Mode Toggle */}
-                  <div className="flex bg-gray-100 rounded-xl p-1">
-                    <button
-                      onClick={() => setViewMode("grid")}
-                      className={`p-2 rounded-lg transition-all duration-200 ${
-                        viewMode === "grid" ? "bg-white shadow-sm text-purple-600" : "text-gray-500 hover:text-gray-700"
-                      }`}
-                    >
-                      <Grid3X3 className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={() => setViewMode("list")}
-                      className={`p-2 rounded-lg transition-all duration-200 ${
-                        viewMode === "list" ? "bg-white shadow-sm text-purple-600" : "text-gray-500 hover:text-gray-700"
-                      }`}
-                    >
-                      <List className="w-5 h-5" />
-                    </button>
-                  </div>
+                  {/* Clear Filters Button */}
+                  <button
+                    onClick={clearFilters}
+                    className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-3 rounded-xl font-semibold transition-all duration-300"
+                  >
+                    Clear
+                  </button>
                 </div>
 
-                {/* Add Cuisine Button */}
+                {/* Results and Add Button */}
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">
                     {filteredCategories.reduce((sum, cat) => sum + cat.dishes.length, 0)} dishes found
@@ -401,7 +394,7 @@ const AdminCuisine = () => {
               </div>
               <h3 className="text-2xl font-bold text-gray-800 mb-4">No cuisines available</h3>
               <p className="text-gray-600 mb-8 max-w-md mx-auto">
-                Start building your cuisine collection by adding your first delicious cuisine.
+                Start building your cuisine collection by adding your first delicious dish.
               </p>
               <button
                 onClick={() => navigate("/admin-cuisines/addCuisine")}
@@ -421,13 +414,10 @@ const AdminCuisine = () => {
               <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-gray-200 to-purple-200 rounded-full flex items-center justify-center">
                 <Search className="w-12 h-12 text-gray-400" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-800 mb-2">No cuisines found</h3>
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">No dishes found</h3>
               <p className="text-gray-600 mb-6">Try adjusting your search or filter criteria</p>
               <button
-                onClick={() => {
-                  setSearchTerm("")
-                  setSelectedCategory("all")
-                }}
+                onClick={clearFilters}
                 className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-300"
               >
                 Clear Filters
@@ -448,13 +438,13 @@ const AdminCuisine = () => {
                   >
                     {/* Category Header */}
                     <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center mb-4">
+                      <div className="flex items-center">
                         <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mr-4">
                           <ChefHat className="w-6 h-6 text-white" />
                         </div>
                         <div>
                           <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                            {category.category}
+                            {category.category?.charAt(0).toUpperCase() + category.category?.slice(1)}
                           </h2>
                           <p className="text-gray-600">{category.dishes?.length || 0} dishes available</p>
                         </div>
@@ -477,13 +467,9 @@ const AdminCuisine = () => {
                     </div>
 
                     {/* Dishes Grid */}
-                    <div
-                      className={`grid gap-6 ${
-                        viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "grid-cols-1"
-                      }`}
-                    >
+                    <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                       <AnimatePresence>
-                        {category.dishes?.map((dish, dishIndex) => (
+                        {(category.dishes || []).map((dish, dishIndex) => (
                           <motion.div
                             key={dish._id}
                             initial={{ opacity: 0, y: 20 }}
@@ -494,7 +480,7 @@ const AdminCuisine = () => {
                           >
                             <DishCard dish={dish} categoryId={category._id} categoryName={category.category} />
                           </motion.div>
-                        )) || []}
+                        ))}
                       </AnimatePresence>
                     </div>
                   </motion.div>

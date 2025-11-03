@@ -17,7 +17,6 @@ const Admin = () => {
   const [orders, setOrders] = useState([])
   const [users, setUsers] = useState([])
   const [reviews, setReviews] = useState([])
-  const [completedOrders, setCompletedOrders] = useState([])
   const [totalRevenue, setTotalRevenue] = useState(0)
   const [activeOrders, setActiveOrders] = useState([])
   const [loadingStates, setLoadingStates] = useState({ orders: true, users: true, reviews: true })
@@ -33,14 +32,17 @@ const Admin = () => {
         if (response?.orders && Array.isArray(response.orders)) ordersData = response.orders
         else if (response?.data?.orders && Array.isArray(response.data.orders)) ordersData = response.data.orders
         else if (Array.isArray(response)) ordersData = response
+
         const completed = ordersData.filter((order) => order.status === "completed")
-        setCompletedOrders(completed)
         setTotalRevenue(completed.reduce((sum, order) => sum + (order.totalAmount || 0), 0))
         setActiveOrders(ordersData.filter((order) => ["processing", "pending", "confirmed"].includes(order.status)))
         setOrders(ordersData)
       } catch (error) {
         setErrorStates((prev) => ({ ...prev, orders: error.message || "Failed to fetch orders" }))
-        toast.error(error.message || "Failed to fetch orders")
+        // Don't show toast error for empty arrays
+        if (!Array.isArray(error.response?.data) || error.response?.data.length > 0) {
+          toast.error(error.message || "Failed to fetch orders")
+        }
         setOrders([])
       } finally {
         setLoadingStates((prev) => ({ ...prev, orders: false }))
@@ -58,7 +60,10 @@ const Admin = () => {
         setUsers(Array.isArray(usersData) ? usersData : [])
       } catch (error) {
         setErrorStates((prev) => ({ ...prev, users: error.message || "Failed to fetch users" }))
-        toast.error(error.message || "Failed to fetch users")
+        // Don't show toast error for empty arrays
+        if (!Array.isArray(error.response?.data) || error.response?.data.length > 0) {
+          toast.error(error.message || "Failed to fetch users")
+        }
         setUsers([])
       } finally {
         setLoadingStates((prev) => ({ ...prev, users: false }))
@@ -76,7 +81,10 @@ const Admin = () => {
         setReviews(Array.isArray(reviewsData) ? reviewsData : [])
       } catch (error) {
         setErrorStates((prev) => ({ ...prev, reviews: error.message || "Failed to fetch reviews" }))
-        toast.error(error.message || "Failed to fetch reviews")
+        // Don't show toast error for empty arrays
+        if (!Array.isArray(error.response?.data) || error.response?.data.length > 0) {
+          toast.error(error.message || "Failed to fetch reviews")
+        }
         setReviews([])
       } finally {
         setLoadingStates((prev) => ({ ...prev, reviews: false }))
@@ -117,83 +125,6 @@ const Admin = () => {
     if (tabId !== "settings") {
       setActiveTab(tabId)
       setSidebarOpen(false)
-    }
-  }
-
-  // Retry function for failed requests
-  const retryFetch = (type) => {
-    switch (type) {
-      case "orders":
-        setLoadingStates((prev) => ({ ...prev, orders: true }))
-        setErrorStates((prev) => ({ ...prev, orders: null }))
-        // Re-run the orders fetch
-        const fetchOrders = async () => {
-          try {
-            const response = await getAllOrders()
-            let ordersData = []
-
-            if (response?.orders && Array.isArray(response.orders)) {
-              ordersData = response.orders
-            } else if (response?.data?.orders && Array.isArray(response.data.orders)) {
-              ordersData = response.data.orders
-            } else if (Array.isArray(response)) {
-              ordersData = response
-            }
-
-            const completed = ordersData.filter((order) => order.status === "completed")
-            setCompletedOrders(completed)
-            const total = completed.reduce((sum, order) => sum + (order.totalAmount || 0), 0)
-            setTotalRevenue(total)
-            const active = ordersData.filter(
-              (order) => order.status === "processing" || order.status === "pending" || order.status === "confirmed",
-            )
-            setActiveOrders(active)
-            setOrders(ordersData)
-            setErrorStates((prev) => ({ ...prev, orders: null }))
-          } catch (error) {
-            console.error("Error retrying orders fetch:", error)
-            setErrorStates((prev) => ({ ...prev, orders: error.message || "Failed to fetch orders" }))
-            setOrders([])
-          } finally {
-            setLoadingStates((prev) => ({ ...prev, orders: false }))
-          }
-        }
-        fetchOrders()
-        break
-      case "users":
-        setLoadingStates((prev) => ({ ...prev, users: true }))
-        setErrorStates((prev) => ({ ...prev, users: null }))
-        // Re-run the users fetch
-        fetchUsers()
-          .then((usersData) => {
-            setUsers(Array.isArray(usersData) ? usersData : [])
-            setLoadingStates((prev) => ({ ...prev, users: false }))
-            setErrorStates((prev) => ({ ...prev, users: null }))
-          })
-          .catch((error) => {
-            setErrorStates((prev) => ({ ...prev, users: error.message || "Failed to fetch users" }))
-            setUsers([])
-            setLoadingStates((prev) => ({ ...prev, users: false }))
-          })
-        break
-      case "reviews":
-        setLoadingStates((prev) => ({ ...prev, reviews: true }))
-        setErrorStates((prev) => ({ ...prev, reviews: null }))
-        // Re-run the reviews fetch
-        getAllReviews()
-          .then((reviewsData) => {
-            setReviews(Array.isArray(reviewsData) ? reviewsData : [])
-            setLoadingStates((prev) => ({ ...prev, reviews: false }))
-            setErrorStates((prev) => ({ ...prev, reviews: null }))
-          })
-          .catch((error) => {
-            setErrorStates((prev) => ({ ...prev, reviews: error.message || "Failed to fetch reviews" }))
-            setReviews([])
-            setLoadingStates((prev) => ({ ...prev, reviews: false }))
-          })
-        break
-      default:
-        window.location.reload()
     }
   }
 

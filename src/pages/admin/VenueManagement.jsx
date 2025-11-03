@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { deleteVenue, getAllVenues, searchVenues } from "../../services/venues"
+import { deleteVenue, getAllVenues } from "../../services/venues"
 import { toast } from "react-toastify"
 import { motion, AnimatePresence } from "framer-motion"
 import {
@@ -23,17 +23,14 @@ import {
 
 const AdminVenues = () => {
   const [venues, setVenues] = useState([])
-  const [allVenues, setAllVenues] = useState([]) 
   const [pagination, setPagination] = useState({})
   const [loading, setLoading] = useState(true)
   const [deletingId, setDeletingId] = useState(null)
   const [searchTerm, setSearchTerm] = useState("")
-  const [filterStatus, setFilterStatus] = useState("all")
   const [viewMode, setViewMode] = useState("grid")
   const [currentPage, setCurrentPage] = useState(1)
   const [sortField, setSortField] = useState("createdAt")
   const [sortOrder, setSortOrder] = useState("desc")
-  const [isSearching, setIsSearching] = useState(false)
   const navigate = useNavigate()
 
   const fetchVenues = async (page = 1, filters = {}) => {
@@ -49,62 +46,18 @@ const AdminVenues = () => {
 
       const response = await getAllVenues(params)
       setVenues(response.venues || [])
-      setAllVenues(response.venues || [])
       setPagination(response.pagination || {})
       setCurrentPage(page)
     } catch (err) {
       console.error("Failed to fetch venues:", err)
-      toast.error("Failed to load venues.")
+      // Don't show toast error for empty arrays
+      if (!Array.isArray(err.response?.data) || err.response?.data.length > 0) {
+        toast.error("Failed to load venues.")
+      }
       setVenues([])
-      setAllVenues([])
       setPagination({})
     } finally {
       setLoading(false)
-    }
-  }
-
-  const performSearch = async (searchQuery) => {
-    if (!searchQuery.trim()) {
-      setVenues(allVenues)
-      setIsSearching(false)
-      return
-    }
-
-    setIsSearching(true)
-
-    const filteredVenues = allVenues.filter(venue =>
-      venue.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      venue.location?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      venue.description?.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-    
-    setVenues(filteredVenues)
-
-    try {
-      const searchOptions = {
-        q: searchQuery,
-        page: 1,
-        limit: 8,
-        sortField,
-        sortOrder
-      }
-
-      const response = await searchVenues(searchOptions)
-      
-      if (response.venues && response.venues.length > 0) {
-        setVenues(response.venues)
-        setPagination(response.pagination || {})
-        setCurrentPage(1)
-      } else if (filteredVenues.length === 0) {
-        setVenues([])
-      }
-    } catch (error) {
-      console.error("Backend search failed:", error)
-      if (filteredVenues.length === 0) {
-        toast.error("No venues found matching your search.")
-      }
-    } finally {
-      setIsSearching(false)
     }
   }
 
@@ -113,27 +66,26 @@ const AdminVenues = () => {
   }, [sortField, sortOrder])
 
   const handleSearch = () => {
-    performSearch(searchTerm)
+    const filters = {}
+    if (searchTerm.trim()) {
+      filters.name = searchTerm.trim()
+    }
+    fetchVenues(1, filters)
   }
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= pagination.totalPages) {
       const filters = {}
-      
       if (searchTerm.trim()) {
         filters.name = searchTerm.trim()
       }
-      
       fetchVenues(page, filters)
     }
   }
 
   const clearFilters = () => {
     setSearchTerm("")
-    setFilterStatus("all")
     setCurrentPage(1)
-    setIsSearching(false)
-    setVenues(allVenues)
     fetchVenues(1)
   }
 
@@ -156,12 +108,6 @@ const AdminVenues = () => {
       setDeletingId(null)
     }
   }
-
-  const filteredVenues = venues.filter((venue) => {
-    const matchesFilter = filterStatus === "all" || venue.status === filterStatus
-    return matchesFilter
-  })
-
 
   const getPageNumbers = () => {
     const pageNumbers = []
@@ -318,20 +264,16 @@ const AdminVenues = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-rose-100 flex items-center justify-center">
-        <motion.div
-          className="flex flex-col items-center space-y-4"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6 }}
-        >
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-2">
+        <motion.div className="flex flex-col items-center space-y-4 p-4 max-w-xs w-full">
           <div className="relative">
-            <div className="w-16 h-16 border-4 border-purple-200 rounded-full animate-spin"></div>
-            <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
+            <div className="w-10 h-10 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+            <div className="w-7 h-7 border-2 border-purple-200 border-t-purple-600 rounded-full absolute top-1.5 left-1.5 animate-spin" style={{ animationDirection: "reverse", animationDuration: "1.2s" }}></div>
           </div>
-          <p className="text-lg font-medium bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Loading beautiful venues...
-          </p>
+          <div className="text-center">
+            <h3 className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-1">Loading...</h3>
+            <p className="text-slate-500 text-xs">Fetching data</p>
+          </div>
         </motion.div>
       </div>
     )
@@ -534,7 +476,7 @@ const AdminVenues = () => {
                 <span>Add Your First Venue</span>
               </button>
             </motion.div>
-          ) : filteredVenues.length === 0 ? (
+          ) : venues.length === 0 ? (
             <motion.div
               className="text-center py-16"
               initial={{ opacity: 0, scale: 0.9 }}
@@ -562,7 +504,7 @@ const AdminVenues = () => {
                 }`}
               >
                 <AnimatePresence>
-                  {filteredVenues.map((venue, index) => (
+                  {venues.map((venue, index) => (
                     <motion.div
                       key={venue._id}
                       initial={{ opacity: 0, y: 20 }}
