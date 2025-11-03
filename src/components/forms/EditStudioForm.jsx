@@ -47,22 +47,23 @@ const Editstudio = () => {
           return;
         }
         const response = await getStudioById(id);
-          
+        console.log('Full response:', response);
+        
         if (response && response.success && response.data) {
-          const studio = response.data;
+          const studio = response.data.studio; 
 
-          const { name, location, description, price, services, studioImage } = studio;
+          const { name, location, description, price, services, studioImage, photos } = studio;
+          
           setFormData({ 
-              name: name || "", 
-              location: location || "", 
-              description: description || "", 
-              price: price || "",
-              services: services || [],
-              studioImage: studioImage || ""
+            name: name || "", 
+            location: location || "", 
+            description: description || "", 
+            price: price || "",
+            services: Array.isArray(services) ? services : [],
+            studioImage: studioImage || ""
           });
 
-          // Set current gallery photos (safe fallbacks)
-          const gallery = studio.photos || studio.galleryImages || studio.photos || [];
+          const gallery = photos || [];
           setCurrentPhotos(Array.isArray(gallery) ? gallery : []);
         } else {
           console.error('Invalid response structure:', response);
@@ -80,11 +81,9 @@ const Editstudio = () => {
     
     fetchstudio();
 
-    // cleanup for photo previews when unmounting
     return () => {
       photoPreviews.forEach(p => URL.revokeObjectURL(p.url));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, navigate]);
 
   const handleChange = (e) => {
@@ -126,11 +125,9 @@ const Editstudio = () => {
     const files = Array.from(e.target.files || [])
     if (!files.length) return
 
-    // limit to reasonable count if you want (backend allows 10)
     const newFiles = files.slice(0, 10)
     const newPreviews = newFiles.map(file => ({ url: URL.createObjectURL(file), name: file.name }))
 
-    // append to existing selected photos & previews
     setSelectedPhotos(prev => [...prev, ...newFiles])
     setPhotoPreviews(prev => [...prev, ...newPreviews])
   }
@@ -155,12 +152,8 @@ const Editstudio = () => {
     selectedPhotos.forEach((file) => data.append("photos", file))
 
     try {
-      // addStudioPhotos is available in services/studios.js and posts to /api/studios/:studioId/photos
       const response = await addStudioPhotos(id, data)
-      // response from service returns response.data; service also calls onSuccess if provided
-      // Try to update gallery from response: prefer response.data.studio or response.studio or response.data
       const updated = response?.data?.studio || response?.studio || response?.data || response
-      // many shapes possible: try to extract photos array safely
       const newGallery = updated?.photos || updated?.galleryImages || updated?.photos || updated?.data?.photos || []
       setCurrentPhotos(Array.isArray(newGallery) ? newGallery : currentPhotos)
 
@@ -184,30 +177,36 @@ const Editstudio = () => {
     if (!window.confirm("Delete this photo?")) return
 
     setDeletingPhotoId(photoId)
+    
     try {
-      const response = await deleteStudioPhoto(id, photoId)
-      // service uses onSuccess callback; but here we awaited returned value if any
-      // Try extract updated studio photos
-      const updated = response?.data?.studio || response?.studio || response?.data || response
-      const newGallery = updated?.photos || updated?.galleryImages || []
-      if (Array.isArray(newGallery)) {
-        setCurrentPhotos(newGallery)
-      } else {
-        // fallback: remove locally by id if we can match
-        setCurrentPhotos(prev => prev.filter(p => p.imageId !== photoId && p.image !== photoId))
-      }
-
-      toast.success("Photo deleted")
+      await deleteStudioPhoto(
+        id, 
+        photoId, 
+        (successMessage, updatedStudio) => {
+          console.log('Delete success:', successMessage, updatedStudio)
+          
+          if (updatedStudio && updatedStudio.photos) {
+            setCurrentPhotos(updatedStudio.photos)
+          } else {
+            setCurrentPhotos(prev => prev.filter(p => p._id !== photoId))
+          }
+          
+          toast.success(successMessage || "Photo deleted successfully")
+          setDeletingPhotoId(null)
+        },
+        (errorMessage) => {
+          console.error("Delete photo error:", errorMessage)
+          toast.error(errorMessage)
+          setDeletingPhotoId(null)
+        }
+      )
     } catch (err) {
       console.error("Error deleting photo:", err)
-      const msg = err?.response?.data?.message || "Failed to delete photo"
-      toast.error(msg)
-    } finally {
+      toast.error("Failed to delete photo")
       setDeletingPhotoId(null)
     }
   }
 
-  // --- Submit edit form (unchanged behavior) ---
   const handleSubmit = async (e) => {
     e.preventDefault()
     
@@ -530,21 +529,31 @@ const Editstudio = () => {
                       <h4 className="text-sm font-semibold text-gray-700 mb-2">Current Photos</h4>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                         {currentPhotos.map((p, idx) => {
-                          // p might be an object { image, imageId } or a URL string
-                          const src = typeof p === "string" ? p : (p.image || p.imageUrl || p.url)
-                          const photoId = typeof p === "string" ? p : (p.imageId || p.public_id || p.id)
+                          // Based on your API response structure
+                          const src = p.image || "/placeholder.svg"
+                          const photoId = p._id  // Use _id for deletion
+                          
+                          console.log('Photo object:', p, 'Using _id:', photoId) // Debug log
+                          
                           return (
-                            <div key={idx} className="relative rounded-md overflow-hidden border border-gray-200">
-                              <img src={src || "/placeholder.svg"} alt={`photo-${idx}`} className="w-full h-28 object-cover" />
+                            <div key={photoId || idx} className="relative rounded-md overflow-hidden border border-gray-200">
+                              <img src={src} alt={`photo-${idx}`} className="w-full h-28 object-cover" />
                               <div className="absolute top-2 right-2 flex gap-2">
                                 <button
                                   type="button"
-                                  onClick={() => handleDeletePhoto(photoId)}
-                                  className="w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center"
+                                  onClick={() => {
+                                    console.log('Deleting photo with _id:', photoId) // Debug log
+                                    handleDeletePhoto(photoId)
+                                  }}
+                                  className="w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
                                   title="Delete photo"
-                                  disabled={deletingPhotoId === photoId}
+                                  disabled={deletingPhotoId === photoId || !photoId}
                                 >
-                                  {deletingPhotoId === photoId ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <X className="w-3 h-3" />}
+                                  {deletingPhotoId === photoId ? (
+                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                  ) : (
+                                    <X className="w-3 h-3" />
+                                  )}
                                 </button>
                               </div>
                             </div>

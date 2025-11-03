@@ -5,6 +5,7 @@ import { toast } from "react-toastify"
 import { motion } from "framer-motion"
 import { ArrowLeft, MapPin, FileText, ImageIcon, Upload, Save, Eye, X, Banknote, Users, Building2 } from "lucide-react"
 
+//TODO: Make the ui for adding new images and deleting new images using the serice from the services
 const EditVenue = () => {
   const { id } = useParams()
   const navigate = useNavigate()
