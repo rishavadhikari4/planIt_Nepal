@@ -207,7 +207,6 @@ const Cuisines = () => {
     } catch (err) {
       console.error("Error searching cuisines:", err)
       // Only show toast error for actual search failures, not empty results
-      toast.error("Failed to search cuisines. Please try again.")
       setCuisines([])
       setPagination({})
     } finally {
