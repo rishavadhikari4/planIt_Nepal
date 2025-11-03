@@ -15,7 +15,7 @@ const EditVenue = () => {
     description: "",
     capacity: "",
     price: "",
-    image: "",
+    venueImage: "",
   })
   const [imageFile, setImageFile] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
@@ -28,8 +28,8 @@ const EditVenue = () => {
         const response = await getVenueById(id)
         if (response && response.data) {
           const { venue } = response.data
-          const { name, location, description, capacity, price, image } = venue
-          setFormData({ name, location, description, capacity: capacity || "", price, image })
+          const { name, location, description, capacity, price, venueImage } = venue
+          setFormData({ name, location, description, capacity: capacity || "", price, venueImage })
         } else {
           toast.error("Venue not found")
           navigate("/admin-venues")
@@ -259,7 +259,7 @@ const EditVenue = () => {
               {/* Right Column - Image Upload */}
               <div className="space-y-6">
                 {/* Current Image */}
-                {formData.image && !imagePreview && (
+                {formData.venueImage && !imagePreview && (
                   <div>
                     <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
                       <Eye className="w-4 h-4 text-purple-600" />
@@ -267,7 +267,7 @@ const EditVenue = () => {
                     </label>
                     <div className="relative rounded-xl overflow-hidden border border-gray-200">
                       <img
-                        src={formData.image || "/placeholder.svg"}
+                        src={formData.venueImage || "/placeholder.svg"}
                         alt="Current venue"
                         className="w-full h-64 object-cover"
                       />
