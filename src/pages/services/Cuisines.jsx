@@ -97,7 +97,6 @@ const imageVariants = {
   },
 }
 
-//TODO: make the fix the loading ui
 const Cuisines = () => {
   const [cuisines, setCuisines] = useState([])
   const [pagination, setPagination] = useState({})
