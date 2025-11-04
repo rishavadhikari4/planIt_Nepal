@@ -125,7 +125,7 @@ const Home = () => {
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-900/70 via-indigo-800/60 to-purple-900/70 z-10"></div>
         <motion.img
-          src="https://images.unsplash.com/photo-1511578314322-379afb476865?w=1200&h=800&fit=crop"
+          src="https://d1zpvjny0s6omk.cloudfront.net/media/fileupload/2015/06/05/00_Pate_1741-2.jpeg"
           alt="Professional event management"
           className="w-full h-[400px] sm:h-[500px] md:h-[600px] lg:h-[700px] object-cover"
           initial={{ scale: 1.1 }}
