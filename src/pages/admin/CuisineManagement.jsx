@@ -22,7 +22,6 @@ const AdminCuisine = () => {
         setCategories(categoriesData)
       } catch (err) {
         console.error("Failed to fetch cuisines:", err)
-        // Don't show toast error for empty arrays
         if (!Array.isArray(err.response?.data) || err.response?.data.length > 0) {
           toast.error("Failed to fetch cuisines")
         }
@@ -43,11 +42,27 @@ const AdminCuisine = () => {
         categoryId,
         dishId,
         (successMessage, updatedCategory) => {
-          setCategories((prevCategories) =>
-            prevCategories.map((category) => 
-              category._id === categoryId ? updatedCategory : category
+          if (updatedCategory) {
+            // If backend returns updated category, use it
+            setCategories((prevCategories) =>
+              prevCategories.map((category) => 
+                category._id === categoryId ? updatedCategory : category
+              )
             )
-          )
+          } else {
+            // If no updated category, manually remove the dish
+            setCategories((prevCategories) =>
+              prevCategories.map((category) => {
+                if (category._id === categoryId) {
+                  return {
+                    ...category,
+                    dishes: category.dishes.filter(dish => dish._id !== dishId)
+                  }
+                }
+                return category
+              })
+            )
+          }
           toast.success(successMessage)
         },
         (errorMessage) => {
@@ -69,7 +84,10 @@ const AdminCuisine = () => {
       await deleteCuisine(
         categoryId,
         (successMessage) => {
-          setCategories((prevCategories) => prevCategories.filter((category) => category._id !== categoryId))
+          // Remove the category from state
+          setCategories((prevCategories) => 
+            prevCategories.filter((category) => category._id !== categoryId)
+          )
           toast.success(successMessage)
         },
         (errorMessage) => {

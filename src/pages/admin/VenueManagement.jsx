@@ -94,7 +94,7 @@ const AdminVenues = () => {
 
     setDeletingId(id)
     try {
-      const result = await deleteVenue(id)
+      const result = await deleteVenue(id);
       if (result.success) {
         toast.success(result.message)
         fetchVenues(currentPage)

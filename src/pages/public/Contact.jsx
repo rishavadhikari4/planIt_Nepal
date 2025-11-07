@@ -247,14 +247,14 @@ const Contact = () => {
               </div>
 
               {/* Developer Section */}
-              <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8">
+              {/*<div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8">
                 <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-6 flex items-center">
                   <Code className="w-6 h-6 mr-2 text-purple-600" />
                   Meet the Developer
                 </h3>
 
                 <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
-                  {/* Developer Image */}
+                  
                   <div className="relative group">
                     <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-gradient-to-r from-purple-500 to-pink-500 shadow-lg group-hover:scale-105 transition-transform duration-300">
                       <img
@@ -268,7 +268,7 @@ const Contact = () => {
                     </div>
                   </div>
 
-                  {/* Developer Info */}
+                  
                   <div className="flex-1 text-center sm:text-left">
                     <h4 className="text-xl font-bold text-gray-800 mb-2">Rishav Adhikari</h4>
                     <p className="text-gray-600 mb-4">Full Stack Developer</p>
@@ -276,7 +276,7 @@ const Contact = () => {
                       Passionate about creating innovative digital solutions that bring people together for life's most memorable moments.
                     </p>
 
-                    {/* Social Links */}
+                    
                     <div className="flex justify-center sm:justify-start space-x-4">
                       <a
                         href="https://github.com/rishavadhikari4"
@@ -307,7 +307,7 @@ const Contact = () => {
                   </div>
                 </div>
 
-                {/* Developer Stats */}
+                
                 <div className="mt-6 pt-6 border-t border-gray-200">
                   <div className="grid grid-cols-3 gap-4 text-center">
                     <div>
@@ -330,7 +330,7 @@ const Contact = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+              </div>*/}
 
               {/* Quick Contact */}
               <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-3xl shadow-2xl p-8 text-white">

@@ -152,7 +152,7 @@ const Home = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.8 }}
           >
-            Your premier destination for exceptional event planning and management. From corporate conferences to birthday celebrations, 
+            Your premier destination for exceptional event planning and management. From corporate conferences to wedding celebrations, 
             we bring your vision to life with stunning venues, delicious catering, and professional photography.
           </motion.p>
           <motion.div 

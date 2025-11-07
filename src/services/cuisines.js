@@ -114,7 +114,9 @@ export const updateDish = async (categoryId, dishId, formData, onSuccess, onErro
 export const deleteDish = async (categoryId, dishId, onSuccess, onError) => {
   try {
     const response = await API.delete(`/api/cuisines/${categoryId}/dishes/${dishId}`);
-    if (onSuccess) onSuccess(response.data.message);
+    if (onSuccess) {
+      onSuccess(response.data.message, response.data.data?.category);
+    }
   } catch (error) {
     const message = error.response?.data?.message || 'Failed to delete dish';
     if (onError) onError(message);
@@ -123,9 +125,8 @@ export const deleteDish = async (categoryId, dishId, onSuccess, onError) => {
 
 export const deleteCuisine = async (categoryId, onSuccess, onError) => {
   try {
-    const response = await API.delete(`/api/cuisines/category/${categoryId}`);
-
-    if (onSuccess) onSuccess(response.data.message);
+    const response = await API.delete(`/api/cuisines/${categoryId}`);
+    if (onSuccess) onSuccess(response.data.message, response.data.data);
   } catch (error) {
     const message = error.response?.data?.message || 'Failed to delete category';
     if (onError) onError(message);
