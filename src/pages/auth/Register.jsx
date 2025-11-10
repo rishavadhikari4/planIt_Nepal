@@ -294,7 +294,7 @@ const Register = () => {
           className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-medium transition-all duration-200 hover:shadow-md text-sm sm:text-base"
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.99 }}
-          onClick={() => (window.location.href = "https://wedding-planner-backend-drr8.onrender.com/api/auth/google/")}
+          onClick={() => (window.location.href = `${import.meta.env.VITE_API_BASE_URL}/api/auths/google/`)}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.55, type: "spring", stiffness: 300, damping: 25 }}
