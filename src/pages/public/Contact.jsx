@@ -38,7 +38,7 @@ const Contact = () => {
       icon: Phone,
       title: "Call Us",
       subtitle: "Customer Support",
-      value: "(555) 987-6543",
+      value: "(977) 9972342345",
       color: "from-green-500 to-emerald-500",
       bgColor: "from-green-50 to-emerald-50",
       description: "Available 24/7 for support",
@@ -343,10 +343,10 @@ const Contact = () => {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <a
-                    href="tel:+5559876543"
+                    href="tel:+4239876543"
                     className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 text-center"
                   >
-                    Call Now: (555) 987-6543
+                    Call Now: (977) 9823456321
                   </a>
                   <a
                     href="mailto:contact@eventmanagerpro.com"
