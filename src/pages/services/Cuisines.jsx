@@ -1,24 +1,24 @@
-import { useEffect, useState, useRef } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+"use client"
+
+import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
+import { getAllCuisines, searchCuisines } from "../../services/cuisines"
 import { useCart } from "../../context/CartContext"
 import { toast } from "react-toastify"
+import { motion, AnimatePresence } from "framer-motion"
 import {
   Search,
   Filter,
-  ChefHat,
-  Utensils,
+  Heart,
+  Star,
   Plus,
   Minus,
-  Heart,
   ShoppingCart,
-  Star,
-  Clock,
-  Users,
+  ChefHat,
+  Utensils,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react"
-import { getAllCuisines, searchCuisines } from "../../services/cuisines"
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -126,81 +126,63 @@ const Cuisines = () => {
     }
     
     try {
-      const options = {
+      const params = {
         page,
         limit: 12,
-        sortField: sortField,
-        sortOrder: sortOrder,
+        sortField,
+        sortOrder,
         ...filters,
       }
 
-      // Add price filters if they exist
-      if (priceRange.min) {
-        options.minPrice = priceRange.min
-      }
-      if (priceRange.max) {
-        options.maxPrice = priceRange.max
-      }
-
-      // Add dish name filter for search
-      if (searchTerm.trim()) {
-        options.dishName = searchTerm.trim()
-      }
-
-      const response = await getAllCuisines(options)
-      
-      if (response.success) {
-        setCuisines(response.cuisines || [])
-        setPagination(response.pagination || {})
-        setCurrentPage(page)
-        setIsSearchActive(false)
-      } else {
-        // Only show error if it's actually a failure, not empty results
-        throw new Error("Failed to fetch cuisines")
-      }
+      const response = await getAllCuisines(params)
+      setCuisines(response.cuisines || [])
+      setPagination(response.pagination || {})
+      setCurrentPage(page)
+      setIsSearchActive(false)
     } catch (err) {
-      console.error("Error fetching cuisines:", err)
+      console.error("Failed to fetch cuisines:", err)
+      // Only show toast error for actual failures, not empty arrays
       setCuisines([])
       setPagination({})
     } finally {
-      setLoading(false)
+      if (!skipLoading) {
+        setLoading(false)
+      }
     }
   }
 
   const performSearch = async (page = 1) => {
     setLoading(true)
     try {
-      // Use searchCuisines for text-based search
-      if (searchTerm.trim()) {
-        const searchOptions = {
-          query: searchTerm.trim(),
-          limit: 12,
-        }
-
-        const response = await searchCuisines(searchOptions)
-        
-        // Handle search response structure - don't show error for empty results
-        setCuisines(response.cuisines || [])
-        setPagination({
-          totalPages: Math.ceil((response.totalResults || 0) / 12),
-          currentPage: 1,
-          totalCuisines: response.totalResults || 0,
-        })
-        setCurrentPage(1)
-        setIsSearchActive(true)
-      } else {
-        // Use regular fetch with filters for other criteria
-        const filters = {}
-        
-        if (priceRange.min) filters.minPrice = priceRange.min
-        if (priceRange.max) filters.maxPrice = priceRange.max
-        if (selectedCategory !== "all") filters.category = selectedCategory
-
-        await fetchCuisines(page, filters, true)
-        setIsSearchActive(Object.keys(filters).length > 0)
+      const searchOptions = {
+        page,
+        limit: 12,
+        sortField,
+        sortOrder,
       }
+
+      if (searchTerm.trim()) {
+        searchOptions.q = searchTerm.trim()
+      }
+
+      if (priceRange.min) {
+        searchOptions.minPrice = priceRange.min
+      }
+      if (priceRange.max) {
+        searchOptions.maxPrice = priceRange.max
+      }
+
+      if (selectedCategory !== "all") {
+        searchOptions.category = selectedCategory
+      }
+
+      const response = await searchCuisines(searchOptions)
+      setCuisines(response.cuisines || [])
+      setPagination(response.pagination || {})
+      setCurrentPage(page)
+      setIsSearchActive(true)
     } catch (err) {
-      console.error("Error searching cuisines:", err)
+      console.error("Failed to search cuisines:", err)
       // Only show toast error for actual search failures, not empty results
       setCuisines([])
       setPagination({})
@@ -212,8 +194,8 @@ const Cuisines = () => {
   // Initial load effect - only runs once
   useEffect(() => {
     if (!isInitialized.current) {
-      fetchCuisines(1)
       isInitialized.current = true
+      fetchCuisines(1)
       isInitialFetch.current = false
     }
   }, [])
@@ -221,7 +203,7 @@ const Cuisines = () => {
   // Sort effect - only runs after initialization and skips loading for sort-only changes
   useEffect(() => {
     if (isInitialized.current && !isInitialFetch.current) {
-      // Skip loading for sort-only updates
+      // Skip loading animation for sort changes to improve UX
       fetchCuisines(currentPage, {}, true)
     }
   }, [sortField, sortOrder, currentPage])
@@ -232,16 +214,14 @@ const Cuisines = () => {
     if (hasSearchCriteria) {
       performSearch(1)
     } else {
-      setIsSearchActive(false)
+      setCurrentPage(1)
       fetchCuisines(1)
     }
   }
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= (pagination.totalPages || 1)) {
-      if (isSearchActive && searchTerm.trim()) {
-        // For text search, we need to handle pagination differently
-        // Since the search API might not support pagination, we'll refetch
+      if (isSearchActive) {
         performSearch(page)
       } else {
         fetchCuisines(page)
@@ -291,29 +271,29 @@ const Cuisines = () => {
   const handleDishSelection = (dish) => {
     const dishId = dish._id
     setSelectedDishes((prev) => {
-      const newSelected = new Set(prev)
-      if (newSelected.has(dishId)) {
-        newSelected.delete(dishId)
-        setDishQuantities((prevQty) => {
-          const newQty = { ...prevQty }
-          delete newQty[dishId]
-          return newQty
+      const newSet = new Set(prev)
+      if (newSet.has(dishId)) {
+        newSet.delete(dishId)
+        setDishQuantities((prevQuantities) => {
+          const updated = { ...prevQuantities }
+          delete updated[dishId]
+          return updated
         })
       } else {
-        newSelected.add(dishId)
-        setDishQuantities((prevQty) => ({
-          ...prevQty,
+        newSet.add(dishId)
+        setDishQuantities((prevQuantities) => ({
+          ...prevQuantities,
           [dishId]: 1,
         }))
       }
-      return newSelected
+      return newSet
     })
   }
 
   const updateQuantity = (dishId, change) => {
     setDishQuantities((prev) => {
-      const newQty = Math.max(1, (prev[dishId] || 1) + change)
-      return { ...prev, [dishId]: newQty }
+      const newQuantity = Math.max(1, (prev[dishId] || 1) + change)
+      return { ...prev, [dishId]: newQuantity }
     })
   }
 
@@ -343,13 +323,9 @@ const Cuisines = () => {
         if (selectedDishes.has(dish._id)) {
           const quantity = dishQuantities[dish._id] || 1
           addToCart({
-            _id: dish._id,
-            name: dish.name,
-            price: dish.price,
-            quantity: quantity,
-            image: dish.dishImage || dish.image,
-            type: "cuisine",
-            category: cuisine.category,
+            ...dish,
+            type: "dish",
+            quantity,
           })
           addedCount++
         }
@@ -357,9 +333,9 @@ const Cuisines = () => {
     })
 
     if (addedCount > 0) {
-      toast.success(`Added ${addedCount} dish${addedCount > 1 ? "es" : ""} to cart!`)
       setSelectedDishes(new Set())
       setDishQuantities({})
+      toast.success(`Added ${addedCount} dish${addedCount > 1 ? "es" : ""} to cart!`)
     } else {
       toast.warning("Please select some dishes to add to cart.")
     }
@@ -378,6 +354,9 @@ const Cuisines = () => {
 
   const filteredCuisines = getFilteredCuisines()
   const categoryNames = ["all", ...new Set(cuisines.map((cuisine) => cuisine.category).filter(Boolean))]
+  const hasDishes = cuisines.some(
+    (cuisine) => cuisine.dishes && Array.isArray(cuisine.dishes) && cuisine.dishes.length > 0,
+  )
 
   const DishCard = ({ dish, categoryName, dishIndex }) => {
     const dishId = dish._id
@@ -414,7 +393,7 @@ const Cuisines = () => {
             <motion.button
               onClick={(e) => {
                 e.stopPropagation()
-                toggleFavorite(dishId)
+                toggleFavorite(dish._id)
               }}
               className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg transition-all duration-300"
               whileHover={{ scale: 1.1 }}
@@ -441,7 +420,7 @@ const Cuisines = () => {
             </motion.div>
           )}
 
-          {/* Rating */}
+          {/* Rating Badge */}
           {dish.rating && (
             <motion.div
               className="absolute bottom-2 sm:bottom-4 right-2 sm:right-4"
@@ -481,7 +460,7 @@ const Cuisines = () => {
             </div>
           </div>
 
-          {/* Selection Button */}
+          {/* Add to Selection Button */}
           <motion.button
             onClick={() => handleDishSelection(dish)}
             className={`w-full font-semibold py-3 px-4 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2 ${
@@ -549,35 +528,35 @@ const Cuisines = () => {
     )
   }
 
-  if (loading) {
+  if (loading)
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-rose-100 flex items-center justify-center">
         <motion.div
           className="flex flex-col items-center space-y-6"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ 
+          transition={{
             duration: 0.6,
             type: "spring",
-            stiffness: 100
+            stiffness: 100,
           }}
         >
-          <motion.div 
+          <motion.div
             className="w-16 h-16 border-4 border-purple-200 border-t-purple-600 rounded-full"
             animate={{ rotate: 360 }}
             transition={{
               duration: 1,
-              repeat: Infinity,
-              ease: "linear"
+              repeat: Number.POSITIVE_INFINITY,
+              ease: "linear",
             }}
           />
-          <motion.p 
+          <motion.p
             className="text-lg font-medium bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent"
             animate={{ opacity: [0.5, 1, 0.5] }}
             transition={{
               duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut"
+              repeat: Number.POSITIVE_INFINITY,
+              ease: "easeInOut",
             }}
           >
             Loading delicious cuisines...
@@ -585,11 +564,6 @@ const Cuisines = () => {
         </motion.div>
       </div>
     )
-  }
-
-  const hasDishes = cuisines.some(
-    (cuisine) => cuisine.dishes && Array.isArray(cuisine.dishes) && cuisine.dishes.length > 0,
-  )
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-rose-100 relative overflow-hidden">
@@ -673,332 +647,343 @@ const Cuisines = () => {
           </motion.p>
         </motion.div>
 
-        {!hasDishes ? (
+        {/* Search and Filter Section - Always Show */}
+        <motion.div
+          className="max-w-6xl mx-auto mb-16"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            delay: 0.5,
+            duration: 0.8,
+            type: "spring",
+            stiffness: 100,
+          }}
+        >
+          <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl border border-white/30 p-4 sm:p-6 md:p-8">
+            {/* Main Search Bar */}
+            <div className="flex flex-col lg:flex-row gap-4 mb-8">
+              <div className="flex-1 relative">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="text"
+                  placeholder="Search for delicious dishes by name, cuisine, or ingredients..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                  className="w-full pl-12 pr-4 py-4 bg-gray-50/70 border-2 border-gray-200/60 rounded-2xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300 text-gray-800 placeholder-gray-500"
+                />
+              </div>
+              <motion.button
+                onClick={handleSearch}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl flex items-center space-x-2"
+                variants={buttonVariants}
+                whileHover="hover"
+                whileTap="tap"
+              >
+                <Search className="w-5 h-5 sm:w-6 sm:h-6" />
+              </motion.button>
+            </div>
+
+            {/* Filters Grid */}
+            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-4 sm:mb-6">
+              <input
+                type="number"
+                placeholder="Min Price"
+                value={priceRange.min}
+                onChange={(e) => setPriceRange((prev) => ({ ...prev, min: e.target.value }))}
+                className="w-full px-3 sm:px-4 py-3 text-sm sm:text-base bg-gray-50/70 border-2 border-gray-200/60 rounded-xl sm:rounded-2xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300"
+              />
+              <input
+                type="number"
+                placeholder="Max Price"
+                value={priceRange.max}
+                onChange={(e) => setPriceRange((prev) => ({ ...prev, max: e.target.value }))}
+                className="w-full px-3 sm:px-4 py-3 text-sm sm:text-base bg-gray-50/70 border-2 border-gray-200/60 rounded-xl sm:rounded-2xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300"
+              />
+
+              <div className="relative xs:col-span-2 sm:col-span-1">
+                <Filter className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-3 text-sm sm:text-base bg-gray-50/70 border-2 border-gray-200/60 rounded-xl sm:rounded-2xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300"
+                >
+                  <option value="all">All Categories</option>
+                  {categoryNames.slice(1).map((category) => (
+                    <option key={category} value={category}>
+                      {category.charAt(0).toUpperCase() + category.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="relative xs:col-span-2 sm:col-span-2 lg:col-span-1">
+                <Filter className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
+                <select
+                  value={`${sortField}-${sortOrder}`}
+                  onChange={(e) => {
+                    const [field, order] = e.target.value.split("-")
+                    setSortField(field)
+                    setSortOrder(order)
+                  }}
+                  className="w-full pl-10 sm:pl-12 pr-8 py-3 text-sm sm:text-base bg-gray-50/70 border-2 border-gray-200/60 rounded-xl sm:rounded-2xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300 appearance-none cursor-pointer"
+                >
+                  <option value="createdAt-desc">Newest First</option>
+                  <option value="createdAt-asc">Oldest First</option>
+                  <option value="name-asc">Name: A to Z</option>
+                  <option value="name-desc">Name: Z to A</option>
+                  <option value="price-asc">Price: Low to High</option>
+                  <option value="price-desc">Price: High to Low</option>
+                </select>
+              </div>
+
+              <motion.button
+                onClick={clearFilters}
+                className="xs:col-span-2 sm:col-span-3 lg:col-span-1 bg-gray-100/70 hover:bg-gray-200/70 text-gray-700 px-4 sm:px-6 py-3 rounded-xl sm:rounded-2xl font-medium transition-all duration-300 flex items-center justify-center space-x-2 text-sm sm:text-base"
+                variants={buttonVariants}
+                whileHover="hover"
+                whileTap="tap"
+              >
+                <Filter className="w-4 h-4" />
+                <span>Clear Filters</span>
+              </motion.button>
+            </div>
+
+            {/* Results Count */}
+            <motion.div
+              className="text-xs sm:text-sm text-gray-600 text-center sm:text-left"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+            >
+              {isSearchActive ? (
+                <span>
+                  Search results: <span className="font-semibold text-purple-600">{cuisines.length}</span> cuisines found
+                </span>
+              ) : (
+                <span>
+                  Showing <span className="font-semibold text-purple-600">{cuisines.length}</span> cuisines
+                </span>
+              )}
+            </motion.div>
+          </div>
+        </motion.div>
+
+        {/* Selected Dishes Banner */}
+        <AnimatePresence>
+          {selectedDishes.size > 0 && (
+            <motion.div
+              className="max-w-6xl mx-auto mt-4 sm:mt-6 p-3 sm:p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl sm:rounded-2xl border border-purple-200"
+              initial={{ opacity: 0, height: 0, y: -20 }}
+              animate={{ opacity: 1, height: "auto", y: 0 }}
+              exit={{ opacity: 0, height: 0, y: -20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                <div className="flex items-center space-x-2">
+                  <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
+                  <span className="text-sm sm:text-base font-medium text-purple-800">
+                    {selectedDishes.size} dish{selectedDishes.size !== 1 ? "es" : ""} selected
+                  </span>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                  <span className="text-xs sm:text-sm text-purple-600 font-semibold">
+                    Total: ₹{Object.values(dishQuantities).reduce((sum, qty) => sum + qty, 0) * 1000}
+                  </span>
+                  <motion.button
+                    onClick={handleSubmit}
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-medium text-xs sm:text-sm shadow-lg hover:shadow-xl transition-all duration-300"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Add to Cart
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Content Section */}
+        <motion.div className="max-w-7xl mx-auto" variants={containerVariants} initial="hidden" animate="visible">
+          {!hasDishes ? (
+            <motion.div
+              className="text-center py-20"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{
+                delay: 0.6,
+                duration: 0.6,
+                type: "spring",
+                stiffness: 100,
+              }}
+            >
+              <motion.div
+                className="w-32 h-32 mx-auto mb-8 bg-gradient-to-r from-gray-200 to-purple-200 rounded-full flex items-center justify-center"
+                animate={{ rotate: [0, 5, -5, 0] }}
+                transition={{
+                  duration: 3,
+                  repeat: Number.POSITIVE_INFINITY,
+                  ease: "easeInOut",
+                }}
+              >
+                <Utensils className="w-16 h-16 text-gray-400" />
+              </motion.div>
+              <h3 className="text-3xl font-bold text-gray-800 mb-4">No dishes available</h3>
+              <p className="text-gray-600 text-lg">
+                {isSearchActive
+                  ? "Try adjusting your search criteria or filters"
+                  : "Please check back later for our delicious menu options."}
+              </p>
+              {isSearchActive && (
+                <motion.button
+                  onClick={clearFilters}
+                  className="mt-6 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
+                  variants={buttonVariants}
+                  whileHover="hover"
+                  whileTap="tap"
+                >
+                  Clear Search
+                </motion.button>
+              )}
+            </motion.div>
+          ) : filteredCuisines.length === 0 ? (
+            <motion.div
+              className="text-center py-16"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{
+                type: "spring",
+                stiffness: 200,
+                damping: 20,
+                duration: 0.6,
+              }}
+            >
+              <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-gray-200 to-purple-200 rounded-full flex items-center justify-center">
+                <Search className="w-12 h-12 text-gray-400" />
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4">No dishes found</h3>
+              <p className="text-gray-600 mb-6">Try adjusting your search or filter criteria</p>
+              <motion.button
+                onClick={clearFilters}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-300"
+                variants={buttonVariants}
+                whileHover="hover"
+                whileTap="tap"
+              >
+                Clear Filters
+              </motion.button>
+            </motion.div>
+          ) : (
+            filteredCuisines.map((cuisine, cuisineIndex) => (
+              <motion.div key={cuisine._id} className="mb-16" variants={itemVariants}>
+                <motion.div
+                  className="flex items-center mb-8"
+                  whileHover={{ x: 5 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                >
+                  <motion.div
+                    className="w-14 h-14 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mr-4 shadow-lg shadow-purple-500/25"
+                    whileHover={{
+                      scale: 1.1,
+                      rotate: 5,
+                      boxShadow: "0 20px 40px -12px rgba(147, 51, 234, 0.4)",
+                    }}
+                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                  >
+                    <Utensils className="w-7 h-7 text-white" />
+                  </motion.div>
+                  <div>
+                    <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                      {cuisine.category.charAt(0).toUpperCase() + cuisine.category.slice(1)}
+                    </h2>
+                    <p className="text-gray-600">
+                      {cuisine.dishes.length} dishes available
+                    </p>
+                  </div>
+                </motion.div>
+
+                {/* Dishes Grid */}
+                <motion.div
+                  className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 lg:gap-8"
+                  variants={containerVariants}
+                >
+                  <AnimatePresence>
+                    {cuisine.dishes.map((dish, dishIndex) => (
+                      <motion.div key={dish._id} variants={itemVariants} layout>
+                        <DishCard dish={dish} categoryName={cuisine.category} dishIndex={dishIndex} />
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </motion.div>
+              </motion.div>
+            ))
+          )}
+        </motion.div>
+
+        {/* Pagination */}
+        {(pagination?.totalPages || 1) > 1 && (
           <motion.div
-            className="text-center py-20"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
+            className="flex justify-center mt-16"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{
-              delay: 0.6,
+              delay: 0.8,
               duration: 0.6,
               type: "spring",
               stiffness: 100,
             }}
           >
-            <motion.div
-              className="w-32 h-32 mx-auto mb-8 bg-gradient-to-r from-gray-200 to-purple-200 rounded-full flex items-center justify-center"
-              animate={{ rotate: [0, 5, -5, 0] }}
-              transition={{
-                duration: 3,
-                repeat: Number.POSITIVE_INFINITY,
-                ease: "easeInOut",
-              }}
-            >
-              <Utensils className="w-16 h-16 text-gray-400" />
-            </motion.div>
-            <h3 className="text-3xl font-bold text-gray-800 mb-4">No dishes available</h3>
-            <p className="text-gray-600 text-lg">Please check back later for our delicious menu options.</p>
-          </motion.div>
-        ) : (
-          <>
-            {/* Search and Filter Section */}
-            <motion.div
-              className="max-w-6xl mx-auto mb-16"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                delay: 0.5,
-                duration: 0.8,
-                type: "spring",
-                stiffness: 100,
-              }}
-            >
-              <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl border border-white/30 p-4 sm:p-6 md:p-8">
-                {/* Main Search Bar */}
-                <div className="flex flex-col lg:flex-row gap-4 mb-8">
-                  <div className="flex-1 relative">
-                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <input
-                      type="text"
-                      placeholder="Search for delicious dishes by name, cuisine, or ingredients..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                      className="w-full pl-12 pr-4 py-4 bg-gray-50/70 border-2 border-gray-200/60 rounded-2xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300 text-gray-800 placeholder-gray-500"
-                    />
-                  </div>
-                  <motion.button
-                    onClick={handleSearch}
-                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl flex items-center space-x-2"
-                    variants={buttonVariants}
-                    whileHover="hover"
-                    whileTap="tap"
-                  >
-                    <Search className="w-5 h-5 sm:w-6 sm:h-6" />
-                  </motion.button>
-                </div>
-
-                {/* Filters Grid */}
-                <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-4 sm:mb-6">
-                  <input
-                    type="number"
-                    placeholder="Min Price"
-                    value={priceRange.min}
-                    onChange={(e) => setPriceRange((prev) => ({ ...prev, min: e.target.value }))}
-                    className="w-full px-3 sm:px-4 py-3 text-sm sm:text-base bg-gray-50/70 border-2 border-gray-200/60 rounded-xl sm:rounded-2xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Max Price"
-                    value={priceRange.max}
-                    onChange={(e) => setPriceRange((prev) => ({ ...prev, max: e.target.value }))}
-                    className="w-full px-3 sm:px-4 py-3 text-sm sm:text-base bg-gray-50/70 border-2 border-gray-200/60 rounded-xl sm:rounded-2xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300"
-                  />
-
-                  <div className="relative xs:col-span-2 sm:col-span-1">
-                    <Filter className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
-                    <select
-                      value={selectedCategory}
-                      onChange={(e) => setSelectedCategory(e.target.value)}
-                      className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-3 text-sm sm:text-base bg-gray-50/70 border-2 border-gray-200/60 rounded-xl sm:rounded-2xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300"
-                    >
-                      <option value="all">All Categories</option>
-                      {categoryNames.slice(1).map((category) => (
-                        <option key={category} value={category}>
-                          {category.charAt(0).toUpperCase() + category.slice(1)}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="relative xs:col-span-2 sm:col-span-2 lg:col-span-1">
-                    <Filter className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
-                    <select
-                      value={`${sortField}-${sortOrder}`}
-                      onChange={(e) => {
-                        const [field, order] = e.target.value.split("-")
-                        setSortField(field)
-                        setSortOrder(order)
-                      }}
-                      className="w-full pl-10 sm:pl-12 pr-8 py-3 text-sm sm:text-base bg-gray-50/70 border-2 border-gray-200/60 rounded-xl sm:rounded-2xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300 appearance-none cursor-pointer"
-                    >
-                      <option value="createdAt-desc">Newest First</option>
-                      <option value="createdAt-asc">Oldest First</option>
-                      <option value="name-asc">Name: A to Z</option>
-                      <option value="name-desc">Name: Z to A</option>
-                      <option value="price-asc">Price: Low to High</option>
-                      <option value="price-desc">Price: High to Low</option>
-                    </select>
-                  </div>
-
-                  <motion.button
-                    onClick={clearFilters}
-                    className="xs:col-span-2 sm:col-span-3 lg:col-span-1 bg-gray-100/70 hover:bg-gray-200/70 text-gray-700 px-4 sm:px-6 py-3 rounded-xl sm:rounded-2xl font-medium transition-all duration-300 flex items-center justify-center space-x-2 text-sm sm:text-base"
-                    variants={buttonVariants}
-                    whileHover="hover"
-                    whileTap="tap"
-                  >
-                    <Filter className="w-4 h-4" />
-                    <span>Clear Filters</span>
-                  </motion.button>
-                </div>
-
-                {/* Results Count */}
-                <motion.div
-                  className="text-xs sm:text-sm text-gray-600 text-center sm:text-left"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.8 }}
+            <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl border border-white/30 p-3">
+              <div className="flex items-center space-x-2">
+                {/* Previous Button */}
+                <motion.button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="p-3 rounded-2xl bg-gray-100/70 hover:bg-gray-200/70 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                  whileHover={currentPage !== 1 ? { scale: 1.05 } : {}}
+                  whileTap={currentPage !== 1 ? { scale: 0.95 } : {}}
                 >
-                  {isSearchActive ? (
-                    <span>
-                      Search results: <span className="font-semibold text-purple-600">{cuisines.length}</span> cuisines found
-                    </span>
-                  ) : (
-                    <span>
-                      Showing <span className="font-semibold text-purple-600">{cuisines.length}</span> cuisines
-                    </span>
-                  )}
-                </motion.div>
+                  <ChevronLeft className="w-5 h-5" />
+                </motion.button>
+
+                {/* Page Numbers */}
+                {getPageNumbers().map((page, index) => (
+                  <motion.button
+                    key={index}
+                    onClick={() => typeof page === "number" && handlePageChange(page)}
+                    disabled={typeof page !== "number"}
+                    className={`px-4 py-3 rounded-2xl font-medium transition-all duration-200 ${
+                      page === currentPage
+                        ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg"
+                        : typeof page === "number"
+                          ? "bg-gray-100/70 hover:bg-gray-200/70 text-gray-700"
+                          : "text-gray-400 cursor-default"
+                    }`}
+                    whileHover={typeof page === "number" && page !== currentPage ? { scale: 1.05 } : {}}
+                    whileTap={typeof page === "number" && page !== currentPage ? { scale: 0.95 } : {}}
+                  >
+                    {page}
+                  </motion.button>
+                ))}
+
+                {/* Next Button */}
+                <motion.button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === (pagination?.totalPages || 1)}
+                  className="p-3 rounded-2xl bg-gray-100/70 hover:bg-gray-200/70 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                  whileHover={currentPage !== (pagination?.totalPages || 1) ? { scale: 1.05 } : {}}
+                  whileTap={currentPage !== (pagination?.totalPages || 1) ? { scale: 0.95 } : {}}
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </motion.button>
               </div>
-            </motion.div>
-
-            {/* Selected Dishes Summary */}
-            <AnimatePresence>
-              {selectedDishes.size > 0 && (
-                <motion.div
-                  className="max-w-6xl mx-auto mt-4 sm:mt-6 p-3 sm:p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl sm:rounded-2xl border border-purple-200"
-                  initial={{ opacity: 0, height: 0, y: -20 }}
-                  animate={{ opacity: 1, height: "auto", y: 0 }}
-                  exit={{ opacity: 0, height: 0, y: -20 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-                    <div className="flex items-center space-x-2">
-                      <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
-                      <span className="text-sm sm:text-base font-medium text-purple-800">
-                        {selectedDishes.size} dish{selectedDishes.size !== 1 ? "es" : ""} selected
-                      </span>
-                    </div>
-                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                      <span className="text-xs sm:text-sm text-purple-600 font-semibold">
-                        Total: ₹{Object.values(dishQuantities).reduce((sum, qty) => sum + qty, 0) * 1000}
-                      </span>
-                      <motion.button
-                        onClick={handleSubmit}
-                        className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-medium text-xs sm:text-sm shadow-lg hover:shadow-xl transition-all duration-300"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        Add to Cart
-                      </motion.button>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Cuisines Grid */}
-            <motion.div className="max-w-7xl mx-auto" variants={containerVariants} initial="hidden" animate="visible">
-              {filteredCuisines.length === 0 ? (
-                <motion.div
-                  className="text-center py-16"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 200,
-                    damping: 20,
-                    duration: 0.6,
-                  }}
-                >
-                  <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-gray-200 to-purple-200 rounded-full flex items-center justify-center">
-                    <Search className="w-12 h-12 text-gray-400" />
-                  </div>
-                  <h3 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4">No dishes found</h3>
-                  <p className="text-gray-600 mb-6">Try adjusting your search or filter criteria</p>
-                  <motion.button
-                    onClick={clearFilters}
-                    className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-300"
-                    variants={buttonVariants}
-                    whileHover="hover"
-                    whileTap="tap"
-                  >
-                    Clear Filters
-                  </motion.button>
-                </motion.div>
-              ) : (
-                filteredCuisines.map((cuisine, cuisineIndex) => (
-                  <motion.div key={cuisine._id} className="mb-16" variants={itemVariants}>
-                    <motion.div
-                      className="flex items-center mb-8"
-                      whileHover={{ x: 5 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                    >
-                      <motion.div
-                        className="w-14 h-14 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mr-4 shadow-lg shadow-purple-500/25"
-                        whileHover={{
-                          scale: 1.1,
-                          rotate: 5,
-                          boxShadow: "0 20px 40px -12px rgba(147, 51, 234, 0.4)",
-                        }}
-                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                      >
-                        <Utensils className="w-7 h-7 text-white" />
-                      </motion.div>
-                      <div>
-                        <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                          {cuisine.category.charAt(0).toUpperCase() + cuisine.category.slice(1)}
-                        </h2>
-                        <p className="text-gray-600">
-                          {cuisine.dishes.length} dishes available
-                        </p>
-                      </div>
-                    </motion.div>
-
-                    {/* Dishes Grid */}
-                    <motion.div
-                      className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 lg:gap-8"
-                      variants={containerVariants}
-                    >
-                      <AnimatePresence>
-                        {cuisine.dishes.map((dish, dishIndex) => (
-                          <motion.div key={dish._id} variants={itemVariants} layout>
-                            <DishCard dish={dish} categoryName={cuisine.category} dishIndex={dishIndex} />
-                          </motion.div>
-                        ))}
-                      </AnimatePresence>
-                    </motion.div>
-                  </motion.div>
-                ))
-              )}
-            </motion.div>
-
-            {/* Pagination */}
-            {(pagination?.totalPages || 1) > 1 && (
-              <motion.div
-                className="flex justify-center mt-16"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  delay: 0.8,
-                  duration: 0.6,
-                  type: "spring",
-                  stiffness: 100,
-                }}
-              >
-                <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl border border-white/30 p-3">
-                  <div className="flex items-center space-x-2">
-                    {/* Previous Button */}
-                    <motion.button
-                      onClick={() => handlePageChange(currentPage - 1)}
-                      disabled={currentPage === 1}
-                      className="p-3 rounded-2xl bg-gray-100/70 hover:bg-gray-200/70 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-                      whileHover={currentPage !== 1 ? { scale: 1.05 } : {}}
-                      whileTap={currentPage !== 1 ? { scale: 0.95 } : {}}
-                    >
-                      <ChevronLeft className="w-5 h-5" />
-                    </motion.button>
-
-                    {/* Page Numbers */}
-                    {getPageNumbers().map((page, index) => (
-                      <motion.button
-                        key={index}
-                        onClick={() => typeof page === "number" && handlePageChange(page)}
-                        disabled={typeof page !== "number"}
-                        className={`px-4 py-3 rounded-2xl font-medium transition-all duration-200 ${
-                          page === currentPage
-                            ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg"
-                            : typeof page === "number"
-                              ? "bg-gray-100/70 hover:bg-gray-200/70 text-gray-700"
-                              : "text-gray-400 cursor-default"
-                        }`}
-                        whileHover={typeof page === "number" && page !== currentPage ? { scale: 1.05 } : {}}
-                        whileTap={typeof page === "number" && page !== currentPage ? { scale: 0.95 } : {}}
-                      >
-                        {page}
-                      </motion.button>
-                    ))}
-
-                    {/* Next Button */}
-                    <motion.button
-                      onClick={() => handlePageChange(currentPage + 1)}
-                      disabled={currentPage === (pagination?.totalPages || 1)}
-                      className="p-3 rounded-2xl bg-gray-100/70 hover:bg-gray-200/70 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-                      whileHover={currentPage !== (pagination?.totalPages || 1) ? { scale: 1.05 } : {}}
-                      whileTap={currentPage !== (pagination?.totalPages || 1) ? { scale: 0.95 } : {}}
-                    >
-                      <ChevronRight className="w-5 h-5" />
-                    </motion.button>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </>
+            </div>
+          </motion.div>
         )}
       </div>
 
-      {/* Floating Add to Cart Button */}
+      {/* Floating Cart Button */}
       <AnimatePresence>
         {selectedDishes.size > 0 && (
           <motion.div
