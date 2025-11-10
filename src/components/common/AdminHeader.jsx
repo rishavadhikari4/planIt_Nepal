@@ -99,6 +99,16 @@ const AdminHeader = () => {
 
           {/* Right Side Actions */}
           <div className="flex items-center space-x-3">
+            {/* Desktop Logout Button */}
+            {isAdmin && (
+              <button
+                onClick={handleLogout}
+                className="hidden lg:flex items-center space-x-2 px-4 py-2 rounded-xl text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200 group"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="font-medium text-sm">Logout</span>
+              </button>
+            )}
 
             {/* Mobile menu toggle */}
             <button

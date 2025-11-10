@@ -130,8 +130,58 @@ export const searchVenues = async (searchOptions = {}) => {
   }
 };
 
+export const addVenuePhotos = async (venueId, photos, onSuccess, onError) => {
+  try {
+    if (!photos || photos.length === 0) {
+      if (onError) onError("Please select at least one photo to upload");
+      return;
+    }
 
-// TODO: Implement API POST request for adding venue photos
+    const formData = new FormData();
+    
+    // Append all photos to formData
+    Array.from(photos).forEach(photo => {
+      formData.append('photos', photo);
+    });
 
-//TODO: Implement API DELETE request for deleting the venue photos
+    const response = await API.post(`/api/venues/${venueId}/photos`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    if (response.data.success) {
+      if (onSuccess) {
+        onSuccess(response.data.message, {
+          venue: response.data.venue,
+          addedPhotos: response.data.addedPhotos
+        });
+      }
+    } else {
+      throw new Error(response.data.message || "Failed to upload photos");
+    }
+  } catch (error) {
+    console.error("Error adding venue photos:", error);
+    const message = error.response?.data?.message || "Failed to upload photos";
+    if (onError) onError(message);
+  }
+};
+
+export const deleteVenuePhoto = async (venueId, photoId, onSuccess, onError) => {
+  try {
+    const response = await API.delete(`/api/venues/${venueId}/photos/${photoId}`);
+    
+    if (response.data.success) {
+      if (onSuccess) {
+        onSuccess(response.data.message, response.data.venue);
+      }
+    } else {
+      throw new Error(response.data.message || "Failed to delete photo");
+    }
+  } catch (error) {
+    console.error("Error deleting venue photo:", error);
+    const message = error.response?.data?.message || "Failed to delete photo";
+    if (onError) onError(message);
+  }
+};
 

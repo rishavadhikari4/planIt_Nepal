@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { editVenue, getVenueById } from "../../services/venues"
+import { editVenue, getVenueById, addVenuePhotos, deleteVenuePhoto } from "../../services/venues"
 import { toast } from "react-toastify"
 import { motion } from "framer-motion"
 import { ArrowLeft, MapPin, FileText, ImageIcon, Upload, Save, Eye, X, Banknote, Users, Building2 } from "lucide-react"
 
-//TODO: Make the ui for adding new images and deleting new images using the serice from the services
 const EditVenue = () => {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -22,14 +21,21 @@ const EditVenue = () => {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
 
+  const [selectedPhotos, setSelectedPhotos] = useState([]) 
+  const [photoPreviews, setPhotoPreviews] = useState([])
+  const [uploadingPhotos, setUploadingPhotos] = useState(false)
+  const [currentPhotos, setCurrentPhotos] = useState([])
+  const [deletingPhotoId, setDeletingPhotoId] = useState(null)
+
   useEffect(() => {
     const fetchVenue = async () => {
       try {
         const response = await getVenueById(id)
         if (response && response.data) {
           const { venue } = response.data
-          const { name, location, description, capacity, price, venueImage } = venue
+          const { name, location, description, capacity, price, venueImage, photos } = venue
           setFormData({ name, location, description, capacity: capacity || "", price, venueImage })
+          setCurrentPhotos(photos || [])
         } else {
           toast.error("Venue not found")
           navigate("/admin-venues")
@@ -42,7 +48,12 @@ const EditVenue = () => {
         setLoading(false)
       }
     }
+    
     fetchVenue()
+
+    return () => {
+      photoPreviews.forEach(p => URL.revokeObjectURL(p.url));
+    }
   }, [id, navigate])
 
   const handleChange = (e) => {
@@ -67,6 +78,85 @@ const EditVenue = () => {
   const removeImagePreview = () => {
     setImageFile(null)
     setImagePreview(null)
+  }
+
+  // --- Multi-photo handlers ---
+  const handlePhotosChange = (e) => {
+    const files = Array.from(e.target.files || [])
+    if (!files.length) return
+
+    const newFiles = files.slice(0, 10)
+    const newPreviews = newFiles.map(file => ({ url: URL.createObjectURL(file), name: file.name }))
+
+    setSelectedPhotos(prev => [...prev, ...newFiles])
+    setPhotoPreviews(prev => [...prev, ...newPreviews])
+  }
+
+  const removePreview = (index) => {
+    setPhotoPreviews(prev => {
+      const removed = prev[index]
+      if (removed) URL.revokeObjectURL(removed.url)
+      const next = prev.slice(0, index).concat(prev.slice(index + 1))
+      return next
+    })
+    setSelectedPhotos(prev => prev.slice(0, index).concat(prev.slice(index + 1)))
+  }
+
+  const uploadPhotos = async () => {
+    if (!selectedPhotos.length) {
+      toast.info("Select photos to upload")
+      return
+    }
+    setUploadingPhotos(true)
+
+    try {
+      addVenuePhotos(id, selectedPhotos, 
+        (successMessage, data) => {
+          toast.success(successMessage)
+          const updatedVenue = data?.venue || data
+          const newGallery = updatedVenue?.photos || updatedVenue?.data?.photos || []
+          setCurrentPhotos(Array.isArray(newGallery) ? newGallery : currentPhotos)
+          
+          // Clear selected photos and previews
+          photoPreviews.forEach(p => URL.revokeObjectURL(p.url))
+          setSelectedPhotos([])
+          setPhotoPreviews([])
+        },
+        (errorMessage) => {
+          toast.error(errorMessage)
+        }
+      )
+    } catch (err) {
+      console.error("Error uploading photos:", err)
+      toast.error("Failed to upload photos")
+    } finally {
+      setUploadingPhotos(false)
+    }
+  }
+
+  const handleDeletePhoto = async (photoId) => {
+    if (!photoId) return
+    if (!window.confirm("Delete this photo?")) return
+
+    setDeletingPhotoId(photoId)
+    
+    try {
+      deleteVenuePhoto(id, photoId,
+        (successMessage, updatedVenue) => {
+          toast.success(successMessage || "Photo deleted successfully")
+          const newGallery = updatedVenue?.photos || updatedVenue?.data?.photos || []
+          setCurrentPhotos(Array.isArray(newGallery) ? newGallery : currentPhotos.filter(p => p._id !== photoId))
+        },
+        (errorMessage) => {
+          toast.error(errorMessage)
+        }
+      )
+    } catch (err) {
+      console.error("Error deleting photo:", err)
+      toast.error("Failed to delete photo")
+    } finally {
+      setDeletingPhotoId(null)
+    }
   }
 
   const handleSubmit = async (e) => {
@@ -125,7 +215,7 @@ const EditVenue = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
-      <div className="max-w-4xl mx-auto px-4 lg:px-6">
+      <div className="max-w-5xl mx-auto px-4 lg:px-6">
         {/* Header */}
         <motion.div
           className="mb-8"
@@ -280,7 +370,7 @@ const EditVenue = () => {
                 <div>
                   <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
                     <ImageIcon className="w-4 h-4 text-purple-600" />
-                    {imagePreview ? "New Image Preview" : "Upload New Image (Optional)"}
+                    {imagePreview ? "New Image Preview" : "Upload New Image"}
                   </label>
 
                   {imagePreview ? (
@@ -311,6 +401,109 @@ const EditVenue = () => {
                         <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                         <p className="text-gray-600 font-medium mb-2">Click to upload new image</p>
                         <p className="text-sm text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Multi-photo upload section */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                    <ImageIcon className="w-4 h-4 text-purple-600" />
+                    Upload Additional Photos (Gallery)
+                  </label>
+
+                  {/* File input */}
+                  <div className="mb-3">
+                    <input
+                      type="file"
+                      onChange={handlePhotosChange}
+                      accept="image/*"
+                      multiple
+                      className="w-full text-sm text-gray-700 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-white file:bg-gradient-to-r file:from-purple-600 file:to-pink-600 hover:file:from-purple-700 hover:file:to-pink-700 file:font-semibold file:transition-all file:duration-200"
+                    />
+                    <p className="text-xs text-gray-500 mt-2">Select one or more images to add to the venue gallery (up to 10 per upload)</p>
+                  </div>
+
+                  {/* Preview selected photos */}
+                  {photoPreviews.length > 0 && (
+                    <div className="mb-3">
+                      <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                        {photoPreviews.map((p, idx) => (
+                          <div key={idx} className="relative rounded-md overflow-hidden border border-gray-200">
+                            <img src={p.url} alt={p.name} className="w-full h-24 object-cover" />
+                            <button
+                              type="button"
+                              onClick={() => removePreview(idx)}
+                              className="absolute top-2 right-2 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center"
+                              title="Remove"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="mt-3 flex gap-3">
+                        <button
+                          type="button"
+                          onClick={uploadPhotos}
+                          disabled={uploadingPhotos}
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl shadow hover:opacity-95 disabled:opacity-60"
+                        >
+                          {uploadingPhotos ? "Uploading..." : <>
+                            <Upload className="w-4 h-4" /> Upload Photos
+                          </>}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            photoPreviews.forEach(p => URL.revokeObjectURL(p.url));
+                            setSelectedPhotos([])
+                            setPhotoPreviews([])
+                          }}
+                          className="px-4 py-2 bg-white border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Current gallery photos */}
+                  {currentPhotos.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-700 mb-2">Current Photos</h4>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        {currentPhotos.map((p, idx) => {
+                          const src = p.image || "/placeholder.svg"
+                          const photoId = p._id
+                          
+                          console.log('Photo object:', p, 'Using _id:', photoId)
+                          
+                          return (
+                            <div key={photoId || idx} className="relative rounded-md overflow-hidden border border-gray-200">
+                              <img src={src} alt={`photo-${idx}`} className="w-full h-28 object-cover" />
+                              <div className="absolute top-2 right-2 flex gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (photoId) handleDeletePhoto(photoId)
+                                  }}
+                                  className="w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+                                  title="Delete photo"
+                                  disabled={deletingPhotoId === photoId || !photoId}
+                                >
+                                  {deletingPhotoId === photoId ? (
+                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                  ) : (
+                                    <X className="w-3 h-3" />
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+                          )
+                        })}
                       </div>
                     </div>
                   )}
