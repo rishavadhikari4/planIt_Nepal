@@ -669,7 +669,7 @@ const Venues = () => {
                         {venue.price && (
                           <div className="mb-3 sm:mb-4">
                             <span className="text-sm sm:text-lg md:text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                              ${venue.price.toLocaleString()}
+                              Rs {venue.price.toLocaleString()}
                             </span>
                             <span className="text-gray-500 text-xs sm:text-sm ml-1">per event</span>
                           </div>

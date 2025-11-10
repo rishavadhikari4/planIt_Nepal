@@ -454,7 +454,7 @@ const Cuisines = () => {
           <div className="flex items-center justify-between mb-4">
             <div>
               <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                ₹{dish.price?.toLocaleString() || "N/A"}
+                Rs {dish.price?.toLocaleString() || "N/A"}
               </span>
               <span className="text-gray-500 text-sm ml-1">per serving</span>
             </div>
@@ -788,7 +788,7 @@ const Cuisines = () => {
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                   <span className="text-xs sm:text-sm text-purple-600 font-semibold">
-                    Total: ₹{Object.values(dishQuantities).reduce((sum, qty) => sum + qty, 0) * 1000}
+                    Total:Rs {Object.values(dishQuantities).reduce((sum, qty) => sum + qty, 0) * 1000}
                   </span>
                   <motion.button
                     onClick={handleSubmit}

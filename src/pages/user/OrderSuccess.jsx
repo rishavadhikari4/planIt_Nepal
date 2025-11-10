@@ -116,12 +116,12 @@ function OrderSuccess() {
 
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                    <span className="text-green-600 font-bold text-sm">₹</span>
+                    <span className="text-green-600 font-bold text-sm">Rs </span>
                   </div>
                   <div>
                     <p className="text-xs text-gray-500">Total Amount</p>
                     <p className="text-lg font-bold text-green-600">
-                      ₹{(orderData.order?.totalAmount || orderData.totalAmount)?.toLocaleString()}
+                     Rs {(orderData.order?.totalAmount || orderData.totalAmount)?.toLocaleString()}
                     </p>
                   </div>
                 </div>

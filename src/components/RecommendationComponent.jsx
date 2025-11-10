@@ -3,8 +3,7 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { 
-  Sparkles, 
-  ndianRupee, 
+  Sparkles,  
   MapPin, 
   Users, 
   Camera, 
@@ -438,7 +437,7 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
             <h4 className="text-lg font-bold text-gray-800">Package Total</h4>
             <div className="text-right">
               <div className="text-xl font-bold text-purple-600">
-                ₹{pkg.totalPrice?.toLocaleString()}
+                Rs {pkg.totalPrice?.toLocaleString()}
               </div>
               <div className="text-xs text-gray-600">
                 {budgetAnalysis.budgetUtilization}% of budget used
@@ -450,7 +449,7 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
             <div className="flex items-center text-green-600 bg-green-50 rounded-lg p-2">
               <PiggyBank className="w-4 h-4 mr-2" />
               <span className="font-semibold text-sm">
-                You save ₹{budgetAnalysis.savings?.toLocaleString()}!
+                You saveRs {budgetAnalysis.savings?.toLocaleString()}!
               </span>
             </div>
           )}
@@ -478,7 +477,7 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
                   <p className="text-xs text-gray-600 truncate">{pkg.venue.location}</p>
                   <div className="flex items-center space-x-3 mt-1">
                     <span className="text-purple-600 font-semibold text-sm">
-                      ₹{pkg.venue.price?.toLocaleString()}
+                      Rs {pkg.venue.price?.toLocaleString()}
                     </span>
                     {pkg.venue.rating && (
                       <div className="flex items-center">
@@ -520,7 +519,7 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
                   <p className="text-xs text-gray-600 truncate">{pkg.studio.location}</p>
                   <div className="flex items-center space-x-3 mt-1">
                     <span className="text-purple-600 font-semibold text-sm">
-                      ₹{pkg.studio.price?.toLocaleString()}
+                      Rs {pkg.studio.price?.toLocaleString()}
                     </span>
                     {pkg.studio.rating && (
                       <div className="flex items-center">
@@ -567,7 +566,7 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
                     </div>
                     <div className="flex items-center space-x-1">
                       <span className="text-purple-600 font-semibold text-xs">
-                        ₹{dish.price?.toLocaleString()}
+                        Rs {dish.price?.toLocaleString()}
                       </span>
                       {dish.rating && (
                         <div className="flex items-center">

@@ -239,7 +239,7 @@ const Cart = () => {
                                   </div>
                                   {item.price > 0 && (
                                     <p className="text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mt-1">
-                                      ₹{(item.price * item.quantity).toLocaleString()}
+                                     Rs {(item.price * item.quantity).toLocaleString()}
                                     </p>
                                   )}
                                 </div>
@@ -315,7 +315,7 @@ const Cart = () => {
                   <div className="space-y-4 mb-6">
                     <div className="flex justify-between items-center py-2 border-b border-gray-100">
                       <span className="text-gray-600">Items ({cartItems.length})</span>
-                      <span className="font-semibold text-gray-800">₹{calculateTotal().toLocaleString()}</span>
+                      <span className="font-semibold text-gray-800">Rs {calculateTotal().toLocaleString()}</span>
                     </div>
 
                     {/* Breakdown by type */}
@@ -330,7 +330,7 @@ const Cart = () => {
                               {type === 'cuisine' ? 'dishes' : `${type}s`} ({typeItems.length})
                             </span>
                             <span className="font-medium text-gray-800">
-                              ₹{typeItems.reduce((sum, item) => sum + item.price * item.quantity, 0).toLocaleString()}
+                             Rs {typeItems.reduce((sum, item) => sum + item.price * item.quantity, 0).toLocaleString()}
                             </span>
                           </div>
                         )

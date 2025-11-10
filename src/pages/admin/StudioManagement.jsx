@@ -231,7 +231,7 @@ const AdminStudios = () => {
         {/* Price */}
         <div className="mb-3">
           <span className="text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            ₹{studio.price?.toLocaleString() || "0"}
+           Rs {studio.price?.toLocaleString() || "0"}
           </span>
           <span className="text-gray-500 text-sm ml-1">per session</span>
         </div>

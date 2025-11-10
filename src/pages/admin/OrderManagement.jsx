@@ -17,7 +17,7 @@ import {
   Menu,
   X,
   ChevronDown,
-  ndianRupee,
+  IndianRupee,
   CreditCard,
 } from "lucide-react"
 import { getAllOrders, updateOrderStatus } from "../../services/orders"

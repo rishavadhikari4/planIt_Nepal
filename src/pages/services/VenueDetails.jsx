@@ -361,7 +361,7 @@ const VenueDetails = () => {
               {venue.price && (
                 <div className="mb-6">
                   <span className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                    ₹{venue.price.toLocaleString()}
+                    Rs {venue.price.toLocaleString()}
                   </span>
                   <span className="text-gray-500 text-lg ml-2">per event</span>
                 </div>

@@ -719,7 +719,7 @@ const Studios = () => {
                         {studio.price && (
                           <div className="mb-4">
                             <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                              ${studio.price.toLocaleString()}
+                              Rs {studio.price.toLocaleString()}
                             </span>
                             <span className="text-gray-500 text-sm ml-1">per session</span>
                           </div>
@@ -903,7 +903,7 @@ const Studios = () => {
                     {showPreview.price && (
                       <div className="text-right">
                         <span className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                          ${showPreview.price.toLocaleString()}
+                          Rs {showPreview.price.toLocaleString()}
                         </span>
                         <span className="text-gray-500 text-sm ml-1">per session</span>
                       </div>

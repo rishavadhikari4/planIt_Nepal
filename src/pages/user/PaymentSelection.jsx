@@ -198,7 +198,7 @@ function PaymentSelection() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold text-gray-800">₹{totalAmount.toLocaleString()}</p>
+                      <p className="text-lg font-bold text-gray-800">Rs {totalAmount.toLocaleString()}</p>
                       <p className="text-sm text-green-600">Complete payment</p>
                     </div>
                   </div>
@@ -235,8 +235,8 @@ function PaymentSelection() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold text-gray-800">₹{advanceAmount.toLocaleString()}</p>
-                      <p className="text-sm text-gray-600">Remaining: ₹{(totalAmount - advanceAmount).toLocaleString()}</p>
+                      <p className="text-lg font-bold text-gray-800">Rs {advanceAmount.toLocaleString()}</p>
+                      <p className="text-sm text-gray-600">Remaining:Rs {(totalAmount - advanceAmount).toLocaleString()}</p>
                     </div>
                   </div>
                   {loading && selectedPayment === 'advance' && (
@@ -272,7 +272,7 @@ function PaymentSelection() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold text-gray-800">₹{totalAmount.toLocaleString()}</p>
+                      <p className="text-lg font-bold text-gray-800">Rs {totalAmount.toLocaleString()}</p>
                       <p className="text-sm text-gray-600">Pay after service</p>
                     </div>
                   </div>
@@ -333,7 +333,7 @@ function PaymentSelection() {
                           <p className="text-xs text-gray-600">Qty: {item.quantity}</p>
                           <p className="text-xs text-gray-600 capitalize">{item.itemType}</p>
                         </div>
-                        <span className="font-medium">₹{(item.price * item.quantity).toLocaleString()}</span>
+                        <span className="font-medium">Rs {(item.price * item.quantity).toLocaleString()}</span>
                       </div>
                     ))}
                   </div>
@@ -341,11 +341,11 @@ function PaymentSelection() {
                 
                 <div className="flex justify-between border-t pt-3 font-bold text-lg">
                   <span className="text-gray-800">Total Amount</span>
-                  <span className="text-purple-600">₹{totalAmount.toLocaleString()}</span>
+                  <span className="text-purple-600">Rs {totalAmount.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-sm text-gray-600">
                   <span>25% Advance Option</span>
-                  <span>₹{advanceAmount.toLocaleString()}</span>
+                  <span>Rs {advanceAmount.toLocaleString()}</span>
                 </div>
               </div>
 

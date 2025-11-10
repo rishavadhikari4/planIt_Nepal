@@ -83,13 +83,13 @@ const ContactForm = ({
 
   const budgetOptions = [
     { value: "", label: "Select your budget range" },
-    { value: "10000-25000", label: "₹10,000 - ₹25,000" },
-    { value: "25000-50000", label: "₹25,000 - ₹50,000" },
-    { value: "50000-100000", label: "₹50,000 - ₹1,00,000" },
-    { value: "100000-200000", label: "₹1,00,000 - ₹2,00,000" },
-    { value: "200000-500000", label: "₹2,00,000 - ₹5,00,000" },
-    { value: "500000-1000000", label: "₹5,00,000 - ₹10,00,000" },
-    { value: "1000000+", label: "₹10,00,000+" },
+    { value: "10000-25000", label: "Rs 10,000 -Rs 25,000" },
+    { value: "25000-50000", label: "Rs 25,000 -Rs 50,000" },
+    { value: "50000-100000", label: "Rs 50,000 -Rs 1,00,000" },
+    { value: "100000-200000", label: "Rs 1,00,000 -Rs 2,00,000" },
+    { value: "200000-500000", label: "Rs 2,00,000 -Rs 5,00,000" },
+    { value: "500000-1000000", label: "Rs 5,00,000 -Rs 10,00,000" },
+    { value: "1000000+", label: "Rs 10,00,000+" },
   ]
 
   return (
@@ -160,7 +160,7 @@ const ContactForm = ({
               required
               disabled={isSubmitting}
               className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-              placeholder="(555) 123-4567"
+              placeholder="(977) 123-4567"
             />
           </div>
           <div>

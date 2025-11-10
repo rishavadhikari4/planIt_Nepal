@@ -287,7 +287,7 @@ const OrdersComponent = ({ user }) => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                   <div className="bg-white/40 rounded-lg p-3">
                     <p className="text-xs text-gray-500 mb-1">Total Amount</p>
-                    <p className="font-bold text-purple-600">₹{order.totalAmount?.toLocaleString()}</p>
+                    <p className="font-bold text-purple-600">Rs {order.totalAmount?.toLocaleString()}</p>
                   </div>
                   <div className="bg-white/40 rounded-lg p-3">
                     <p className="text-xs text-gray-500 mb-1">Payment Status</p>
@@ -344,7 +344,7 @@ const OrdersComponent = ({ user }) => {
                                 <div className="flex items-center space-x-4 text-sm text-gray-600">
                                   <span className="capitalize">{item.itemType}</span>
                                   <span>Qty: {item.quantity}</span>
-                                  <span className="font-medium text-purple-600">₹{(item.price * item.quantity).toLocaleString()}</span>
+                                  <span className="font-medium text-purple-600">Rs {(item.price * item.quantity).toLocaleString()}</span>
                                 </div>
                                 {(item.itemType === 'venue' || item.itemType === 'studio') && item.bookedFrom && item.bookedTill && (
                                   <div className="mt-2 flex items-center space-x-2 text-xs text-blue-600 bg-blue-50 rounded px-2 py-1">
@@ -394,15 +394,15 @@ const OrdersComponent = ({ user }) => {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                           <div>
                             <p className="text-gray-600">Total Amount</p>
-                            <p className="font-semibold text-gray-800">₹{order.totalAmount?.toLocaleString()}</p>
+                            <p className="font-semibold text-gray-800">Rs {order.totalAmount?.toLocaleString()}</p>
                           </div>
                           <div>
                             <p className="text-gray-600">Paid Amount</p>
-                            <p className="font-semibold text-green-600">₹{order.paidAmount?.toLocaleString()}</p>
+                            <p className="font-semibold text-green-600">Rs {order.paidAmount?.toLocaleString()}</p>
                           </div>
                           <div>
                             <p className="text-gray-600">Remaining Amount</p>
-                            <p className="font-semibold text-orange-600">₹{order.remainingAmount?.toLocaleString()}</p>
+                            <p className="font-semibold text-orange-600">Rs {order.remainingAmount?.toLocaleString()}</p>
                           </div>
                         </div>
                         {order.stripePaymentIntentId && (
@@ -433,7 +433,7 @@ const OrdersComponent = ({ user }) => {
                           >
                             <CreditCard className="w-5 h-5" />
                             <span>Complete Payment</span>
-                            <span className="ml-2 font-bold">₹{order.remainingAmount?.toLocaleString()}</span>
+                            <span className="ml-2 font-bold">Rs {order.remainingAmount?.toLocaleString()}</span>
                           </button>
                         </div>
                       )}
