@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Mail, Phone, DollarSign, MessageSquare, User, FileText, ArrowLeft } from "lucide-react"
+import { Mail, Phone, ndianRupee, MessageSquare, User, FileText, ArrowLeft } from "lucide-react"
 import { useParams, useNavigate } from "react-router-dom"
 import { getContactById } from "../../services/contact"
 import { motion, AnimatePresence } from "framer-motion"
@@ -161,7 +161,7 @@ const ContactDetails = () => {
     { icon: Mail, label: "Email", value: contact.email, color: "text-blue-600", bg: "bg-blue-50" },
     { icon: Phone, label: "Phone", value: contact.phone, color: "text-green-600", bg: "bg-green-50" },
     { icon: FileText, label: "Subject", value: contact.subject, color: "text-purple-600", bg: "bg-purple-50" },
-    { icon: DollarSign, label: "Budget", value: contact.budget, color: "text-emerald-600", bg: "bg-emerald-50" },
+    { icon: ndianRupee, label: "Budget", value: contact.budget, color: "text-emerald-600", bg: "bg-emerald-50" },
   ]
 
   return (
