@@ -1,13 +1,19 @@
-import { Mail, Phone, Calendar, Camera, Utensils, Users, MapPin, Star } from "lucide-react"
+import { Mail, Phone, Calendar, Camera, Utensils, Users, MapPin, Star, Wand2, Sparkles as SparklesIcon } from "lucide-react"
 import Review from "./Review.jsx"
 import { useNavigate } from "react-router-dom"
 import ContactForm from "../../components/forms/ContactForm"
+import RecommendationComponent from "../../components/RecommendationComponent"
 import { motion, AnimatePresence } from "framer-motion"
 import { useInView } from "framer-motion"
-import { useRef } from "react"
+import { useRef, useContext, useState } from "react"
+import { AuthContext } from "../../context/AuthContext"
+import { toast } from "react-toastify"
 
 const Home = () => {
   const navigate = useNavigate()
+  const { isAuthenticated, isCustomer } = useContext(AuthContext)
+  const [showRecommendations, setShowRecommendations] = useState(false)
+  
   const featuresRef = useRef(null)
   const servicesRef = useRef(null)
   const contactRef = useRef(null)
@@ -27,7 +33,12 @@ const Home = () => {
   };
 
   const handleStartPlanning = () => {
-    navigate('/venues');
+    toast.info("Please login to start planning your event! 🚀");
+    navigate('/login');
+  };
+
+  const handleGetRecommendations = () => {
+    setShowRecommendations(true);
   };
 
   const handleContactFormSuccess = (formData) => {
@@ -86,6 +97,21 @@ const Home = () => {
       scale: 1.05,
       y: -2,
       boxShadow: "0 20px 25px -5px rgba(59, 130, 246, 0.4)",
+      transition: {
+        duration: 0.2,
+        ease: "easeOut"
+      }
+    },
+    tap: {
+      scale: 0.98
+    }
+  };
+
+  const recommendationButtonVariants = {
+    hover: {
+      scale: 1.05,
+      y: -2,
+      boxShadow: "0 20px 25px -5px rgba(245, 158, 11, 0.4)",
       transition: {
         duration: 0.2,
         ease: "easeOut"
@@ -161,15 +187,29 @@ const Home = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.8 }}
           >
-            <motion.button 
-              onClick={handleStartPlanning}
-              className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white px-8 py-3 rounded-full font-semibold text-lg shadow-2xl"
-              variants={buttonVariants}
-              whileHover="hover"
-              whileTap="tap"
-            >
-              Start Planning Your Event
-            </motion.button>
+            {isAuthenticated && isCustomer ? (
+              <motion.button 
+                onClick={handleGetRecommendations}
+                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-3 rounded-full font-semibold text-lg shadow-2xl flex items-center space-x-3"
+                variants={recommendationButtonVariants}
+                whileHover="hover"
+                whileTap="tap"
+              >
+                <Wand2 className="w-6 h-6" />
+                <span>Get Perfect Wedding Package</span>
+                <SparklesIcon className="w-5 h-5" />
+              </motion.button>
+            ) : (
+              <motion.button 
+                onClick={handleStartPlanning}
+                className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white px-8 py-3 rounded-full font-semibold text-lg shadow-2xl"
+                variants={buttonVariants}
+                whileHover="hover"
+                whileTap="tap"
+              >
+                Start Planning Your Event
+              </motion.button>
+            )}
           </motion.div>
         </motion.div>
       </div>
@@ -479,6 +519,12 @@ const Home = () => {
           </motion.div>
         </div>
       </motion.footer>
+
+      {/* Recommendation Modal */}
+      <RecommendationComponent 
+        isOpen={showRecommendations}
+        onClose={() => setShowRecommendations(false)}
+      />
     </div>
   )
 }

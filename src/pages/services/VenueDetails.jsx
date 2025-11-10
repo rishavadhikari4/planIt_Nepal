@@ -351,6 +351,10 @@ const VenueDetails = () => {
                   <Calendar className="w-5 h-5 mr-2 text-purple-500" />
                   <span className="font-semibold">{totalBookings} bookings</span>
                 </div>
+                                <div className="flex items-center text-gray-700">
+                                  <span className="font-semibold">{venue.rating}</span>
+                                  <Star className="w-5 h-5 mr-2 text-yellow-400 fill-yellow-400" />
+                                </div>
               </div>
 
               {/* Price */}

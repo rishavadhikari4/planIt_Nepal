@@ -663,14 +663,14 @@ const Studios = () => {
                         {/* Studio Rating */}
                         {studio.rating && (
                           <motion.div 
-                            className="absolute bottom-4 left-4"
+                            className="absolute bottom-2 sm:bottom-4 right-2 sm:right-4"
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.1 }}
                           >
                             <div className="flex items-center space-x-1 bg-white/95 backdrop-blur-sm rounded-full px-3 py-2 shadow-lg">
-                              <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
                               <span className="text-sm font-semibold text-gray-800">{studio.rating}</span>
+                              <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
                             </div>
                           </motion.div>
                         )}

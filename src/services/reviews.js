@@ -40,6 +40,7 @@ export const postReview = async ({ rating, comment }) => {
         'Content-Type': 'application/json'
       }
     });
+    return response.data;
   } catch (error) {
     console.error('Error posting review:', error);
 
@@ -51,6 +52,54 @@ export const postReview = async ({ rating, comment }) => {
     } else {
       throw new Error(error.message || 'Failed to post review.');
     }
+  }
+};
+
+export const rateVenue = async (venueId, rating) => {
+  try {
+    const response = await API.post(`/api/venues/${venueId}/rate`, { 
+      rating: parseInt(rating)
+    });
+    return {
+      success: true,
+      message: response.data.message || "Venue rated successfully!",
+      data: response.data.data
+    };
+  } catch (error) {
+    console.error("Error rating venue:", error);
+    throw new Error(error.response?.data?.message || "Failed to rate venue");
+  }
+};
+
+export const rateStudio = async (studioId, rating) => {
+  try {
+    const response = await API.post(`/api/studios/${studioId}/rate`, { 
+      rating: parseInt(rating)
+    });
+    return {
+      success: true,
+      message: response.data.message || "Studio rated successfully!",
+      data: response.data.data
+    };
+  } catch (error) {
+    console.error("Error rating studio:", error);
+    throw new Error(error.response?.data?.message || "Failed to rate studio");
+  }
+};
+
+export const rateDish = async (dishId, rating) => {
+  try {
+    const response = await API.post(`/api/cuisines/dishes/${dishId}/rate`, { 
+      rating: parseInt(rating)
+    });
+    return {
+      success: true,
+      message: response.data.message || "Dish rated successfully!",
+      data: response.data.data
+    };
+  } catch (error) {
+    console.error("Error rating dish:", error);
+    throw new Error(error.response?.data?.message || "Failed to rate dish");
   }
 };
 

@@ -99,24 +99,6 @@ const AdminHeader = () => {
 
           {/* Right Side Actions */}
           <div className="flex items-center space-x-3">
-            {/* Notifications */}
-            <button className="relative w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors">
-              <Bell className="w-5 h-5 text-gray-600" />
-              <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
-            </button>
-
-            {/* Profile & Logout */}
-            {isAdmin && (
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={handleLogout}
-                  className="hidden sm:flex items-center space-x-2 px-3 py-2 rounded-xl text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span className="font-medium text-sm">Logout</span>
-                </button>
-              </div>
-            )}
 
             {/* Mobile menu toggle */}
             <button

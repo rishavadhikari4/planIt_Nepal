@@ -130,6 +130,7 @@ export const searchVenues = async (searchOptions = {}) => {
   }
 };
 
+
 // TODO: Implement API POST request for adding venue photos
 
 //TODO: Implement API DELETE request for deleting the venue photos

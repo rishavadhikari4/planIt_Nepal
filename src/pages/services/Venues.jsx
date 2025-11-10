@@ -625,14 +625,14 @@ const Venues = () => {
                         {/* Venue Rating */}
                         {venue.rating && (
                           <motion.div
-                            className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4"
+                            className="absolute bottom-2 sm:bottom-4 right-2 sm:right-4"
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.1 }}
                           >
                             <div className="flex items-center space-x-1 bg-white/95 backdrop-blur-sm rounded-full px-2 py-1 sm:px-3 sm:py-2 shadow-lg">
-                              <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400 fill-yellow-400" />
                               <span className="text-xs sm:text-sm font-semibold text-gray-800">{venue.rating}</span>
+                              <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400 fill-yellow-400" />
                             </div>
                           </motion.div>
                         )}

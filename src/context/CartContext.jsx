@@ -25,7 +25,7 @@ export const CartProvider = ({ children }) => {
     sessionStorage.setItem("weddingCart", JSON.stringify(cartItems));
   }, [cartItems]);
 
-  const addToCart = (item, bookingDates = null, silent = false) => {
+  const addToCart = (item, bookingDates = null, silent = false, isRecommendationPackage = false) => {
     try {
       // Normalize the item type - convert 'cuisine' to 'dish'
       const normalizedItem = {
@@ -84,7 +84,8 @@ export const CartProvider = ({ children }) => {
 
       // For venues and studios, handle booking dates
       if (normalizedItem.type === "venue" || normalizedItem.type === "studio") {
-        if (!bookingDates) {
+        // If it's from a recommendation package, allow adding without dates initially
+        if (!bookingDates && !isRecommendationPackage) {
           if (!silent) {
             toast.error(`Booking dates are required for ${normalizedItem.type}`);
           }
@@ -96,15 +97,20 @@ export const CartProvider = ({ children }) => {
           ...normalizedItem,
           quantity: 1, // Always 1 for venues/studios
           _id: normalizedItem._id,
-          bookingDates: bookingDates
+          bookingDates: bookingDates,
+          isRecommendationItem: isRecommendationPackage
         };
         
         setCartItems(prevItems => [...prevItems, newItem]);
         
         if (!silent) {
-          const fromDate = new Date(bookingDates.from).toLocaleDateString();
-          const tillDate = new Date(bookingDates.till).toLocaleDateString();
-          toast.success(`${normalizedItem.name} added to cart for ${fromDate} - ${tillDate}! ✨`);
+          if (bookingDates) {
+            const fromDate = new Date(bookingDates.from).toLocaleDateString();
+            const tillDate = new Date(bookingDates.till).toLocaleDateString();
+            toast.success(`${normalizedItem.name} added to cart for ${fromDate} - ${tillDate}! ✨`);
+          } else if (isRecommendationPackage) {
+            toast.success(`${normalizedItem.name} added to cart! Please set booking dates before checkout. ✨`);
+          }
         }
         
         return true;
@@ -153,6 +159,20 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+  const updateBookingDates = (itemId, bookingDates) => {
+    try {
+      setCartItems(prevItems => 
+        prevItems.map(item => 
+          item._id === itemId ? { ...item, bookingDates } : item
+        )
+      );
+      toast.success("Booking dates updated successfully! ✨");
+    } catch (err) {
+      console.error("Error updating booking dates:", err);
+      toast.error("Failed to update booking dates.");
+    }
+  };
+
   const clearCart = () => {
     setCartItems([]);
     sessionStorage.removeItem("weddingCart");
@@ -171,6 +191,7 @@ export const CartProvider = ({ children }) => {
       removeFromCart, 
       fetchCartItems, 
       updateQuantity,
+      updateBookingDates,
       clearCart
     }}>
       {children}

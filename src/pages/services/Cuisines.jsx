@@ -224,7 +224,7 @@ const Cuisines = () => {
       // Skip loading for sort-only updates
       fetchCuisines(currentPage, {}, true)
     }
-  }, [sortField, sortOrder])
+  }, [sortField, sortOrder, currentPage])
 
   const handleSearch = () => {
     const hasSearchCriteria = searchTerm.trim() || priceRange.min || priceRange.max || selectedCategory !== "all"
@@ -379,7 +379,7 @@ const Cuisines = () => {
   const filteredCuisines = getFilteredCuisines()
   const categoryNames = ["all", ...new Set(cuisines.map((cuisine) => cuisine.category).filter(Boolean))]
 
-  const DishCard = ({ dish, categoryName }) => {
+  const DishCard = ({ dish, categoryName, dishIndex }) => {
     const dishId = dish._id
     const isSelected = selectedDishes.has(dishId)
     const isFavorite = favorites.has(dishId)
@@ -443,10 +443,17 @@ const Cuisines = () => {
 
           {/* Rating */}
           {dish.rating && (
-            <div className="absolute bottom-3 left-3 flex items-center space-x-1 bg-white/95 backdrop-blur-sm rounded-full px-3 py-1 shadow-lg">
-              <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-              <span className="text-sm font-semibold text-gray-800">{dish.rating}</span>
-            </div>
+            <motion.div
+              className="absolute bottom-2 sm:bottom-4 right-2 sm:right-4"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: dishIndex * 0.1 }}
+            >
+              <div className="flex items-center space-x-1 bg-white/95 backdrop-blur-sm rounded-full px-2 py-1 sm:px-3 sm:py-2 shadow-lg">
+                <span className="text-xs sm:text-sm font-semibold text-gray-800">{dish.rating}</span>
+                <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400 fill-yellow-400" />
+              </div>
+            </motion.div>
           )}
         </div>
 
@@ -694,7 +701,7 @@ const Cuisines = () => {
           </motion.div>
         ) : (
           <>
-            {/* Search and Filter Section - Matching Venues.jsx exactly */}
+            {/* Search and Filter Section */}
             <motion.div
               className="max-w-6xl mx-auto mb-16"
               initial={{ opacity: 0, y: 30 }}
@@ -707,7 +714,7 @@ const Cuisines = () => {
               }}
             >
               <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl border border-white/30 p-4 sm:p-6 md:p-8">
-                {/* Main Search Bar - Full Width */}
+                {/* Main Search Bar */}
                 <div className="flex flex-col lg:flex-row gap-4 mb-8">
                   <div className="flex-1 relative">
                     <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -909,7 +916,7 @@ const Cuisines = () => {
                       </div>
                     </motion.div>
 
-                    {/* Dishes Grid - Matching Venues.jsx grid layout */}
+                    {/* Dishes Grid */}
                     <motion.div
                       className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 lg:gap-8"
                       variants={containerVariants}
@@ -917,7 +924,7 @@ const Cuisines = () => {
                       <AnimatePresence>
                         {cuisine.dishes.map((dish, dishIndex) => (
                           <motion.div key={dish._id} variants={itemVariants} layout>
-                            <DishCard dish={dish} categoryName={cuisine.category} />
+                            <DishCard dish={dish} categoryName={cuisine.category} dishIndex={dishIndex} />
                           </motion.div>
                         ))}
                       </AnimatePresence>
@@ -927,7 +934,7 @@ const Cuisines = () => {
               )}
             </motion.div>
 
-            {/* Pagination - Matching Venues.jsx exactly */}
+            {/* Pagination */}
             {(pagination?.totalPages || 1) > 1 && (
               <motion.div
                 className="flex justify-center mt-16"

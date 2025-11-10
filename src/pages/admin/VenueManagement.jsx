@@ -219,8 +219,8 @@ const AdminVenues = () => {
             <span>{venue.capacity || "N/A"} guests</span>
           </div>
           <div className="flex items-center">
+            <span>{venue.rating}</span>
             <Star className="w-3 h-3 text-yellow-400 fill-yellow-400 mr-1" />
-            <span>4.8</span>
           </div>
         </div>
 

@@ -121,49 +121,51 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-gradient-to-r from-purple-600/80 via-purple-800/70 to-pink-800/80 shadow-2xl backdrop-blur-md">
-      <nav className="container mx-auto flex justify-between items-center px-4 sm:px-6 py-3">
+      <nav className="container mx-auto flex justify-between items-center px-2 sm:px-4 lg:px-6 xl:px-8 py-2 sm:py-3">
         {/* Logo */}
         <Link
           to="/"
-          className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-white to-pink-100 bg-clip-text text-transparent no-underline hover:scale-105 transition-transform duration-300"
+          className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold bg-gradient-to-r from-white to-pink-100 bg-clip-text text-transparent no-underline hover:scale-105 transition-transform duration-300 flex-shrink-0"
         >
-          PlanIt Nepal
+          <span className="hidden sm:inline">PlanIt Nepal</span>
+          <span className="sm:hidden">PlanIt</span>
         </Link>
 
-        {/* Hamburger Menu Button */}
+        {/* Hamburger Menu Button - Show on smaller screens and landscape mobile */}
         <button
-          className="relative w-8 h-8 md:hidden focus:outline-none group"
+          className="relative w-6 h-6 sm:w-8 sm:h-8 lg:hidden focus:outline-none group"
           onClick={toggleMenu}
           aria-label="Toggle menu"
         >
           <span
-            className={`block absolute h-0.5 w-8 bg-white rounded-full transform transition-all duration-300 ease-in-out group-hover:bg-pink-200 ${
-              isMenuOpen ? "rotate-45 top-3.5" : "top-2"
+            className={`block absolute h-0.5 w-full bg-white rounded-full transform transition-all duration-300 ease-in-out group-hover:bg-pink-200 ${
+              isMenuOpen ? "rotate-45 top-2.5 sm:top-3.5" : "top-1.5 sm:top-2"
             }`}
           ></span>
           <span
-            className={`block absolute h-0.5 w-8 bg-white rounded-full transition-all duration-300 ease-in-out group-hover:bg-pink-200 ${
-              isMenuOpen ? "opacity-0" : "top-4"
+            className={`block absolute h-0.5 w-full bg-white rounded-full transition-all duration-300 ease-in-out group-hover:bg-pink-200 ${
+              isMenuOpen ? "opacity-0" : "top-2.5 sm:top-4"
             }`}
           ></span>
           <span
-            className={`block absolute h-0.5 w-8 bg-white rounded-full transform transition-all duration-300 ease-in-out group-hover:bg-pink-200 ${
-              isMenuOpen ? "-rotate-45 top-3.5" : "top-6"
+            className={`block absolute h-0.5 w-full bg-white rounded-full transform transition-all duration-300 ease-in-out group-hover:bg-pink-200 ${
+              isMenuOpen ? "-rotate-45 top-2.5 sm:top-3.5" : "top-3.5 sm:top-6"
             }`}
           ></span>
         </button>
 
         {/* Navigation Links */}
         <div
-          className={`flex md:flex-row flex-col items-center md:items-center md:static absolute top-full left-0 right-0
-  md:bg-transparent bg-white/95 border-t border-white/20 md:border-none
-  shadow-xl md:shadow-none md:gap-2 lg:gap-4 gap-3 p-6 md:p-0 transition-all duration-500 ease-in-out
-  ${isMenuOpen ? "flex opacity-100 translate-y-0" : "hidden md:flex opacity-0 md:opacity-100 -translate-y-4 md:translate-y-0"}`}
+          className={`flex lg:flex-row flex-col items-center lg:items-center lg:static absolute top-full left-0 right-0
+  lg:bg-transparent bg-white/95 border-t border-white/20 lg:border-none
+  shadow-xl lg:shadow-none lg:gap-1 xl:gap-2 2xl:gap-4 gap-3 p-4 lg:p-0 transition-all duration-500 ease-in-out
+  max-h-[calc(100vh-60px)] overflow-y-auto lg:max-h-none lg:overflow-visible
+  ${isMenuOpen ? "flex opacity-100 translate-y-0" : "hidden lg:flex opacity-0 lg:opacity-100 -translate-y-4 lg:translate-y-0"}`}
         >
           {/* Desktop Navigation with Flowing Indicator */}
           <div 
             ref={navRef}
-            className="hidden md:flex relative items-center gap-2 lg:gap-4"
+            className="hidden lg:flex relative items-center gap-1 xl:gap-2 2xl:gap-4"
             onMouseLeave={handleMouseLeave}
           >
             {/* Flowing Background Indicator */}
@@ -186,7 +188,7 @@ const Header = () => {
                 ref={(el) => linkRefs.current[path] = el}
                 onClick={() => setIsMenuOpen(false)}
                 onMouseEnter={() => handleMouseEnter(path)}
-                className={`relative z-10 text-base lg:text-lg px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 ${
+                className={`relative z-10 text-sm lg:text-base xl:text-lg px-2 lg:px-3 xl:px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 whitespace-nowrap ${
                   location.pathname === path
                     ? "text-white font-bold"
                     : "text-white/90 hover:text-white"
@@ -196,41 +198,41 @@ const Header = () => {
               </Link>
             ))}
 
-            {/* Cart Icon - Now inside the navigation container */}
+            {/* Cart Icon - Desktop */}
             <Link
               to="/cart"
               ref={(el) => linkRefs.current['cart'] = el}
               onClick={handleCartClick}
               onMouseEnter={() => handleMouseEnter('cart')}
-              className={`relative z-10 p-3 rounded-full transition-all duration-300 transform hover:scale-110 ${
+              className={`relative z-10 p-2 lg:p-3 rounded-full transition-all duration-300 transform hover:scale-110 ${
                 isCartPath
                   ? "text-white font-bold"
                   : "text-white/90 hover:text-white"
               }`}
             >
-              <ShoppingCart className="w-5 h-5 lg:w-6 lg:h-6" />
+              <ShoppingCart className="w-4 h-4 lg:w-5 lg:h-5 xl:w-6 xl:h-6" />
               
               {/* Cart Item Count Badge */}
               {cartItemCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[20px] h-5 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1.5 shadow-lg animate-pulse">
+                <span className="absolute -top-1 -right-1 min-w-[16px] lg:min-w-[20px] h-4 lg:h-5 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1 lg:px-1.5 shadow-lg animate-pulse">
                   {cartItemCount > 99 ? '99+' : cartItemCount}
                 </span>
               )}
               
-              {/* Pulse indicator when cart is empty (optional) */}
+              {/* Pulse indicator when cart is empty */}
               {cartItemCount === 0 && (
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-pink-400/50 rounded-full"></span>
+                <span className="absolute -top-1 -right-1 w-2 lg:w-3 h-2 lg:h-3 bg-pink-400/50 rounded-full"></span>
               )}
             </Link>
 
-            {/* User Profile - Now inside the navigation container */}
+            {/* User Profile - Desktop */}
             {isAuthenticated && user && (
               <div className="relative inline-block" ref={dropdownRef}>
                 <button
                   onClick={handleProfileClick}
                   onMouseEnter={() => handleMouseEnter('profile')}
                   ref={(el) => linkRefs.current['profile'] = el}
-                  className={`relative z-10 w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-gradient-to-r from-white/20 to-pink-200/30 backdrop-blur-sm overflow-hidden cursor-pointer flex items-center justify-center select-none transition-all duration-300 transform hover:scale-110 hover:shadow-xl border-2 focus:outline-none focus:ring-2 focus:ring-white/50 ${
+                  className={`relative z-10 w-8 h-8 lg:w-10 lg:h-10 xl:w-12 xl:h-12 rounded-full bg-gradient-to-r from-white/20 to-pink-200/30 backdrop-blur-sm overflow-hidden cursor-pointer flex items-center justify-center select-none transition-all duration-300 transform hover:scale-110 hover:shadow-xl border-2 focus:outline-none focus:ring-2 focus:ring-white/50 ${
                     isProfilePath
                       ? "border-white/50 shadow-xl"
                       : "border-white/30"
@@ -254,11 +256,11 @@ const Header = () => {
                     className={`w-full h-full flex items-center justify-center ${user.profileImage ? 'hidden' : 'flex'}`}
                   >
                     {user.name ? (
-                      <span className={`font-bold text-lg lg:text-xl ${isProfilePath ? 'text-white' : 'text-white'}`}>
+                      <span className={`font-bold text-sm lg:text-lg xl:text-xl ${isProfilePath ? 'text-white' : 'text-white'}`}>
                         {user.name.charAt(0).toUpperCase()}
                       </span>
                     ) : (
-                      <User className={`w-5 h-5 lg:w-6 lg:h-6 ${isProfilePath ? 'text-white' : 'text-white'}`} />
+                      <User className={`w-3 h-3 lg:w-5 lg:h-5 xl:w-6 xl:h-6 ${isProfilePath ? 'text-white' : 'text-white'}`} />
                     )}
                   </div>
                 </button>
@@ -268,58 +270,96 @@ const Header = () => {
             )}
           </div>
 
-          {/* Mobile Navigation (No flowing indicator, simpler) */}
-          <div className="md:hidden flex flex-col items-center gap-3 w-full">
-            {navItems.map(({ path, label }) => (
+          {/* Mobile/Tablet Navigation (Landscape and Portrait) */}
+          <div className="lg:hidden flex flex-col items-center gap-2 sm:gap-3 w-full max-w-sm mx-auto">
+            {/* Grid layout for landscape mobile screens */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 w-full sm:hidden landscape:grid landscape:grid-cols-3 landscape:gap-2">
+              {navItems.map(({ path, label }) => (
+                <Link
+                  key={path}
+                  to={path}
+                  onClick={() => setIsMenuOpen(false)}
+                  className={`text-xs px-2 py-1.5 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 text-center ${
+                    location.pathname === path
+                      ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg font-bold"
+                      : "text-gray-700 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:text-white hover:shadow-lg"
+                  }`}
+                >
+                  {label}
+                </Link>
+              ))}
+            </div>
+
+            {/* Standard mobile layout for portrait */}
+            <div className="hidden sm:flex flex-col gap-3 w-full landscape:hidden">
+              {navItems.map(({ path, label }) => (
+                <Link
+                  key={path}
+                  to={path}
+                  onClick={() => setIsMenuOpen(false)}
+                  className={`text-sm sm:text-base px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 text-center ${
+                    location.pathname === path
+                      ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg font-bold"
+                      : "text-gray-700 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:text-white hover:shadow-lg"
+                  }`}
+                >
+                  {label}
+                </Link>
+              ))}
+            </div>
+
+            {/* Mobile Cart and Profile Section */}
+            <div className="flex items-center justify-center gap-3 sm:gap-4 w-full pt-2 border-t border-gray-200/50">
+              {/* Mobile Cart Link */}
               <Link
-                key={path}
-                to={path}
-                onClick={() => setIsMenuOpen(false)}
-                className={`text-base lg:text-lg px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 ${
-                  location.pathname === path
+                to="/cart"
+                onClick={handleCartClick}
+                className={`text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 flex items-center gap-1 sm:gap-2 relative ${
+                  isCartPath
                     ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg font-bold"
                     : "text-gray-700 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:text-white hover:shadow-lg"
                 }`}
               >
-                {label}
+                <div className="relative">
+                  <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
+                  {/* Mobile Cart Count Badge */}
+                  {cartItemCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[14px] sm:min-w-[18px] h-3 sm:h-4 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1 shadow-lg">
+                      {cartItemCount > 99 ? '99+' : cartItemCount}
+                    </span>
+                  )}
+                </div>
+                <span className="hidden sm:inline">Cart</span>
+                <span className="sm:hidden">({cartItemCount})</span>
               </Link>
-            ))}
 
-            {/* Mobile Cart Link */}
-            <Link
-              to="/cart"
-              onClick={handleCartClick}
-              className={`text-base lg:text-lg px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 flex items-center gap-2 relative ${
-                isCartPath
-                  ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg font-bold"
-                  : "text-gray-700 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:text-white hover:shadow-lg"
-              }`}
-            >
-              <div className="relative">
-                <ShoppingCart className="w-5 h-5" />
-                {/* Mobile Cart Count Badge */}
-                {cartItemCount > 0 && (
-                  <span className="absolute -top-2 -right-2 min-w-[18px] h-4 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1 shadow-lg">
-                    {cartItemCount > 99 ? '99+' : cartItemCount}
-                  </span>
-                )}
-              </div>
-              <span>Cart {cartItemCount > 0 && `(${cartItemCount})`}</span>
-            </Link>
-
-            {/* Mobile Profile Link */}
-            {isAuthenticated && user && (
-              <button
-                onClick={handleProfileClick}
-                className={`text-base lg:text-lg px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 ${
-                  isProfilePath
-                    ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg font-bold"
-                    : "text-gray-700 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:text-white hover:shadow-lg"
-                }`}
-              >
-                Profile
-              </button>
-            )}
+              {/* Mobile Profile Link */}
+              {isAuthenticated && user && (
+                <button
+                  onClick={handleProfileClick}
+                  className={`text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 flex items-center gap-1 sm:gap-2 ${
+                    isProfilePath
+                      ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg font-bold"
+                      : "text-gray-700 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:text-white hover:shadow-lg"
+                  }`}
+                >
+                  {user.profileImage ? (
+                    <img
+                      src={user.profileImage}
+                      alt="Profile"
+                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+                      <span className="text-xs text-white font-bold">
+                        {user.name?.charAt(0).toUpperCase() || 'U'}
+                      </span>
+                    </div>
+                  )}
+                  <span>Profile</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </nav>
