@@ -22,7 +22,7 @@ const ForgotPassword = () => {
       setMessage(data.message || "Reset email sent successfully!")
       setEmailSent(true)
     } catch (err) {
-      setError(err.message || "Something went wrong. Please try again.")
+      setError(err.response?.data?.message || "Something went wrong. Please try again.")
     } finally {
       setLoading(false)
     }

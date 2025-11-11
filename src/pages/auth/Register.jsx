@@ -31,7 +31,7 @@ const Register = () => {
     try {
       await signup(name, email, phone, password, confirmPassword)
     } catch (err) {
-      setError(err.message || "Signup failed.")
+      setError(err.response?.data?.message || "Signup failed.")
     } finally {
       setLoading(false)
     }
