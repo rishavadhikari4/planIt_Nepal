@@ -105,7 +105,6 @@ const Admin = () => {
     { id: "orders", label: "Orders", icon: Package, color: "from-blue-500 to-indigo-600", count: orders.length, loading: loadingStates.orders, error: errorStates.orders },
     { id: "users", label: "Users", icon: Users, color: "from-emerald-500 to-teal-600", count: users.length, loading: loadingStates.users, error: errorStates.users },
     { id: "review", label: "Reviews", icon: Star, color: "from-amber-500 to-orange-600", count: reviews.length, loading: loadingStates.reviews, error: errorStates.reviews },
-    { id: "settings", label: "Settings", icon: Settings, color: "from-slate-500 to-zinc-600", disabled: true },
   ]
 
   const calculateAverageRating = () => {

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { getAllVenues, searchVenues } from "../../services/venues"
 import { toast } from "react-toastify"
-import { MapPin, Users, Star, Heart, Search, Filter, Sparkles, Eye, ChevronLeft, ChevronRight } from "lucide-react"
+import { MapPin, Users, Star, Heart, Search, Filter,Landmark, Eye, ChevronLeft, ChevronRight } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
 const Venues = () => {
@@ -375,7 +375,7 @@ const Venues = () => {
             }}
           >
             <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-xl">
-              <Sparkles className="w-10 h-10 text-white" />
+              <Landmark className="w-10 h-10 text-white" />
             </div>
           </motion.div>
           <motion.h1

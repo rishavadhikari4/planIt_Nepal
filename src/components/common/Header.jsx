@@ -1,6 +1,6 @@
 import { useContext, useState, useRef, useEffect } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { ShoppingCart, User } from "lucide-react"
+import { ShoppingCart, User,MessageCircle, Camera,ChefHat, Landmark, House } from "lucide-react"
 import { AuthContext } from "../../context/AuthContext"
 import { useCart } from "../../context/CartContext"
 import { toast } from "react-toastify"
@@ -21,12 +21,12 @@ const Header = () => {
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen)
 
   const navItems = [
-    ...(isAuthenticated ? [] : [{ path: "/login", label: "Login" }]),
-    { path: "/", label: "Home" },
-    { path: "/venues", label: "Venues" },
-    { path: "/cuisines", label: "Catering" },
-    { path: "/studios", label: "Studios" },
-    { path: "/contact", label: "About Us" }
+    ...(isAuthenticated ? [] : [{ path: "/login", label: "Login", icon: User }]),
+    { path: "/", label: "Home", icon: House },
+    { path: "/venues", label: "Venues", icon: Landmark },
+    { path: "/cuisines", label: "Catering", icon: ChefHat },
+    { path: "/studios", label: "Studios", icon: Camera },
+    { path: "/contact", label: "About Us", icon: MessageCircle }
   ]
 
   const isProfilePath = location.pathname.startsWith('/user-profile')
@@ -181,20 +181,22 @@ const Header = () => {
               }}
             />
             
-            {navItems.map(({ path, label }) => (
+            {navItems.map(({ path, label, icon: Icon }) => (
               <Link
                 key={path}
                 to={path}
                 ref={(el) => linkRefs.current[path] = el}
                 onClick={() => setIsMenuOpen(false)}
                 onMouseEnter={() => handleMouseEnter(path)}
-                className={`relative z-10 text-sm lg:text-base xl:text-lg px-2 lg:px-3 xl:px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 whitespace-nowrap ${
+                className={`relative z-10 text-sm lg:text-base xl:text-lg px-2 lg:px-3 xl:px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 whitespace-nowrap flex items-center gap-1.5 ${
                   location.pathname === path
                     ? "text-white font-bold"
                     : "text-white/90 hover:text-white"
                 }`}
               >
-                {label}
+                {Icon && <Icon className="w-4 h-4 lg:w-4 lg:h-4 xl:w-5 xl:h-5 flex-shrink-0" />}
+                <span className="hidden xl:inline">{label}</span>
+                <span className="xl:hidden">{label.split(' ')[0]}</span>
               </Link>
             ))}
 
@@ -274,36 +276,38 @@ const Header = () => {
           <div className="lg:hidden flex flex-col items-center gap-2 sm:gap-3 w-full max-w-sm mx-auto">
             {/* Grid layout for landscape mobile screens */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 w-full sm:hidden landscape:grid landscape:grid-cols-3 landscape:gap-2">
-              {navItems.map(({ path, label }) => (
+              {navItems.map(({ path, label, icon: Icon }) => (
                 <Link
                   key={path}
                   to={path}
                   onClick={() => setIsMenuOpen(false)}
-                  className={`text-xs px-2 py-1.5 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 text-center ${
+                  className={`text-xs px-2 py-1.5 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 text-center flex flex-col items-center gap-1 ${
                     location.pathname === path
                       ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg font-bold"
                       : "text-gray-700 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:text-white hover:shadow-lg"
                   }`}
                 >
-                  {label}
+                  {Icon && <Icon className="w-4 h-4 flex-shrink-0" />}
+                  <span className="text-xs leading-tight">{label.split(' ')[0]}</span>
                 </Link>
               ))}
             </div>
 
             {/* Standard mobile layout for portrait */}
             <div className="hidden sm:flex flex-col gap-3 w-full landscape:hidden">
-              {navItems.map(({ path, label }) => (
+              {navItems.map(({ path, label, icon: Icon }) => (
                 <Link
                   key={path}
                   to={path}
                   onClick={() => setIsMenuOpen(false)}
-                  className={`text-sm sm:text-base px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 text-center ${
+                  className={`text-sm sm:text-base px-4 py-3 rounded-full font-medium transition-all duration-300 transform hover:scale-105 text-center flex items-center justify-center gap-2 ${
                     location.pathname === path
                       ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg font-bold"
                       : "text-gray-700 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:text-white hover:shadow-lg"
                   }`}
                 >
-                  {label}
+                  {Icon && <Icon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />}
+                  <span>{label}</span>
                 </Link>
               ))}
             </div>
@@ -321,7 +325,7 @@ const Header = () => {
                 }`}
               >
                 <div className="relative">
-                  <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
                   {/* Mobile Cart Count Badge */}
                   {cartItemCount > 0 && (
                     <span className="absolute -top-1 -right-1 min-w-[14px] sm:min-w-[18px] h-3 sm:h-4 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1 shadow-lg">
@@ -347,10 +351,10 @@ const Header = () => {
                     <img
                       src={user.profileImage}
                       alt="Profile"
-                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-full object-cover"
+                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-full object-cover flex-shrink-0"
                     />
                   ) : (
-                    <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
                       <span className="text-xs text-white font-bold">
                         {user.name?.charAt(0).toUpperCase() || 'U'}
                       </span>

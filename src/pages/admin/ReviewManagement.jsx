@@ -149,12 +149,6 @@ const AdminReviews = () => {
             <p className="text-slate-600 text-lg">Manage and moderate customer feedback and ratings</p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white rounded-xl hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 transition-all duration-150 shadow-lg hover:shadow-xl transform hover:scale-105">
-              <Download className="w-5 h-5" />
-              <span className="font-medium">Export</span>
-            </button>
-          </div>
         </div>
 
         {/* Stats Cards */}
