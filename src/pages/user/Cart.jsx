@@ -137,10 +137,10 @@ const Cart = () => {
             </div>
           </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
-            Your Wedding Cart
+            Your Cart
           </h1>
           <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
-            Review your selected items and proceed to create your perfect wedding day
+            Review your selected items and proceed to create your perfect event
           </p>
         </motion.div>
 

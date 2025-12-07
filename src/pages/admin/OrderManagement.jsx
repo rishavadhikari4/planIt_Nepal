@@ -490,7 +490,7 @@ const AdminOrderList = () => {
                         {/* Order total and payment info */}
                         <div className="text-right">
                           <div className="text-lg sm:text-xl font-bold text-green-600 mb-1">
-                            ${order.totalAmount?.toLocaleString() || '0'}
+                            Rs {order.totalAmount?.toLocaleString() || '0'}
                           </div>
                           <div className="flex flex-col gap-1">
                             <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${getPaymentStatusColor(order.paymentStatus)}`}>
@@ -502,7 +502,7 @@ const AdminOrderList = () => {
                             </div>
                             {order.remainingAmount > 0 && (
                               <div className="text-xs text-orange-600">
-                                Remaining: ${order.remainingAmount?.toLocaleString()}
+                                Remaining: Rs {order.remainingAmount?.toLocaleString()}
                               </div>
                             )}
                           </div>
@@ -560,7 +560,7 @@ const AdminOrderList = () => {
                                 <span>Qty: {item.quantity}</span>
                                 {item.price && (
                                   <span className="font-medium text-green-600">
-                                    ${(item.price * item.quantity).toLocaleString()}
+                                    Rs {(item.price * item.quantity).toLocaleString()}
                                   </span>
                                 )}
                               </div>

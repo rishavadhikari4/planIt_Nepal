@@ -787,9 +787,6 @@ const Cuisines = () => {
                   </span>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                  <span className="text-xs sm:text-sm text-purple-600 font-semibold">
-                    Total:Rs {Object.values(dishQuantities).reduce((sum, qty) => sum + qty, 0) * 1000}
-                  </span>
                   <motion.button
                     onClick={handleSubmit}
                     className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-medium text-xs sm:text-sm shadow-lg hover:shadow-xl transition-all duration-300"

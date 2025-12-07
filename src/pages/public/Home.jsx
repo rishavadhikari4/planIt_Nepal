@@ -196,7 +196,7 @@ const Home = () => {
                 whileTap="tap"
               >
                 <Wand2 className="w-6 h-6" />
-                <span>Get Perfect Wedding Package</span>
+                <span>Get Perfect Event Package</span>
                 <SparklesIcon className="w-5 h-5" />
               </motion.button>
             ) : (
@@ -421,7 +421,7 @@ const Home = () => {
                   </motion.div>
                   <div>
                     <p className="font-semibold text-gray-800 text-lg">Call Us</p>
-                    <p className="text-gray-600">(555) 987-6543</p>
+                    <p className="text-gray-600">(977) 987-6543345</p>
                   </div>
                 </motion.div>
               </div>

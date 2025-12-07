@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { getAllCuisines, deleteDish, deleteCuisine } from "../../services/cuisines"
 import { toast } from "react-toastify"
 import { motion, AnimatePresence } from "framer-motion"
-import { Plus, Search, Filter, Edit3, Trash2, ChefHat, Star, Clock, Users, Eye } from "lucide-react"
+import { Plus, Search, Filter, Edit3, Trash2, ChefHat, Clock, Users, Eye } from "lucide-react"
 
 const AdminCuisine = () => {
   const [categories, setCategories] = useState([])
@@ -163,7 +163,7 @@ const AdminCuisine = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
         {/* Category Badge */}
-        <div className="absolute top-3 left-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2 py-1 rounded-full text-xs font-semibold shadow-lg">
+        <div className="absolute top-3 left-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
           {categoryName}
         </div>
 
@@ -201,12 +201,8 @@ const AdminCuisine = () => {
               <span>{dish.prepTime} min</span>
             </div>
           )}
-          {dish.rating && (
-            <div className="flex items-center">
-              <Star className="w-3 h-3 text-yellow-400 fill-yellow-400 mr-1" />
-              <span>{dish.rating}</span>
-            </div>
-          )}
+          {/* Extra space for better layout balance */}
+          <div></div>
         </div>
 
         {/* Price */}

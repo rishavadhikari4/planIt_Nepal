@@ -227,7 +227,7 @@ const AdminVenues = () => {
         {/* Price */}
         <div className="mb-3">
           <span className="text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            ${venue.price || "0"}
+            Rs {venue.price || "0"}
           </span>
           <span className="text-gray-500 text-sm ml-1">per event</span>
         </div>

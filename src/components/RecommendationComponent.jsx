@@ -311,7 +311,7 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
           <Heart className="w-10 h-10 text-white" />
         </motion.div>
         <h3 className="text-2xl font-bold text-gray-800 mb-2">Your Preferences</h3>
-        <p className="text-gray-600">Help us personalize your wedding package</p>
+        <p className="text-gray-600">Help us personalize your event package</p>
       </div>
 
       {/* Location */}
@@ -428,7 +428,7 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
             <Award className="w-10 h-10 text-white" />
           </motion.div>
           <h3 className="text-2xl font-bold text-gray-800 mb-2">Your Perfect Package</h3>
-          <p className="text-gray-600">Curated just for your dream wedding</p>
+          <p className="text-gray-600">Curated just for your dream event</p>
         </div>
 
         {/* Package Overview */}
@@ -449,7 +449,7 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
             <div className="flex items-center text-green-600 bg-green-50 rounded-lg p-2">
               <PiggyBank className="w-4 h-4 mr-2" />
               <span className="font-semibold text-sm">
-                You saveRs {budgetAnalysis.savings?.toLocaleString()}!
+                You save Rs {budgetAnalysis.savings?.toLocaleString()}!
               </span>
             </div>
           )}
@@ -460,40 +460,35 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
           {/* Venue */}
           {pkg.venue && (
             <motion.div
-              className="bg-white rounded-xl p-3 border border-gray-200 shadow-sm"
+              className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
               whileHover={{ scale: 1.01, y: -1 }}
             >
-              <div className="flex items-center space-x-3">
+              <div className="flex items-start space-x-4">
                 <img
                   src={pkg.venue.venueImage || "/placeholder.svg"}
                   alt={pkg.venue.name}
-                  className="w-12 h-12 object-cover rounded-lg"
+                  className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <Building2 className="w-3 h-3 text-purple-500" />
-                    <h5 className="font-semibold text-sm text-gray-800 truncate">{pkg.venue.name}</h5>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Building2 className="w-4 h-4 text-purple-500 flex-shrink-0" />
+                    <h5 className="font-semibold text-gray-800 truncate">{pkg.venue.name}</h5>
                   </div>
-                  <p className="text-xs text-gray-600 truncate">{pkg.venue.location}</p>
-                  <div className="flex items-center space-x-3 mt-1">
-                    <span className="text-purple-600 font-semibold text-sm">
+                  <p className="text-sm text-gray-600 mb-2 truncate">{pkg.venue.location}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-purple-600 font-bold text-lg">
                       Rs {pkg.venue.price?.toLocaleString()}
                     </span>
-                    {pkg.venue.rating && (
-                      <div className="flex items-center">
-                        <Star className="w-3 h-3 text-yellow-400 fill-current mr-1" />
-                        <span className="text-xs">{pkg.venue.rating}</span>
-                      </div>
-                    )}
+                    <Rating value={pkg.venue.rating} reviews={pkg.venue.reviewsCount} />
                   </div>
                 </div>
                 <motion.button
                   onClick={() => navigate(`/venues/${pkg.venue._id}`)}
-                  className="p-1 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                  className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors flex-shrink-0"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
-                  <Eye className="w-3 h-3" />
+                  <Eye className="w-4 h-4" />
                 </motion.button>
               </div>
             </motion.div>
@@ -502,40 +497,35 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
           {/* Studio */}
           {pkg.studio && (
             <motion.div
-              className="bg-white rounded-xl p-3 border border-gray-200 shadow-sm"
+              className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
               whileHover={{ scale: 1.01, y: -1 }}
             >
-              <div className="flex items-center space-x-3">
+              <div className="flex items-start space-x-4">
                 <img
                   src={pkg.studio.studioImage || "/placeholder.svg"}
                   alt={pkg.studio.name}
-                  className="w-12 h-12 object-cover rounded-lg"
+                  className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <Camera className="w-3 h-3 text-purple-500" />
-                    <h5 className="font-semibold text-sm text-gray-800 truncate">{pkg.studio.name}</h5>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Camera className="w-4 h-4 text-purple-500 flex-shrink-0" />
+                    <h5 className="font-semibold text-gray-800 truncate">{pkg.studio.name}</h5>
                   </div>
-                  <p className="text-xs text-gray-600 truncate">{pkg.studio.location}</p>
-                  <div className="flex items-center space-x-3 mt-1">
-                    <span className="text-purple-600 font-semibold text-sm">
+                  <p className="text-sm text-gray-600 mb-2 truncate">{pkg.studio.location}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-purple-600 font-bold text-lg">
                       Rs {pkg.studio.price?.toLocaleString()}
                     </span>
-                    {pkg.studio.rating && (
-                      <div className="flex items-center">
-                        <Star className="w-3 h-3 text-yellow-400 fill-current mr-1" />
-                        <span className="text-xs">{pkg.studio.rating}</span>
-                      </div>
-                    )}
+                    <Rating value={pkg.studio.rating} reviews={pkg.studio.reviewsCount} />
                   </div>
                 </div>
                 <motion.button
                   onClick={() => navigate(`/studios/${pkg.studio._id}`)}
-                  className="p-1 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                  className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors flex-shrink-0"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
-                  <Eye className="w-3 h-3" />
+                  <Eye className="w-4 h-4" />
                 </motion.button>
               </div>
             </motion.div>
@@ -543,37 +533,32 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
 
           {/* Dishes */}
           {pkg.dishes && pkg.dishes.length > 0 && (
-            <div className="bg-white rounded-xl p-3 border border-gray-200 shadow-sm">
-              <div className="flex items-center space-x-2 mb-2">
-                <Utensils className="w-3 h-3 text-purple-500" />
-                <h5 className="font-semibold text-sm text-gray-800">
+            <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+              <div className="flex items-center gap-2 mb-3">
+                <Utensils className="w-4 h-4 text-purple-500" />
+                <h5 className="font-semibold text-gray-800">
                   Recommended Dishes ({pkg.dishes.length} items)
                 </h5>
               </div>
-              <div className="space-y-1 max-h-32 overflow-y-auto">
+              <div className="space-y-3 max-h-40 overflow-y-auto">
                 {pkg.dishes.map((dish, index) => (
-                  <div key={index} className="flex items-center justify-between py-1 border-b border-gray-100 last:border-0">
-                    <div className="flex items-center space-x-2">
+                  <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                    <div className="flex items-center gap-3">
                       <img
                         src={dish.image || "/placeholder.svg"}
                         alt={dish.name}
-                        className="w-6 h-6 object-cover rounded"
+                        className="w-10 h-10 object-cover rounded-lg"
                       />
                       <div>
-                        <div className="font-medium text-xs">{dish.name}</div>
+                        <div className="font-medium text-sm text-gray-800">{dish.name}</div>
                         <div className="text-xs text-gray-500">{dish.category}</div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-1">
-                      <span className="text-purple-600 font-semibold text-xs">
+                    <div className="text-right">
+                      <span className="text-purple-600 font-semibold text-sm block">
                         Rs {dish.price?.toLocaleString()}
                       </span>
-                      {dish.rating && (
-                        <div className="flex items-center">
-                          <Star className="w-2 h-2 text-yellow-400 fill-current mr-0.5" />
-                          <span className="text-xs">{dish.rating}</span>
-                        </div>
-                      )}
+                      <Rating value={dish.rating} size="text-xs" />
                     </div>
                   </div>
                 ))}
@@ -668,7 +653,7 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
           <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-4 text-white rounded-t-2xl flex-shrink-0">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-bold">Wedding Package Recommender</h2>
+                <h2 className="text-xl font-bold">Event Package Recommender</h2>
                 <p className="text-purple-100 text-sm">Step {step} of 3</p>
               </div>
               <motion.button
@@ -703,6 +688,46 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
         </motion.div>
       </motion.div>
     </AnimatePresence>
+  )
+}
+
+// Improved Rating component with better UI and conditional display
+const Rating = ({ value = 0, reviews = null, size = "text-xs" }) => {
+  const num = Number(value) || 0
+  
+  // Don't render anything if rating is 0 or invalid
+  if (num <= 0) return null
+  
+  const clamped = Math.max(0, Math.min(5, num))
+  const percentage = (clamped / 5) * 100
+  
+  // Show integer without ".0", otherwise one decimal place
+  const display = Number.isInteger(num) ? String(num) : num.toFixed(1)
+
+  return (
+    <div className="flex items-center gap-1.5" aria-label={`Rating ${num} out of 5`}>
+      <div className={`relative ${size} flex items-center`}>
+        {/* Background stars */}
+        <div className="text-gray-200" aria-hidden="true">
+          ★★★★★
+        </div>
+        {/* Filled stars overlay */}
+        <div
+          className="absolute top-0 left-0 overflow-hidden text-amber-400"
+          style={{ width: `${percentage}%` }}
+          aria-hidden="true"
+        >
+          ★★★★★
+        </div>
+      </div>
+      
+      <div className="flex items-center gap-0.5">
+        <span className={`font-medium text-gray-700 ${size}`}>{display}</span>
+        {reviews && reviews > 0 && (
+          <span className="text-[10px] text-gray-400">({reviews})</span>
+        )}
+      </div>
+    </div>
   )
 }
 

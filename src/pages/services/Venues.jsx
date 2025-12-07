@@ -832,7 +832,7 @@ const Venues = () => {
                     {showPreview.price && (
                       <div className="text-left sm:text-right">
                         <span className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                          ${showPreview.price.toLocaleString()}
+                          Rs {showPreview.price.toLocaleString()}
                         </span>
                         <span className="text-gray-500 text-sm ml-1">per event</span>
                       </div>

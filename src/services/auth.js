@@ -3,7 +3,7 @@ import API from "./api";
 
 export const postForgotEmail = async (email) => {
   try {
-    const response = await API.post('/api/password/forgotpassword', { email });
+    const response = await API.post('/api/passwords/forgot', { email });
     return response.data;
   } catch (error) {
     console.error('Error posting for the password', error);
@@ -15,7 +15,7 @@ export const postForgotEmail = async (email) => {
 
 export const postResetPassword = async (token, newPassword, confirmNewPassword) => {
   try {
-    const response = await API.post(`/api/password/resetpassword/${token}`, {
+    const response = await API.post(`/api/passwords/forgot/${token}`, {
       newPassword,
       confirmNewPassword
     });
@@ -31,7 +31,7 @@ export const postResetPassword = async (token, newPassword, confirmNewPassword) 
 
 export const changePassword = async (currentPassword, newPassword, confirmNewPassword) => {
   try {
-    const response = await API.patch(`/api/password/changepassword`, {
+    const response = await API.patch(`/api/passwords/change`, {
       currentPassword,
       newPassword,
       confirmNewPassword

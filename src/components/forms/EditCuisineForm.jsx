@@ -111,10 +111,19 @@ const EditCuisines = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-        <div className="relative">
-          <div className="w-16 h-16 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin"></div>
-          <div className="w-12 h-12 border-4 border-pink-200 border-t-pink-600 rounded-full absolute top-2 left-2 animate-pulse"></div>
-        </div>
+        <motion.div 
+          className="text-center"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="relative mb-4">
+            <div className="w-20 h-20 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto"></div>
+            <div className="w-14 h-14 border-4 border-pink-200 border-t-pink-600 rounded-full absolute top-3 left-1/2 transform -translate-x-1/2 animate-pulse" style={{ animationDirection: "reverse", animationDuration: "1.5s" }}></div>
+          </div>
+          <h2 className="text-xl font-semibold text-gray-700 mb-2">Loading Dish Details</h2>
+          <p className="text-gray-500">Please wait while we fetch the dish information...</p>
+        </motion.div>
       </div>
     )
   }
@@ -247,27 +256,40 @@ const EditCuisines = () => {
                         src={imagePreview || "/placeholder.svg"}
                         alt="Preview"
                         className="w-full h-64 object-cover"
+                        onLoad={() => {
+                          // Image loaded successfully
+                        }}
+                        onError={(e) => {
+                          e.target.src = "/placeholder.svg"
+                        }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                       <button
                         type="button"
                         onClick={removeImagePreview}
-                        className="absolute top-3 right-3 w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors duration-200"
+                        className="absolute top-3 right-3 w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors duration-200 shadow-lg"
                       >
                         <X className="w-4 h-4" />
                       </button>
                     </div>
                   ) : (
-                    <div className="relative">
+                    <div className="relative group">
                       <input
                         type="file"
                         onChange={handleFileChange}
                         accept="image/*"
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                       />
-                      <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-purple-400 hover:bg-purple-50/50 transition-all duration-200">
-                        <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                        <p className="text-gray-600 font-medium mb-2">Click to upload new image</p>
+                      <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-purple-400 hover:bg-purple-50/50 transition-all duration-200 group-hover:scale-[1.02]">
+                        <div className="relative">
+                          <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4 group-hover:text-purple-500 transition-colors duration-200" />
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                          </div>
+                        </div>
+                        <p className="text-gray-600 font-medium mb-2 group-hover:text-purple-600 transition-colors duration-200">
+                          Click to upload new image
+                        </p>
                         <p className="text-sm text-gray-500">PNG, JPG, GIF up to 10MB</p>
                       </div>
                     </div>
@@ -277,12 +299,14 @@ const EditCuisines = () => {
                 {/* Upload Button for Mobile */}
                 {!imagePreview && (
                   <div className="lg:hidden">
-                    <input
-                      type="file"
-                      onChange={handleFileChange}
-                      accept="image/*"
-                      className="w-full text-sm text-gray-700 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-white file:bg-gradient-to-r file:from-purple-600 file:to-pink-600 hover:file:from-purple-700 hover:file:to-pink-700 file:font-semibold file:transition-all file:duration-200"
-                    />
+                    <div className="relative group">
+                      <input
+                        type="file"
+                        onChange={handleFileChange}
+                        accept="image/*"
+                        className="w-full text-sm text-gray-700 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-white file:bg-gradient-to-r file:from-purple-600 file:to-pink-600 hover:file:from-purple-700 hover:file:to-pink-700 file:font-semibold file:transition-all file:duration-200"
+                      />
+                    </div>
                   </div>
                 )}
 
@@ -290,7 +314,7 @@ const EditCuisines = () => {
                 <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
                   <h4 className="text-sm font-semibold text-blue-800 mb-2">Dish Details:</h4>
                   <div className="text-xs text-blue-600 space-y-1">
-                    <div>• Price: ${formData.price || "0"} per dish</div>
+                    <div>• Price: Rs {formData.price || "0"} per dish</div>
                     <div>• Name: {formData.name || "Not specified"}</div>
                     <div>• Description: {formData.description ? `${formData.description.slice(0, 50)}...` : "Not provided"}</div>
                   </div>

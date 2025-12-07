@@ -114,7 +114,7 @@ const Admin = () => {
   }
 
   const stats = [
-    { label: "Revenue", value: `$${totalRevenue.toLocaleString()}`, icon: HandCoins, color: "text-green-600", loading: loadingStates.orders, error: errorStates.orders },
+    { label: "Revenue", value: `Rs ${totalRevenue.toLocaleString()}`, icon: HandCoins, color: "text-green-600", loading: loadingStates.orders, error: errorStates.orders },
     { label: "Active", value: loadingStates.orders ? "..." : activeOrders.length.toString(), icon: Package, color: "text-blue-600", loading: loadingStates.orders, error: errorStates.orders },
     { label: "Users", value: loadingStates.users ? "..." : users.length.toString(), icon: Users, color: "text-purple-600", loading: loadingStates.users, error: errorStates.users },
     { label: "Avg Rating", value: loadingStates.reviews ? "..." : calculateAverageRating(), icon: Star, color: "text-yellow-600", loading: loadingStates.reviews, error: errorStates.reviews },

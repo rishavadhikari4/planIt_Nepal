@@ -37,7 +37,6 @@ function PaymentSelection() {
       } catch (error) {
         console.error('Error fetching order:', error)
         toast.error('Failed to load order details')
-        navigate('/user-profile')
       } finally {
         setFetchingOrder(false)
       }
@@ -151,7 +150,7 @@ function PaymentSelection() {
           className="flex items-center mb-8"
         >
           <button
-            onClick={() => navigate('/user-profile')}
+            onClick={() => navigate('/')}
             className="mr-4 p-2 rounded-full bg-white/40 backdrop-blur-sm border border-white/20 hover:bg-white/60 transition-all duration-300"
             disabled={loading}
           >

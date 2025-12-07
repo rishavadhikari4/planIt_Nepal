@@ -38,10 +38,33 @@ const OrdersComponent = ({ user }) => {
       try {
         setLoading(true)
         const ordersData = await getUserOrders()
-        setOrders(ordersData)
+        
+        if (Array.isArray(ordersData)) {
+          setOrders(ordersData)
+          
+          // Show appropriate toast message based on orders length
+          if (ordersData.length === 0) {
+            toast.info("You haven't placed any orders yet. Start planning your event!")
+          } else {
+            // Optionally show success message for loaded orders
+            toast.success(`${ordersData.length} order${ordersData.length > 1 ? 's' : ''} loaded successfully`)
+          }
+        } else {
+          // Handle case where ordersData is not an array
+          setOrders([])
+          toast.info("No orders found. Start planning your event!")
+        }
       } catch (error) {
         console.error("Failed to fetch orders:", error)
-        toast.error("Failed to load orders")
+        setOrders([])
+        
+        // Show specific error message based on error type
+        const errorMessage = 
+          error.response?.data?.message || 
+          error.message || 
+          "Failed to load your orders. Please try again."
+        
+        toast.info(errorMessage)
       } finally {
         setLoading(false)
       }
@@ -134,10 +157,10 @@ const OrdersComponent = ({ user }) => {
 
     switch (itemType) {
       case 'venue':
-        navigate(`/venue-details/${itemId}`)
+        navigate(`/venues/${itemId}`)
         break
       case 'studio':
-        navigate(`/studio-details/${itemId}`)
+        navigate(`/studios${itemId}`)
         break
       case 'dish':
       case 'cuisine':
@@ -177,37 +200,39 @@ const OrdersComponent = ({ user }) => {
         </h2>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search by order ID or item name..."
-            value={orderSearchTerm}
-            onChange={(e) => setOrderSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300"
-          />
+      {/* Show filters only if there are orders */}
+      {orders.length > 0 && (
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search by order ID or item name..."
+              value={orderSearchTerm}
+              onChange={(e) => setOrderSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300"
+            />
+          </div>
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <select
+              value={orderFilter}
+              onChange={(e) => setOrderFilter(e.target.value)}
+              className="pl-10 pr-8 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300 appearance-none cursor-pointer"
+            >
+              <option value="all">All Orders</option>
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+              <option value="draft">Draft</option>
+            </select>
+          </div>
         </div>
-        <div className="relative">
-          <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <select
-            value={orderFilter}
-            onChange={(e) => setOrderFilter(e.target.value)}
-            className="pl-10 pr-8 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300 appearance-none cursor-pointer"
-          >
-            <option value="all">All Orders</option>
-            <option value="pending">Pending</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
-            <option value="draft">Draft</option>
-          </select>
-        </div>
-      </div>
+      )}
 
       {/* Orders List */}
-      {filteredOrders.length === 0 ? (
+      {orders.length === 0 ? (
         <motion.div
           className="text-center py-12"
           initial={{ opacity: 0, scale: 0.9 }}
@@ -216,23 +241,39 @@ const OrdersComponent = ({ user }) => {
           <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-gray-200 to-purple-200 rounded-full flex items-center justify-center">
             <Package className="w-10 h-10 text-gray-400" />
           </div>
-          <h3 className="text-xl font-semibold text-gray-800 mb-2">
-            {orderSearchTerm || orderFilter !== 'all' ? 'No matching orders found' : 'No orders yet'}
-          </h3>
+          <h3 className="text-xl font-semibold text-gray-800 mb-2">No orders yet</h3>
           <p className="text-gray-600 mb-6">
-            {orderSearchTerm || orderFilter !== 'all' 
-              ? 'Try adjusting your search or filter criteria' 
-              : 'Start planning your dream wedding by placing your first order!'
-            }
+            Start planning your dream wedding by placing your first order!
           </p>
-          {!orderSearchTerm && orderFilter === 'all' && (
-            <button
-              onClick={() => navigate('/venues')}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105"
-            >
-              Browse Venues
-            </button>
-          )}
+          <button
+            onClick={() => navigate('/venues')}
+            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105"
+          >
+            Browse Venues
+          </button>
+        </motion.div>
+      ) : filteredOrders.length === 0 ? (
+        <motion.div
+          className="text-center py-12"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+        >
+          <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-gray-200 to-purple-200 rounded-full flex items-center justify-center">
+            <Search className="w-10 h-10 text-gray-400" />
+          </div>
+          <h3 className="text-xl font-semibold text-gray-800 mb-2">No matching orders found</h3>
+          <p className="text-gray-600 mb-6">
+            Try adjusting your search or filter criteria
+          </p>
+          <button
+            onClick={() => {
+              setOrderSearchTerm('')
+              setOrderFilter('all')
+            }}
+            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105"
+          >
+            Clear Filters
+          </button>
         </motion.div>
       ) : (
         <div className="space-y-4">

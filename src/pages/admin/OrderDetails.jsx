@@ -374,10 +374,10 @@ const OrderDetails = () => {
                             <span className="font-medium">Quantity:</span> {item.quantity}
                           </div>
                           <div>
-                            <span className="font-medium">Price:</span> ${item.price?.toLocaleString()}
+                            <span className="font-medium">Price:</span> Rs {item.price?.toLocaleString()}
                           </div>
                           <div>
-                            <span className="font-medium text-green-600">Total:</span> ${(item.price * item.quantity)?.toLocaleString()}
+                            <span className="font-medium text-green-600">Total:</span> Rs {(item.price * item.quantity)?.toLocaleString()}
                           </div>
                         </div>
                         
@@ -527,15 +527,15 @@ const OrderDetails = () => {
                   <div className="bg-gray-50 rounded-xl p-4">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-gray-600">Total Amount:</span>
-                      <span className="text-2xl font-bold text-gray-800">${order.totalAmount?.toLocaleString()}</span>
+                      <span className="text-2xl font-bold text-gray-800">Rs {order.totalAmount?.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-gray-600">Paid Amount:</span>
-                      <span className="text-lg font-semibold text-green-600">${order.paidAmount?.toLocaleString()}</span>
+                      <span className="text-lg font-semibold text-green-600">Rs {order.paidAmount?.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between items-center pt-2 border-t border-gray-200">
                       <span className="text-gray-600">Remaining Amount:</span>
-                      <span className="text-lg font-semibold text-orange-600">${order.remainingAmount?.toLocaleString()}</span>
+                      <span className="text-lg font-semibold text-orange-600">Rs {order.remainingAmount?.toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
