@@ -24,10 +24,10 @@ const NotFound = () => {
           404
         </p>
 
-        <h1 className="mt-8 text-[clamp(26px,4vw,38px)]">
+        <h1 className="mt-8 t-title">
           That page doesn&rsquo;t exist.
         </h1>
-        <p className="mt-4 max-w-[48ch] text-[16px] leading-relaxed text-ink-soft">
+        <p className="mt-4 max-w-[48ch] t-body leading-relaxed text-ink-soft">
           {state?.from
             ? `We couldn't find ${state.from}. It may have been removed, or the link may be wrong.`
             : "The link may be wrong, or whatever was here has been taken down."}
@@ -55,12 +55,12 @@ const NotFound = () => {
                   onClick={() => navigate(link.path)}
                   className="group flex w-full items-center gap-4 py-4 text-left"
                 >
-                  <span className="amount w-7 shrink-0 text-[12px] font-semibold text-brass-deep">
+                  <span className="amount w-7 shrink-0 t-caption font-semibold text-brass-deep">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-[15.5px] font-semibold text-ink">{link.label}</span>
-                    <span className="block text-[13.5px] text-ink-mute">{link.detail}</span>
+                    <span className="block t-body font-semibold text-ink">{link.label}</span>
+                    <span className="block t-small text-ink-mute">{link.detail}</span>
                   </span>
                   <ArrowRight
                     className="h-4 w-4 shrink-0 text-line-strong transition-all group-hover:translate-x-1 group-hover:text-brass"

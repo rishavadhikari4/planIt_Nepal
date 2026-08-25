@@ -138,7 +138,7 @@ function PaymentSelection() {
       <div className="flex min-h-[70vh] items-center justify-center bg-paper">
         <div className="flex items-center gap-3 text-ink-mute">
           <span className="loader" />
-          <span className="text-[14px]">Loading your order…</span>
+          <span className="t-small">Loading your order…</span>
         </div>
       </div>
     )
@@ -156,8 +156,8 @@ function PaymentSelection() {
         </button>
 
         <p className="eyebrow">Checkout</p>
-        <h1 className="mt-5 text-[34px] sm:text-[42px]">How would you like to pay?</h1>
-        <p className="mt-4 max-w-[52ch] text-[16px] leading-relaxed text-ink-soft">
+        <h1 className="mt-5 t-display">How would you like to pay?</h1>
+        <p className="mt-4 max-w-[52ch] t-body leading-relaxed text-ink-soft">
           Your order is held as a draft until this is done. Nothing is charged until you press
           confirm.
         </p>
@@ -167,7 +167,7 @@ function PaymentSelection() {
           <div>
             {/* Step 1 — amount */}
             <section>
-              <h2 className="flex items-center gap-3 font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-mute">
+              <h2 className="flex items-center gap-3 font-mono t-caption font-semibold uppercase tracking-[0.16em] text-ink-mute">
                 <span className="thread" />
                 Step 1 · How much now
               </h2>
@@ -199,17 +199,17 @@ function PaymentSelection() {
                       </span>
 
                       <span className="min-w-0 flex-1">
-                        <span className="block text-[15.5px] font-semibold text-ink">{option.title}</span>
-                        <span className="mt-1 block text-[13.5px] leading-relaxed text-ink-soft">
+                        <span className="block t-body font-semibold text-ink">{option.title}</span>
+                        <span className="mt-1 block t-small leading-relaxed text-ink-soft">
                           {option.detail}
                         </span>
                       </span>
 
                       <span className="shrink-0 text-right">
-                        <span className="amount block text-[17px] font-semibold text-ink">
+                        <span className="amount block t-lead font-semibold text-ink">
                           {option.due ? rs(option.due) : "Rs 0"}
                         </span>
-                        <span className="mt-0.5 block text-[12px] text-ink-mute">{option.note}</span>
+                        <span className="mt-0.5 block t-caption text-ink-mute">{option.note}</span>
                       </span>
                     </button>
                   )
@@ -220,7 +220,7 @@ function PaymentSelection() {
             {/* Step 2 — gateway */}
             {gatewayNeeded && (
               <section className="mt-10">
-                <h2 className="flex items-center gap-3 font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-mute">
+                <h2 className="flex items-center gap-3 font-mono t-caption font-semibold uppercase tracking-[0.16em] text-ink-mute">
                   <span className="thread" />
                   Step 2 · What you're paying with
                 </h2>
@@ -250,12 +250,12 @@ function PaymentSelection() {
                             style={{ background: g.dot }}
                             aria-hidden
                           />
-                          <span className="text-[15.5px] font-semibold text-ink">{g.name}</span>
+                          <span className="t-body font-semibold text-ink">{g.name}</span>
                           {selected && (
                             <Check className="ml-auto h-4 w-4 text-crimson" strokeWidth={2.5} />
                           )}
                         </span>
-                        <span className="mt-2 text-[13.5px] leading-relaxed text-ink-soft">
+                        <span className="mt-2 t-small leading-relaxed text-ink-soft">
                           {available ? g.detail : "Not available right now."}
                         </span>
                       </button>
@@ -270,7 +270,7 @@ function PaymentSelection() {
               <button
                 onClick={handleConfirm}
                 disabled={submitting || (gatewayNeeded && !methods[gateway])}
-                className="btn btn-accent h-13 w-full py-4 text-[15.5px]"
+                className="btn btn-accent h-13 w-full py-4 t-body"
               >
                 {submitting ? (
                   <>
@@ -290,7 +290,7 @@ function PaymentSelection() {
                 )}
               </button>
 
-              <p className="mt-4 flex items-start gap-2 text-[12.5px] leading-relaxed text-ink-mute">
+              <p className="mt-4 flex items-start gap-2 t-caption leading-relaxed text-ink-mute">
                 <ShieldCheck className="mt-px h-4 w-4 shrink-0" strokeWidth={1.75} />
                 {gatewayNeeded
                   ? `You'll finish on ${chosenGateway?.name}'s own secure page and come straight back here. We never see or store your wallet, bank or card details.`
@@ -303,10 +303,10 @@ function PaymentSelection() {
           <aside className="lg:sticky lg:top-24 lg:self-start">
             <div className="card overflow-hidden">
               <div className="flex items-baseline justify-between border-b border-line px-5 py-4">
-                <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-mute">
+                <h2 className="font-mono t-caption font-semibold uppercase tracking-[0.16em] text-ink-mute">
                   Order
                 </h2>
-                <span className="amount text-[12px] text-ink-mute">
+                <span className="amount t-caption text-ink-mute">
                   #{orderId?.slice(-8).toUpperCase()}
                 </span>
               </div>
@@ -315,13 +315,13 @@ function PaymentSelection() {
                 {order?.items?.map((item, i) => (
                   <li key={item._id || i} className="flex items-baseline gap-3 px-5 py-3.5">
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[14px] text-ink">{item.name}</span>
-                      <span className="block text-[12px] capitalize text-ink-mute">
+                      <span className="block truncate t-small text-ink">{item.name}</span>
+                      <span className="block t-caption capitalize text-ink-mute">
                         {item.itemType}
                         {item.quantity > 1 && ` · ${item.quantity}`}
                       </span>
                     </span>
-                    <span className="amount shrink-0 text-[13.5px] text-ink-soft">
+                    <span className="amount shrink-0 t-small text-ink-soft">
                       {rs(item.price * item.quantity)}
                     </span>
                   </li>
@@ -330,22 +330,22 @@ function PaymentSelection() {
 
               <div className="space-y-2.5 border-t border-line px-5 py-4">
                 <div className="flex items-baseline justify-between">
-                  <span className="text-[14px] text-ink-soft">Order total</span>
-                  <span className="amount text-[15px] text-ink">{rs(total)}</span>
+                  <span className="t-small text-ink-soft">Order total</span>
+                  <span className="amount t-body text-ink">{rs(total)}</span>
                 </div>
                 <div className="flex items-baseline justify-between border-t border-line pt-2.5">
-                  <span className="text-[14.5px] font-semibold text-ink">Due now</span>
-                  <span className="amount text-[22px] font-semibold text-crimson">{rs(dueNow)}</span>
+                  <span className="t-body font-semibold text-ink">Due now</span>
+                  <span className="amount t-heading font-semibold text-crimson">{rs(dueNow)}</span>
                 </div>
                 {dueNow !== total && (
-                  <p className="text-[12.5px] text-ink-mute">
+                  <p className="t-caption text-ink-mute">
                     {rs(total - dueNow)} is collected after the event.
                   </p>
                 )}
               </div>
             </div>
 
-            <p className="mt-5 text-[12.5px] leading-relaxed text-ink-mute">
+            <p className="mt-5 t-caption leading-relaxed text-ink-mute">
               A receipt and the full booking details go to your email as soon as this is confirmed.
               You can track the order any time from your profile.
             </p>

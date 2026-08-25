@@ -34,7 +34,7 @@ const STEPS = ["Budget", "Preferences", "Your package"]
 
 const Rating = ({ value }) =>
   value ? (
-    <span className="inline-flex items-center gap-1 text-[12px] text-ink-mute">
+    <span className="inline-flex items-center gap-1 t-caption text-ink-mute">
       <Star className="h-3 w-3 fill-brass text-brass" strokeWidth={1.5} />
       <span className="amount">{value}</span>
     </span>
@@ -49,12 +49,12 @@ const PackageRow = ({ image, name, meta, price }) => (
       className="h-14 w-14 shrink-0 rounded-md border border-line object-cover"
     />
     <div className="min-w-0 flex-1">
-      <p className="truncate text-[14.5px] font-semibold text-ink">{name}</p>
-      <div className="mt-0.5 flex flex-wrap items-center gap-x-3 text-[12.5px] text-ink-mute">
+      <p className="truncate t-body font-semibold text-ink">{name}</p>
+      <div className="mt-0.5 flex flex-wrap items-center gap-x-3 t-caption text-ink-mute">
         {meta}
       </div>
     </div>
-    <span className="amount shrink-0 text-[14px] font-semibold text-ink">{rs(price)}</span>
+    <span className="amount shrink-0 t-small font-semibold text-ink">{rs(price)}</span>
   </li>
 )
 
@@ -165,7 +165,7 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
         {STEPS.map((label, i) => (
           <li key={label} className="flex flex-1 items-center gap-2">
             <span
-              className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold ${
+              className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full t-caption font-semibold ${
                 i < step
                   ? "bg-crimson text-white"
                   : i === step
@@ -176,7 +176,7 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
               {i < step ? <Check className="h-3 w-3" strokeWidth={3} /> : i + 1}
             </span>
             <span
-              className={`hidden text-[12.5px] sm:block ${
+              className={`hidden t-caption sm:block ${
                 i === step ? "font-semibold text-ink" : "text-ink-mute"
               }`}
             >
@@ -198,7 +198,7 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
             transition={{ duration: 0.22 }}
             className="space-y-5"
           >
-            <p className="text-[14.5px] leading-relaxed text-ink-soft">
+            <p className="t-body leading-relaxed text-ink-soft">
               Every field here is optional. Fill in what you know and we&rsquo;ll work around the
               rest.
             </p>
@@ -330,20 +330,20 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
           >
             <div className="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-5">
               <div>
-                <p className="text-[13.5px] text-ink-mute">Package total</p>
-                <p className="amount mt-1 text-[30px] font-semibold text-ink">
+                <p className="t-small text-ink-mute">Package total</p>
+                <p className="amount mt-1 t-title font-semibold text-ink">
                   {rs(pkg.totalPrice)}
                 </p>
               </div>
               {analysis && (
                 <div className="text-right">
                   {analysis.savings > 0 && (
-                    <p className="amount text-[14px] font-semibold text-green-700">
+                    <p className="amount t-small font-semibold text-green-700">
                       {rs(analysis.savings)} under budget
                     </p>
                   )}
                   {analysis.budgetUtilization && (
-                    <p className="amount mt-0.5 text-[12.5px] text-ink-mute">
+                    <p className="amount mt-0.5 t-caption text-ink-mute">
                       {analysis.budgetUtilization}% of your budget
                     </p>
                   )}
@@ -405,7 +405,7 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
                     <p className="eyebrow">Why this works</p>
                     <ul className="mt-3 space-y-1.5">
                       {insights.benefits.slice(0, 3).map((benefit, i) => (
-                        <li key={i} className="text-[13.5px] leading-relaxed text-ink-soft">
+                        <li key={i} className="t-small leading-relaxed text-ink-soft">
                           {benefit}
                         </li>
                       ))}
@@ -415,10 +415,10 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
 
                 {insights.recommendations?.length > 0 && (
                   <div className="rounded-lg border border-orange-200 bg-orange-50 p-4">
-                    <p className="text-[13px] font-semibold text-orange-800">Worth considering</p>
+                    <p className="t-small font-semibold text-orange-800">Worth considering</p>
                     <ul className="mt-2 space-y-1.5">
                       {insights.recommendations.slice(0, 2).map((rec, i) => (
-                        <li key={i} className="text-[13px] leading-relaxed text-orange-800/85">
+                        <li key={i} className="t-small leading-relaxed text-orange-800/85">
                           {rec}
                         </li>
                       ))}
@@ -428,7 +428,7 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
               </div>
             )}
 
-            <p className="mt-6 text-[12.5px] leading-relaxed text-ink-mute">
+            <p className="mt-6 t-caption leading-relaxed text-ink-mute">
               Venues and studios still need dates — pick those in your cart before checking out.
             </p>
 

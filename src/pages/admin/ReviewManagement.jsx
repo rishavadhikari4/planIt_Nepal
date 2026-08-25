@@ -170,7 +170,7 @@ const AdminReviews = ({ embedded }) => {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-                    <span className="text-[15px] font-semibold text-ink">
+                    <span className="t-body font-semibold text-ink">
                       {review.user?.name || "Anonymous"}
                     </span>
                     <Stars rating={Number(review.rating) || 0} />
@@ -178,7 +178,7 @@ const AdminReviews = ({ embedded }) => {
                       {review.verified ? "Published" : "Awaiting review"}
                     </StatusBadge>
                   </div>
-                  <p className="amount mt-1 text-[12px] text-ink-mute">
+                  <p className="amount mt-1 t-caption text-ink-mute">
                     {formatDate(review.createdAt)}
                   </p>
                 </div>
@@ -187,7 +187,7 @@ const AdminReviews = ({ embedded }) => {
                   <button
                     onClick={() => publish(review)}
                     disabled={toggling === review._id}
-                    className="text-[13px] font-medium text-crimson hover:underline disabled:opacity-50"
+                    className="t-small font-medium text-crimson hover:underline disabled:opacity-50"
                   >
                     {toggling === review._id
                       ? "Saving…"
@@ -197,7 +197,7 @@ const AdminReviews = ({ embedded }) => {
                   </button>
                   <button
                     onClick={() => setPendingDelete(review)}
-                    className="text-[13px] font-medium text-ink-mute hover:text-red-600 hover:underline"
+                    className="t-small font-medium text-ink-mute hover:text-red-600 hover:underline"
                   >
                     Delete
                   </button>
@@ -205,7 +205,7 @@ const AdminReviews = ({ embedded }) => {
               </div>
 
               {review.comment && (
-                <p className="mt-3 max-w-[80ch] text-[14px] leading-relaxed text-ink-soft">
+                <p className="mt-3 max-w-[80ch] t-small leading-relaxed text-ink-soft">
                   {review.comment}
                 </p>
               )}

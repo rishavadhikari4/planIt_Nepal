@@ -62,8 +62,8 @@ const ContactForm = ({
 
   return (
     <div className={`card ${compact ? "p-6 sm:p-7" : "p-7 sm:p-9"} ${className}`}>
-      <h2 className="text-[22px]">{title}</h2>
-      <p className="mt-2 text-[14.5px] leading-relaxed text-ink-soft">{description}</p>
+      <h2 className="t-heading">{title}</h2>
+      <p className="mt-2 t-body leading-relaxed text-ink-soft">{description}</p>
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-5">
         <div className="grid gap-5 sm:grid-cols-2">
@@ -162,7 +162,7 @@ const ContactForm = ({
               </option>
             ))}
           </select>
-          <p className="mt-1.5 text-[12.5px] text-ink-mute">
+          <p className="mt-1.5 t-caption text-ink-mute">
             A range is enough — it tells us which venues and menus to suggest.
           </p>
         </div>

@@ -161,7 +161,7 @@ const EditStudio = () => {
       <div className="flex min-h-[70vh] items-center justify-center bg-paper">
         <div className="flex items-center gap-3 text-ink-mute">
           <span className="loader" />
-          <span className="text-[14px]">Loading the studio…</span>
+          <span className="t-small">Loading the studio…</span>
         </div>
       </div>
     )

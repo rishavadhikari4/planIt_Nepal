@@ -165,30 +165,30 @@ const Venues = () => {
           ) : (
             <div className="grid grid-cols-2 gap-5 lg:grid-cols-3 xl:grid-cols-4">
               <AnimatePresence mode="popLayout">
-                {venues.map((venue) => (
+                {venues.map((venue, i) => (
                   <motion.article
                     key={venue._id}
                     layout
-                    initial={{ opacity: 0, y: 12 }}
+                    initial={{ opacity: 0, y: 24 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.25, ease: "easeOut" }}
+                    exit={{ opacity: 0, scale: 0.98 }}
+                    transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: Math.min(i, 7) * 0.05 }}
                     className="card card-hover group relative flex flex-col overflow-hidden"
                   >
                     {/* The whole card is the target, not just a button at the bottom. */}
                     <button
                       onClick={() => navigate(`/venues/${venue._id}`)}
-                      className="relative block aspect-[4/3] w-full overflow-hidden bg-gray-100 text-left"
+                      className="relative block aspect-[4/5] w-full overflow-hidden bg-gray-100 text-left"
                       aria-label={`View ${venue.name}`}
                     >
                       <img
                         src={venue.venueImage || "/placeholder.svg"}
                         alt=""
                         loading="lazy"
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                        className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.06]"
                       />
                       {venue.rating && (
-                        <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded bg-crimson-deep/85 px-1.5 py-0.5 text-[11px] font-semibold text-white">
+                        <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded bg-crimson-deep/85 px-1.5 py-0.5 t-caption font-semibold text-white">
                           <Star className="h-3 w-3 fill-brass text-brass" />
                           <span className="amount">{venue.rating}</span>
                         </span>
@@ -215,11 +215,11 @@ const Venues = () => {
                     </button>
 
                     <div className="flex flex-1 flex-col p-4">
-                      <h3 className="line-clamp-2 text-[15.5px] font-semibold leading-snug text-ink">
+                      <h3 className="line-clamp-2 t-body font-semibold leading-snug text-ink">
                         {venue.name}
                       </h3>
 
-                      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px] text-ink-mute">
+                      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 t-caption text-ink-mute">
                         {venue.location && (
                           <span className="inline-flex min-w-0 items-center gap-1">
                             <MapPin className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
@@ -236,16 +236,16 @@ const Venues = () => {
 
                       <div className="mt-auto flex items-end justify-between gap-2 pt-4">
                         <p>
-                          <span className="amount block text-[17px] font-semibold text-ink">
+                          <span className="amount block t-lead font-semibold text-ink">
                             {venue.price ? rs(venue.price) : "On request"}
                           </span>
                           {venue.price && (
-                            <span className="text-[12px] text-ink-mute">per event</span>
+                            <span className="t-caption text-ink-mute">per event</span>
                           )}
                         </p>
                         <button
                           onClick={() => setPreview(venue)}
-                          className="text-[13px] font-medium text-crimson hover:underline"
+                          className="t-small font-medium text-crimson hover:underline"
                         >
                           Quick look
                         </button>
@@ -298,9 +298,9 @@ const Venues = () => {
               </div>
 
               <div className="p-6">
-                <h2 className="text-[26px]">{preview.name}</h2>
+                <h2 className="t-title">{preview.name}</h2>
 
-                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-[13.5px] text-ink-mute">
+                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 t-small text-ink-mute">
                   {preview.location && (
                     <span className="inline-flex items-center gap-1.5">
                       <MapPin className="h-4 w-4" strokeWidth={1.75} />
@@ -315,16 +315,16 @@ const Venues = () => {
                   )}
                 </div>
 
-                <p className="mt-5 text-[15px] leading-relaxed text-ink-soft">
+                <p className="mt-5 t-body leading-relaxed text-ink-soft">
                   {preview.description || "No description has been added for this venue yet."}
                 </p>
 
                 <div className="mt-7 flex flex-wrap items-end justify-between gap-4 border-t border-line pt-5">
                   <p>
-                    <span className="amount block text-[24px] font-semibold text-ink">
+                    <span className="amount block t-title font-semibold text-ink">
                       {preview.price ? rs(preview.price) : "On request"}
                     </span>
-                    {preview.price && <span className="text-[12.5px] text-ink-mute">per event</span>}
+                    {preview.price && <span className="t-caption text-ink-mute">per event</span>}
                   </p>
                   <button
                     onClick={() => navigate(`/venues/${preview._id}`)}

@@ -91,7 +91,7 @@ const UserInspection = () => {
 
       {/* Identity */}
       <div className="mt-8 flex flex-wrap items-center gap-5 rounded-lg border border-line bg-surface p-5">
-        <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border border-line bg-gray-100 text-[20px] font-semibold text-ink-soft">
+        <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border border-line bg-gray-100 t-heading font-semibold text-ink-soft">
           {basicInfo.profileImage ? (
             <img src={basicInfo.profileImage} alt="" className="h-full w-full object-cover" />
           ) : (
@@ -100,8 +100,8 @@ const UserInspection = () => {
         </span>
 
         <div className="min-w-0 flex-1">
-          <p className="amount truncate text-[15px] text-ink">{basicInfo.email}</p>
-          <p className="amount mt-0.5 text-[13.5px] text-ink-mute">
+          <p className="amount truncate t-body text-ink">{basicInfo.email}</p>
+          <p className="amount mt-0.5 t-small text-ink-mute">
             {basicInfo.number || "No phone number"}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -116,17 +116,17 @@ const UserInspection = () => {
         </div>
 
         <div className="text-right">
-          <p className="text-[12px] text-ink-mute">Account ID</p>
-          <p className="amount mt-0.5 text-[12.5px] text-ink-soft">{basicInfo.id}</p>
+          <p className="t-caption text-ink-mute">Account ID</p>
+          <p className="amount mt-0.5 t-caption text-ink-soft">{basicInfo.id}</p>
         </div>
       </div>
 
       {problems.length > 0 && (
         <div className="mt-6 rounded-lg border border-orange-200 bg-orange-50 px-5 py-4">
-          <h2 className="text-[14px] font-semibold text-orange-800">Worth knowing</h2>
+          <h2 className="t-small font-semibold text-orange-800">Worth knowing</h2>
           <ul className="mt-3 space-y-2.5">
             {problems.map((p) => (
-              <li key={p.label} className="text-[13.5px] leading-relaxed">
+              <li key={p.label} className="t-small leading-relaxed">
                 <span className="font-semibold text-orange-800">{p.label}.</span>{" "}
                 <span className="text-orange-800/80">{p.detail}</span>
               </li>
@@ -189,7 +189,7 @@ const UserInspection = () => {
       </div>
 
       {data.inspectedBy && (
-        <p className="amount mt-8 text-[12.5px] text-ink-mute">
+        <p className="amount mt-8 t-caption text-ink-mute">
           Viewed by {data.inspectedBy.name || data.inspectedBy.email || "an admin"}
         </p>
       )}

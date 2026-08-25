@@ -169,21 +169,21 @@ const AdminCuisines = () => {
             <section key={cat._id}>
               <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-line pb-3">
                 <div className="flex items-baseline gap-3">
-                  <h2 className="text-[22px] capitalize">{cat.category}</h2>
-                  <span className="amount text-[12.5px] text-ink-mute">
+                  <h2 className="t-heading capitalize">{cat.category}</h2>
+                  <span className="amount t-caption text-ink-mute">
                     {cat.dishes.length} {cat.dishes.length === 1 ? "dish" : "dishes"}
                   </span>
                 </div>
                 <button
                   onClick={() => setPending({ kind: "category", category: cat })}
-                  className="text-[13px] font-medium text-ink-mute hover:text-red-600 hover:underline"
+                  className="t-small font-medium text-ink-mute hover:text-red-600 hover:underline"
                 >
                   Delete category
                 </button>
               </div>
 
               {cat.dishes.length === 0 ? (
-                <p className="py-6 text-[14px] text-ink-mute">
+                <p className="py-6 t-small text-ink-mute">
                   This category has no dishes.
                 </p>
               ) : (
@@ -200,19 +200,19 @@ const AdminCuisines = () => {
                       </div>
 
                       <div className="flex flex-1 flex-col p-4">
-                        <h3 className="line-clamp-2 text-[15px] font-semibold leading-snug text-ink">
+                        <h3 className="line-clamp-2 t-body font-semibold leading-snug text-ink">
                           {dish.name}
                         </h3>
                         {dish.description && (
-                          <p className="mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-ink-mute">
+                          <p className="mt-1.5 line-clamp-2 t-small leading-relaxed text-ink-mute">
                             {dish.description}
                           </p>
                         )}
 
-                        <p className="amount mt-3 text-[16px] font-semibold text-ink">
+                        <p className="amount mt-3 t-body font-semibold text-ink">
                           {dish.price ? rs(dish.price) : "No price set"}
                           {dish.price && (
-                            <span className="ml-1 text-[12px] font-normal text-ink-mute">
+                            <span className="ml-1 t-caption font-normal text-ink-mute">
                               per plate
                             </span>
                           )}
@@ -223,7 +223,7 @@ const AdminCuisines = () => {
                             onClick={() =>
                               navigate(`/admin-cuisines/edit/${cat._id}/${dish._id}`)
                             }
-                            className="text-[13px] font-medium text-crimson hover:underline"
+                            className="t-small font-medium text-crimson hover:underline"
                           >
                             Edit
                           </button>
@@ -231,7 +231,7 @@ const AdminCuisines = () => {
                             onClick={() =>
                               setPending({ kind: "dish", categoryId: cat._id, dish })
                             }
-                            className="text-[13px] font-medium text-ink-mute hover:text-red-600 hover:underline"
+                            className="t-small font-medium text-ink-mute hover:text-red-600 hover:underline"
                           >
                             Delete
                           </button>

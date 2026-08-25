@@ -71,7 +71,7 @@ const Review = () => {
       >
         <div className="max-w-xl">
           <p className="eyebrow">In their words</p>
-          <h2 className="mt-5 text-[clamp(30px,4.5vw,46px)]">
+          <h2 className="mt-5 t-display">
             What people say
             <br />
             <span className="font-normal italic">after the event.</span>
@@ -80,11 +80,11 @@ const Review = () => {
 
         {average && (
           <div className="text-right">
-            <p className="amount text-[40px] font-semibold leading-none text-ink">{average}</p>
+            <p className="amount t-display font-semibold text-ink">{average}</p>
             <div className="mt-2 flex justify-end">
               <Stars rating={Math.round(Number(average))} />
             </div>
-            <p className="amount mt-1.5 text-[12.5px] text-ink-mute">
+            <p className="amount mt-1.5 t-caption text-ink-mute">
               {reviews.length} {reviews.length === 1 ? "review" : "reviews"}
             </p>
           </div>
@@ -93,8 +93,8 @@ const Review = () => {
 
       {reviews.length === 0 ? (
         <div className="mt-12 border-y border-line py-16 text-center">
-          <p className="text-[17px] text-ink-soft">No reviews published yet.</p>
-          <p className="mt-2 text-[14px] text-ink-mute">
+          <p className="t-lead text-ink-soft">No reviews published yet.</p>
+          <p className="mt-2 t-small text-ink-mute">
             {isCustomer
               ? "If we've run your event, yours could be the first."
               : "Check back after the next season of events."}
@@ -115,12 +115,12 @@ const Review = () => {
             >
               <Stars rating={Number(review.rating) || 0} />
 
-              <blockquote className="mt-4 text-[15px] leading-relaxed text-ink-soft">
+              <blockquote className="mt-4 t-body leading-relaxed text-ink-soft">
                 {review.comment}
               </blockquote>
 
               <figcaption className="mt-5 flex items-center gap-3 border-t border-line pt-4">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-line bg-gray-100 text-[12px] font-semibold text-ink-soft">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-line bg-gray-100 t-caption font-semibold text-ink-soft">
                   {review.user?.profileImage ? (
                     <img src={review.user.profileImage} alt="" className="h-full w-full object-cover" />
                   ) : (
@@ -128,10 +128,10 @@ const Review = () => {
                   )}
                 </span>
                 <span className="min-w-0">
-                  <span className="block truncate text-[13.5px] font-semibold text-ink">
+                  <span className="block truncate t-small font-semibold text-ink">
                     {review.user?.name || "A customer"}
                   </span>
-                  <span className="block text-[12px] text-ink-mute">Booked through PlanIt Nepal</span>
+                  <span className="block t-caption text-ink-mute">Booked through PlanIt Nepal</span>
                 </span>
               </figcaption>
             </motion.figure>
@@ -148,8 +148,8 @@ const Review = () => {
           transition={{ duration: 0.6, ease: EASE }}
           className="card mx-auto mt-16 max-w-2xl p-7 sm:p-9"
         >
-          <h3 className="text-[22px]">How did we do?</h3>
-          <p className="mt-2 text-[14.5px] leading-relaxed text-ink-soft">
+          <h3 className="t-heading">How did we do?</h3>
+          <p className="mt-2 t-body leading-relaxed text-ink-soft">
             Your review is read by our team before it goes on the site.
           </p>
 
@@ -179,7 +179,7 @@ const Review = () => {
                     </button>
                   ))}
                 </div>
-                <span className="text-[13.5px] font-medium text-ink-soft">
+                <span className="t-small font-medium text-ink-soft">
                   {RATING_WORD[hover || rating]}
                 </span>
               </div>

@@ -91,7 +91,7 @@ const Login = () => {
         <div className="flex justify-end">
           <Link
             to="/login/forgot-password"
-            className="text-[13.5px] text-ink-mute no-underline hover:text-ink hover:underline"
+            className="t-small text-ink-mute no-underline hover:text-ink hover:underline"
           >
             Forgot your password?
           </Link>

@@ -65,8 +65,8 @@ const RatingModal = ({ isOpen, onClose, item, itemType, onRatingSubmitted }) => 
             className="h-14 w-14 shrink-0 rounded-md border border-line object-cover"
           />
           <div className="min-w-0">
-            <p className="truncate text-[15px] font-semibold text-ink">{item.name}</p>
-            <p className="text-[13px] capitalize text-ink-mute">{noun}</p>
+            <p className="truncate t-body font-semibold text-ink">{item.name}</p>
+            <p className="t-small capitalize text-ink-mute">{noun}</p>
           </div>
         </div>
 
@@ -93,7 +93,7 @@ const RatingModal = ({ isOpen, onClose, item, itemType, onRatingSubmitted }) => 
                 </button>
               ))}
             </div>
-            <span className="text-[13.5px] font-medium text-ink-soft">
+            <span className="t-small font-medium text-ink-soft">
               {RATING_WORD[hover || rating]}
             </span>
           </div>

@@ -98,7 +98,7 @@ const DateRangePicker = ({
         >
           <ChevronLeft className="h-4 w-4" strokeWidth={2} />
         </button>
-        <p className="text-[15px] font-semibold text-ink">
+        <p className="t-body font-semibold text-ink">
           {MONTHS[monthIndex]} <span className="amount font-normal text-ink-mute">{year}</span>
         </p>
         <button
@@ -116,7 +116,7 @@ const DateRangePicker = ({
           <span
             key={i}
             aria-hidden
-            className="pb-2 text-center font-mono text-[11px] font-semibold uppercase tracking-wider text-ink-mute"
+            className="pb-2 text-center font-mono t-caption font-semibold uppercase tracking-wider text-ink-mute"
           >
             {d}
           </span>
@@ -157,7 +157,7 @@ const DateRangePicker = ({
                 year: "numeric",
               })}
               aria-pressed={Boolean(isFrom || isTill)}
-              className={`relative mx-auto flex h-10 w-10 items-center justify-center text-[13.5px] transition-colors
+              className={`relative mx-auto flex h-10 w-10 items-center justify-center t-small transition-colors
                 ${inRange ? "bg-crimson-50" : ""}
                 ${isFrom ? "rounded-l-md" : ""}
                 ${isTill ? "rounded-r-md" : ""}
@@ -179,7 +179,7 @@ const DateRangePicker = ({
       </div>
 
       {showLegend && (
-        <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 border-t border-line pt-4 text-[12px] text-ink-mute">
+        <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 border-t border-line pt-4 t-caption text-ink-mute">
           <span className="inline-flex items-center gap-1.5">
             <span className="h-3 w-3 rounded-sm bg-crimson" />
             Your dates
@@ -201,12 +201,12 @@ const DateRangePicker = ({
   if (readOnly && !onClose) {
     return (
       <div className={`card p-5 ${className}`}>
-        <h3 className="mb-4 font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-mute">
+        <h3 className="mb-4 font-mono t-caption font-semibold uppercase tracking-[0.16em] text-ink-mute">
           {title}
         </h3>
         {grid}
         {bookedDates.length === 0 && (
-          <p className="mt-4 text-[13px] text-ink-mute">
+          <p className="mt-4 t-small text-ink-mute">
             Nothing is booked here yet — every date is free.
           </p>
         )}
@@ -228,8 +228,8 @@ const DateRangePicker = ({
       >
         <div className="flex items-start justify-between gap-4 border-b border-line px-5 py-4">
           <div>
-            <h3 className="text-[18px]">{title}</h3>
-            <p className="mt-1 text-[13px] text-ink-soft">
+            <h3 className="t-lead">{title}</h3>
+            <p className="mt-1 t-small text-ink-soft">
               {!from
                 ? "Tap the first day."
                 : !till

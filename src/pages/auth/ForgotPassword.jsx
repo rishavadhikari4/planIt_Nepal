@@ -47,7 +47,7 @@ const ForgotPassword = () => {
       >
         <div className="card flex gap-4 p-5">
           <MailCheck className="mt-0.5 h-5 w-5 shrink-0 text-crimson" strokeWidth={1.75} />
-          <div className="text-[14px] leading-relaxed text-ink-soft">
+          <div className="t-small leading-relaxed text-ink-soft">
             <p className="font-semibold text-ink">Nothing in your inbox?</p>
             <p className="mt-1">
               Give it a minute, then check your spam folder before trying again.

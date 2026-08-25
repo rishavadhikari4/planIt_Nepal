@@ -36,8 +36,8 @@ const AdminHeader = () => {
     <header className="sticky top-0 z-50 w-full border-b border-crimson-deep bg-crimson-deep">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-5 sm:px-6 lg:px-8">
         <Link to="/admin" className="flex shrink-0 items-baseline gap-2 no-underline">
-          <span className="font-display text-[20px] font-semibold tracking-[-0.03em] text-white">PlanIt</span>
-          <span className="font-mono text-[10px] font-medium uppercase tracking-[0.22em] text-brass-lift">
+          <span className="font-display t-heading font-semibold text-white">PlanIt</span>
+          <span className="font-mono t-caption font-medium uppercase tracking-[0.22em] text-brass-lift">
             Staff
           </span>
         </Link>
@@ -48,7 +48,7 @@ const AdminHeader = () => {
               key={link.path}
               to={link.path}
               aria-current={isActive(link) ? "page" : undefined}
-              className={`relative flex items-center gap-2 px-3 py-2 text-[14px] font-medium no-underline transition-colors ${
+              className={`relative flex items-center gap-2 px-3 py-2 t-small font-medium no-underline transition-colors ${
                 isActive(link) ? "text-white" : "text-white/60 hover:text-white"
               }`}
             >
@@ -64,14 +64,14 @@ const AdminHeader = () => {
         <div className="ml-auto flex items-center gap-2">
           <Link
             to="/"
-            className="hidden text-[13.5px] text-white/60 no-underline hover:text-white lg:block"
+            className="hidden t-small text-white/60 no-underline hover:text-white lg:block"
           >
             View site
           </Link>
           {isAdmin && (
             <button
               onClick={handleLogout}
-              className="hidden h-9 items-center gap-2 rounded-md px-3 text-[13.5px] font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white lg:flex"
+              className="hidden h-9 items-center gap-2 rounded-md px-3 t-small font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white lg:flex"
             >
               <LogOut className="h-4 w-4" strokeWidth={1.75} />
               Sign out
@@ -94,7 +94,7 @@ const AdminHeader = () => {
             <Link
               key={link.path}
               to={link.path}
-              className={`flex items-center gap-3 rounded-md px-3 py-3 text-[15px] no-underline ${
+              className={`flex items-center gap-3 rounded-md px-3 py-3 t-body no-underline ${
                 isActive(link) ? "bg-white/10 font-semibold text-white" : "text-white/70"
               }`}
             >
@@ -105,7 +105,7 @@ const AdminHeader = () => {
           {isAdmin && (
             <button
               onClick={handleLogout}
-              className="flex w-full items-center gap-3 rounded-md px-3 py-3 text-left text-[15px] text-red-300"
+              className="flex w-full items-center gap-3 rounded-md px-3 py-3 text-left t-body text-red-300"
             >
               <LogOut className="h-4 w-4" strokeWidth={1.75} />
               Sign out

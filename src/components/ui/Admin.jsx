@@ -43,12 +43,12 @@ export const AdminHeading = ({ eyebrow, title, description, count, countLabel, c
   <header className="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
     <div className="min-w-0">
       {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-      <h1 className="mt-4 text-[28px] sm:text-[34px]">{title}</h1>
+      <h1 className="mt-4 t-display">{title}</h1>
       {description && (
-        <p className="mt-2 max-w-[60ch] text-[14.5px] leading-relaxed text-ink-soft">{description}</p>
+        <p className="mt-2 max-w-[60ch] t-body leading-relaxed text-ink-soft">{description}</p>
       )}
       {count !== undefined && (
-        <p className="amount mt-2 text-[13px] text-ink-mute">
+        <p className="amount mt-2 t-small text-ink-mute">
           <span className="text-ink">{count}</span> {countLabel}
         </p>
       )}
@@ -81,17 +81,17 @@ export const StatGrid = ({ children }) => (
 
 export const Stat = ({ label, value, hint, loading, error }) => (
   <div className="bg-surface px-5 py-4">
-    <dt className="text-[12.5px] font-medium text-ink-mute">{label}</dt>
-    <dd className="amount mt-1.5 text-[22px] font-semibold text-ink">
+    <dt className="t-caption font-medium text-ink-mute">{label}</dt>
+    <dd className="amount mt-1.5 t-heading font-semibold text-ink">
       {error ? (
-        <span className="text-[14px] font-normal text-red-600">Unavailable</span>
+        <span className="t-small font-normal text-red-600">Unavailable</span>
       ) : loading ? (
         <span className="inline-block h-6 w-20 animate-pulse rounded bg-gray-100" />
       ) : (
         value
       )}
     </dd>
-    {hint && !loading && !error && <p className="mt-0.5 text-[12px] text-ink-mute">{hint}</p>}
+    {hint && !loading && !error && <p className="mt-0.5 t-caption text-ink-mute">{hint}</p>}
   </div>
 )
 
@@ -132,7 +132,7 @@ export const StatusBadge = ({ status, tone, children }) => {
   const resolved = tone || STATUS_TONE[key] || "neutral"
   return (
     <span
-      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11.5px] font-semibold capitalize ${TONES[resolved]}`}
+      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-0.5 t-caption font-semibold capitalize ${TONES[resolved]}`}
     >
       {children || status || "unknown"}
     </span>
@@ -200,7 +200,7 @@ export const Table = ({ head, children }) => (
             <th
               key={typeof h === "string" ? h : h.label}
               scope="col"
-              className={`whitespace-nowrap px-4 py-3 text-[11.5px] font-semibold uppercase tracking-[0.08em] text-ink-mute ${
+              className={`whitespace-nowrap px-4 py-3 t-caption font-semibold uppercase tracking-[0.08em] text-ink-mute ${
                 typeof h === "object" && h.align === "right" ? "text-right" : ""
               }`}
             >
@@ -216,7 +216,7 @@ export const Table = ({ head, children }) => (
 
 export const Td = ({ children, align, className = "", ...rest }) => (
   <td
-    className={`px-4 py-3 align-middle text-[13.5px] text-ink ${align === "right" ? "text-right" : ""} ${className}`}
+    className={`px-4 py-3 align-middle t-small text-ink ${align === "right" ? "text-right" : ""} ${className}`}
     {...rest}
   >
     {children}
@@ -243,8 +243,8 @@ export const TableSkeleton = ({ columns, rows = 6 }) => (
 
 export const AdminEmpty = ({ title, body, action, onAction }) => (
   <div className="mt-6 rounded-lg border border-line bg-surface px-6 py-16 text-center">
-    <h2 className="text-[19px]">{title}</h2>
-    <p className="mx-auto mt-2 max-w-[46ch] text-[14px] leading-relaxed text-ink-soft">{body}</p>
+    <h2 className="t-heading">{title}</h2>
+    <p className="mx-auto mt-2 max-w-[46ch] t-small leading-relaxed text-ink-soft">{body}</p>
     {action && (
       <button onClick={onAction} className="btn btn-ghost mt-6">
         {action}
@@ -257,7 +257,7 @@ export const AdminEmpty = ({ title, body, action, onAction }) => (
 export const AdminError = ({ message, onRetry }) => (
   <div className="mt-6 flex flex-wrap items-center gap-4 rounded-lg border border-red-200 bg-red-50 px-5 py-4">
     <AlertCircle className="h-5 w-5 shrink-0 text-red-600" strokeWidth={1.75} />
-    <p className="flex-1 text-[14px] text-red-700">{message}</p>
+    <p className="flex-1 t-small text-red-700">{message}</p>
     {onRetry && (
       <button onClick={onRetry} className="btn btn-ghost border-red-200 bg-surface">
         Try again
@@ -270,7 +270,7 @@ export const AdminLoading = ({ label = "Loading…" }) => (
   <div className="flex min-h-[50vh] items-center justify-center">
     <div className="flex items-center gap-3 text-ink-mute">
       <span className="loader" />
-      <span className="text-[14px]">{label}</span>
+      <span className="t-small">{label}</span>
     </div>
   </div>
 )
@@ -307,8 +307,8 @@ export const Modal = ({ open, onClose, title, description, children, width = "ma
       >
         <div className="flex items-start justify-between gap-4 border-b border-line px-6 py-4">
           <div>
-            <h2 className="text-[19px]">{title}</h2>
-            {description && <p className="mt-1 text-[13.5px] text-ink-soft">{description}</p>}
+            <h2 className="t-heading">{title}</h2>
+            {description && <p className="mt-1 t-small text-ink-soft">{description}</p>}
           </div>
           <button
             onClick={onClose}
@@ -330,7 +330,7 @@ export const Modal = ({ open, onClose, title, description, children, width = "ma
  */
 export const ConfirmDialog = ({ open, onCancel, onConfirm, title, body, confirmLabel, busy }) => (
   <Modal open={open} onClose={busy ? () => {} : onCancel} title={title} width="max-w-md">
-    <p className="text-[14.5px] leading-relaxed text-ink-soft">{body}</p>
+    <p className="t-body leading-relaxed text-ink-soft">{body}</p>
     <div className="mt-7 flex justify-end gap-2">
       <button onClick={onCancel} disabled={busy} className="btn btn-ghost">
         Keep it
@@ -360,7 +360,7 @@ export const ConfirmDialog = ({ open, onCancel, onConfirm, title, body, confirmL
 export const DetailCard = ({ title, action, children }) => (
   <section className="card overflow-hidden">
     <div className="flex items-center justify-between gap-4 border-b border-line px-5 py-3.5">
-      <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-mute">
+      <h2 className="font-mono t-caption font-semibold uppercase tracking-[0.16em] text-ink-mute">
         {title}
       </h2>
       {action}
@@ -375,8 +375,8 @@ export const DetailRows = ({ rows }) => (
       .filter(Boolean)
       .map(([label, value, mono]) => (
         <div key={label} className="flex items-baseline justify-between gap-4 px-5 py-3">
-          <dt className="shrink-0 text-[13.5px] text-ink-soft">{label}</dt>
-          <dd className={`min-w-0 truncate text-right text-[13.5px] text-ink ${mono ? "amount" : ""}`}>
+          <dt className="shrink-0 t-small text-ink-soft">{label}</dt>
+          <dd className={`min-w-0 truncate text-right t-small text-ink ${mono ? "amount" : ""}`}>
             {value ?? "—"}
           </dd>
         </div>

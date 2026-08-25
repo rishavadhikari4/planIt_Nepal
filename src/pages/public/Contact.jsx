@@ -62,7 +62,7 @@ const Contact = () => (
           </motion.p>
           <motion.h1
             variants={child}
-            className="mt-6 text-[clamp(36px,6vw,60px)] leading-[1.0] tracking-[-0.035em]"
+            className="mt-6 t-display"
           >
             We put three bookings
             <br />
@@ -70,7 +70,7 @@ const Contact = () => (
           </motion.h1>
           <motion.p
             variants={child}
-            className="mt-7 max-w-[52ch] text-[17px] leading-relaxed text-ink-soft"
+            className="mt-7 max-w-[52ch] t-lead leading-relaxed text-ink-soft"
           >
             PlanIt Nepal started because arranging an event here meant three separate
             negotiations, three deposits and three chances for a date to slip. We put the venue,
@@ -84,8 +84,8 @@ const Contact = () => (
           >
             {FACTS.map(([label, value]) => (
               <div key={label} className="flex items-baseline justify-between gap-6 py-4">
-                <dt className="text-[14px] text-ink-mute">{label}</dt>
-                <dd className="amount text-right text-[15px] text-ink">{value}</dd>
+                <dt className="t-small text-ink-mute">{label}</dt>
+                <dd className="amount text-right t-body text-ink">{value}</dd>
               </div>
             ))}
           </motion.dl>
@@ -105,11 +105,11 @@ const Contact = () => (
                   >
                     <Icon className="mt-0.5 h-4 w-4 shrink-0 text-ink-mute" strokeWidth={1.75} />
                     <span className="min-w-0 flex-1">
-                      <span className="block text-[12.5px] text-ink-mute">{label}</span>
-                      <span className="amount mt-0.5 block truncate text-[15.5px] text-ink">
+                      <span className="block t-caption text-ink-mute">{label}</span>
+                      <span className="amount mt-0.5 block truncate t-body text-ink">
                         {value}
                       </span>
-                      <span className="mt-1 block text-[13px] text-ink-soft">{detail}</span>
+                      <span className="mt-1 block t-small text-ink-soft">{detail}</span>
                     </span>
                     {href && (
                       <ArrowUpRight
@@ -125,7 +125,7 @@ const Contact = () => (
 
           <div className="mt-5 flex items-start gap-3 rounded-lg border border-line bg-gray-50 p-4">
             <Clock className="mt-0.5 h-4 w-4 shrink-0 text-ink-mute" strokeWidth={1.75} />
-            <p className="text-[13.5px] leading-relaxed text-ink-soft">
+            <p className="t-small leading-relaxed text-ink-soft">
               Planning around a fixed date? Send it over — we&rsquo;ll tell you what&rsquo;s still
               free before you commit to anything.
             </p>
@@ -148,12 +148,12 @@ const Contact = () => (
             <motion.p variants={child} className="eyebrow">
               Get in touch
             </motion.p>
-            <motion.h2 variants={child} className="mt-5 text-[clamp(28px,4.2vw,42px)]">
+            <motion.h2 variants={child} className="mt-5 t-display">
               Tell us what you&rsquo;re planning.
             </motion.h2>
             <motion.p
               variants={child}
-              className="mt-5 max-w-[44ch] text-[16px] leading-relaxed text-ink-soft"
+              className="mt-5 max-w-[44ch] t-body leading-relaxed text-ink-soft"
             >
               The more you can say about the date, the headcount and the budget, the more useful
               our first reply will be.

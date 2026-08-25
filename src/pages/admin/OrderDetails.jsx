@@ -132,8 +132,8 @@ const OrderDetails = () => {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-4">
                         <div className="min-w-0">
-                          <p className="truncate text-[14.5px] font-semibold text-ink">{item.name}</p>
-                          <p className="mt-0.5 text-[12.5px] capitalize text-ink-mute">
+                          <p className="truncate t-body font-semibold text-ink">{item.name}</p>
+                          <p className="mt-0.5 t-caption capitalize text-ink-mute">
                             {item.itemType}
                             {item.quantity > 1 && (
                               <>
@@ -143,7 +143,7 @@ const OrderDetails = () => {
                             )}
                           </p>
                         </div>
-                        <span className="amount shrink-0 text-[14px] font-semibold text-ink">
+                        <span className="amount shrink-0 t-small font-semibold text-ink">
                           {rs(item.price * item.quantity)}
                         </span>
                       </div>
@@ -151,7 +151,7 @@ const OrderDetails = () => {
                       <div className="mt-2 flex flex-wrap items-center gap-3">
                         {item.bookingStatus && <StatusBadge status={item.bookingStatus} />}
                         {item.bookedFrom && item.bookedTill && (
-                          <span className="amount inline-flex items-center gap-1.5 text-[12.5px] text-ink-soft">
+                          <span className="amount inline-flex items-center gap-1.5 t-caption text-ink-soft">
                             <Calendar className="h-3.5 w-3.5 text-ink-mute" strokeWidth={1.75} />
                             {formatDate(item.bookedFrom)} — {formatDate(item.bookedTill)}
                           </span>
@@ -162,7 +162,7 @@ const OrderDetails = () => {
                 ))}
               </ul>
             ) : (
-              <p className="px-5 py-6 text-[14px] text-ink-mute">This order has no items.</p>
+              <p className="px-5 py-6 t-small text-ink-mute">This order has no items.</p>
             )}
           </DetailCard>
 
@@ -174,11 +174,11 @@ const OrderDetails = () => {
                     key={item._id || i}
                     className="flex items-baseline justify-between gap-4 px-5 py-3"
                   >
-                    <span className="min-w-0 truncate text-[13.5px] text-ink">
+                    <span className="min-w-0 truncate t-small text-ink">
                       {item.name}
                       <span className="capitalize text-ink-mute"> · {item.itemType}</span>
                     </span>
-                    <span className="amount shrink-0 text-[13px] text-ink-soft">
+                    <span className="amount shrink-0 t-small text-ink-soft">
                       {formatDate(item.bookedFrom)} — {formatDate(item.bookedTill)}
                     </span>
                   </li>
@@ -223,7 +223,7 @@ const OrderDetails = () => {
               customerId && (
                 <button
                   onClick={() => navigate(`/admin/users/inspect/${customerId}`)}
-                  className="text-[13px] font-medium text-crimson hover:underline"
+                  className="t-small font-medium text-crimson hover:underline"
                 >
                   Inspect
                 </button>
@@ -243,7 +243,7 @@ const OrderDetails = () => {
                   href={`mailto:${order.userId.email}?subject=${encodeURIComponent(
                     `Your PlanIt Nepal order #${order._id.slice(-8).toUpperCase()}`,
                   )}`}
-                  className="text-[13px] font-medium text-crimson no-underline hover:underline"
+                  className="t-small font-medium text-crimson no-underline hover:underline"
                 >
                   Email this customer
                 </a>

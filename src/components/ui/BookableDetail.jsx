@@ -5,6 +5,7 @@ import { ArrowLeft, Calendar, Check, ChevronLeft, ChevronRight, Heart, MapPin, S
 import { toast } from "react-toastify"
 import { useCart } from "../../context/CartContext"
 import DateRangePicker from "./DateRangePicker"
+import { ImageReveal, Reveal, Stagger, Item, Parallax, Magnetic } from "./Motion"
 
 /*
  * Venues and studios are the same booking page with different nouns: a gallery,
@@ -113,8 +114,8 @@ const BookableDetail = ({
     return (
       <div className="flex min-h-[70vh] items-center justify-center bg-paper px-5">
         <div className="card max-w-md p-8 text-center">
-          <h1 className="text-[22px]">We couldn&rsquo;t find that {noun}</h1>
-          <p className="mt-3 text-[14.5px] leading-relaxed text-ink-soft">
+          <h1 className="t-heading">We couldn&rsquo;t find that {noun}</h1>
+          <p className="mt-3 t-body leading-relaxed text-ink-soft">
             It may have been removed. Browse what&rsquo;s available instead.
           </p>
           <button onClick={() => navigate(backPath)} className="btn btn-primary mt-7 w-full">
@@ -142,11 +143,13 @@ const BookableDetail = ({
             className="group relative aspect-[4/3] overflow-hidden rounded-xl border border-line bg-gray-100 sm:col-span-2 sm:row-span-2 sm:aspect-auto"
             aria-label="Open gallery"
           >
-            <img
+            <ImageReveal
+              eager
               src={images[0] || "/placeholder.svg"}
-              alt=""
-              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+              className="h-full w-full"
+              imgClassName="transition-transform duration-[1400ms] ease-out group-hover:scale-[1.05]"
             />
+            <span className="absolute inset-0 z-10 bg-crimson-deep/0 transition-colors duration-500 group-hover:bg-crimson-deep/12" />
           </button>
 
           {images.slice(1, 5).map((src, i) => (
@@ -156,14 +159,15 @@ const BookableDetail = ({
               className="group relative hidden aspect-[4/3] overflow-hidden rounded-xl border border-line bg-gray-100 sm:block"
               aria-label={`Open photo ${i + 2}`}
             >
-              <img
+              <ImageReveal
                 src={src}
-                alt=""
-                loading="lazy"
-                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                className="h-full w-full"
+                delay={0.1 + i * 0.08}
+                imgClassName="transition-transform duration-[1400ms] ease-out group-hover:scale-[1.05]"
               />
+              <span className="absolute inset-0 z-10 bg-crimson-deep/0 transition-colors duration-500 group-hover:bg-crimson-deep/12" />
               {i === 3 && images.length > 5 && (
-                <span className="absolute inset-0 flex items-center justify-center bg-crimson-deep/70 text-[15px] font-semibold text-white">
+                <span className="absolute inset-0 flex items-center justify-center bg-crimson-deep/70 t-body font-semibold text-white">
                   +{images.length - 5} more
                 </span>
               )}
@@ -174,10 +178,12 @@ const BookableDetail = ({
         <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_360px] lg:gap-14">
           {/* ---------- Details ---------- */}
           <div>
-            <div className="flex items-start justify-between gap-4">
+            <Stagger className="flex items-start justify-between gap-4" amount={0.1}>
               <div className="min-w-0">
-                <h1 className="text-[clamp(28px,4.5vw,40px)]">{item.name}</h1>
-                <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-[14px] text-ink-soft">
+                <Item as="h1" className="t-display">
+                  {item.name}
+                </Item>
+                <Item className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 t-small text-ink-soft">
                   {item.location && (
                     <span className="inline-flex items-center gap-1.5">
                       <MapPin className="h-4 w-4 text-ink-mute" strokeWidth={1.75} />
@@ -196,7 +202,7 @@ const BookableDetail = ({
                       <span className="amount">{item.rating}</span>
                     </span>
                   )}
-                </div>
+                </Item>
               </div>
 
               <button
@@ -210,33 +216,33 @@ const BookableDetail = ({
                   strokeWidth={1.75}
                 />
               </button>
-            </div>
+            </Stagger>
 
             {item.description && (
-              <p className="mt-7 max-w-[62ch] whitespace-pre-wrap text-[16px] leading-relaxed text-ink-soft">
+              <Reveal as="p" className="mt-8 max-w-[60ch] whitespace-pre-wrap t-lead text-ink-soft">
                 {item.description}
-              </p>
+              </Reveal>
             )}
 
             {rows.length > 0 && (
-              <section className="mt-10">
+              <Reveal as="section" className="mt-12">
                 <h2 className="eyebrow">Details</h2>
                 <dl className="mt-5 divide-y divide-line border-y border-line">
                   {rows.map(([label, value]) => (
                     <div key={label} className="flex items-baseline justify-between gap-4 py-3.5">
-                      <dt className="text-[14px] text-ink-soft">{label}</dt>
-                      <dd className="amount text-right text-[14px] text-ink">{value}</dd>
+                      <dt className="t-small text-ink-soft">{label}</dt>
+                      <dd className="amount text-right t-small text-ink">{value}</dd>
                     </div>
                   ))}
                 </dl>
-              </section>
+              </Reveal>
             )}
 
             {/* Availability is the real question on this page, so it gets a
                 calendar rather than a sentence. */}
-            <section className="mt-12">
+            <Reveal as="section" className="mt-14">
               <h2 className="eyebrow">Availability</h2>
-              <p className="mt-4 text-[14.5px] leading-relaxed text-ink-soft">
+              <p className="mt-4 t-body leading-relaxed text-ink-soft">
                 {bookedDates.length === 0
                   ? "Nothing is booked yet — every date is free."
                   : `${totalBookings || bookedDates.length} ${
@@ -251,17 +257,17 @@ const BookableDetail = ({
                   showLegend={false}
                 />
               </div>
-            </section>
+            </Reveal>
           </div>
 
           {/* ---------- Booking panel ---------- */}
           <aside className="lg:sticky lg:top-24 lg:self-start">
             <div className="card overflow-hidden">
               <div className="border-b border-line px-5 py-4">
-                <p className="amount text-[26px] font-semibold text-ink">
+                <p className="amount t-title font-semibold text-ink">
                   {item.price ? rs(item.price) : "On request"}
                 </p>
-                {item.price && <p className="text-[12.5px] text-ink-mute">per event</p>}
+                {item.price && <p className="t-caption text-ink-mute">per event</p>}
               </div>
 
               <div className="px-5 py-5">
@@ -273,8 +279,8 @@ const BookableDetail = ({
                 >
                   <Calendar className="h-4 w-4 shrink-0 text-ink-mute" strokeWidth={1.75} />
                   <span className="min-w-0 flex-1">
-                    <span className="block text-[12px] text-ink-mute">Your dates</span>
-                    <span className="amount block truncate text-[13.5px] text-ink">
+                    <span className="block t-caption text-ink-mute">Your dates</span>
+                    <span className="amount block truncate t-small text-ink">
                       {dates ? `${fmt(dates.from)} — ${fmt(dates.till)}` : "Not chosen yet"}
                     </span>
                   </span>
@@ -282,16 +288,18 @@ const BookableDetail = ({
                 </button>
 
                 {dates && (
-                  <p className="amount mt-2.5 text-[12.5px] text-ink-mute">
+                  <p className="amount mt-2.5 t-caption text-ink-mute">
                     {days(dates.from, dates.till)} {days(dates.from, dates.till) === 1 ? "day" : "days"}
                   </p>
                 )}
 
-                <button onClick={addToPlan} className="btn btn-accent mt-5 w-full py-3">
-                  {dates ? "Add to my plan" : "Choose dates"}
-                </button>
+                <Magnetic strength={0.14} className="mt-5 w-full">
+                  <button onClick={addToPlan} className="btn btn-accent w-full">
+                    {dates ? "Add to my plan" : "Choose dates"}
+                  </button>
+                </Magnetic>
 
-                <p className="mt-3 text-center text-[12px] leading-relaxed text-ink-mute">
+                <p className="mt-3 text-center t-caption leading-relaxed text-ink-mute">
                   Adding this holds nothing yet — you confirm at checkout.
                 </p>
               </div>
@@ -367,7 +375,7 @@ const BookableDetail = ({
               className="max-h-[85vh] max-w-full rounded-lg object-contain"
             />
 
-            <p className="amount absolute bottom-5 text-[13px] text-white/60">
+            <p className="amount absolute bottom-5 t-small text-white/60">
               {lightbox + 1} / {images.length}
             </p>
           </motion.div>

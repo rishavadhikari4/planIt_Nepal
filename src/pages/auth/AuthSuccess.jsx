@@ -45,8 +45,8 @@ function AuthSuccess() {
         {status === "working" && (
           <div className="card p-8 text-center">
             <span className="loader mx-auto h-6 w-6" />
-            <h1 className="mt-6 text-[22px]">Signing you in</h1>
-            <p className="mt-3 text-[14.5px] leading-relaxed text-ink-soft">
+            <h1 className="mt-6 t-heading">Signing you in</h1>
+            <p className="mt-3 t-body leading-relaxed text-ink-soft">
               Finishing up with Google. This takes a second.
             </p>
           </div>
@@ -57,10 +57,10 @@ function AuthSuccess() {
             <span className="flex h-10 w-10 items-center justify-center rounded-full bg-crimson">
               <Check className="h-5 w-5 text-white" strokeWidth={2.5} />
             </span>
-            <h1 className="mt-6 text-[24px]">
+            <h1 className="mt-6 t-title">
               Signed in{user?.name ? `, ${user.name.split(" ")[0]}` : ""}
             </h1>
-            <p className="mt-3 text-[14.5px] leading-relaxed text-ink-soft">
+            <p className="mt-3 t-body leading-relaxed text-ink-soft">
               Taking you back to where you left off.
             </p>
             <button
@@ -81,8 +81,8 @@ function AuthSuccess() {
             <span className="flex h-10 w-10 items-center justify-center rounded-full bg-red-50">
               <AlertCircle className="h-5 w-5 text-red-600" strokeWidth={2} />
             </span>
-            <h1 className="mt-6 text-[24px]">That sign-in didn&rsquo;t complete</h1>
-            <p className="mt-3 text-[14.5px] leading-relaxed text-ink-soft">
+            <h1 className="mt-6 t-title">That sign-in didn&rsquo;t complete</h1>
+            <p className="mt-3 t-body leading-relaxed text-ink-soft">
               Google didn&rsquo;t send us what we needed. Try again, or use your email and
               password instead.
             </p>

@@ -156,11 +156,11 @@ const AdminContact = () => {
                 <tr key={contact._id} className="transition-colors hover:bg-gray-50">
                   <Td>
                     <span className="block font-medium">{contact.name || "No name"}</span>
-                    <span className="amount block truncate text-[12px] text-ink-mute">
+                    <span className="amount block truncate t-caption text-ink-mute">
                       {contact.email}
                     </span>
                     {contact.message && (
-                      <span className="mt-1 block max-w-[38ch] truncate text-[12.5px] text-ink-soft">
+                      <span className="mt-1 block max-w-[38ch] truncate t-caption text-ink-soft">
                         {contact.message}
                       </span>
                     )}
@@ -180,13 +180,13 @@ const AdminContact = () => {
                     <div className="flex items-center justify-end gap-3">
                       <button
                         onClick={() => navigate(`/admin-contact/${contact._id}`)}
-                        className="text-[13px] font-medium text-crimson hover:underline"
+                        className="t-small font-medium text-crimson hover:underline"
                       >
                         Read
                       </button>
                       <button
                         onClick={() => setPendingDelete(contact)}
-                        className="text-[13px] font-medium text-ink-mute hover:text-red-600 hover:underline"
+                        className="t-small font-medium text-ink-mute hover:text-red-600 hover:underline"
                       >
                         Delete
                       </button>

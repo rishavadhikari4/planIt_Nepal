@@ -94,8 +94,8 @@ function PaymentCallback() {
         {state.phase === "checking" ? (
           <div className="card p-8 text-center">
             <span className="loader mx-auto h-6 w-6" />
-            <h1 className="mt-6 text-[22px]">Confirming your payment</h1>
-            <p className="mt-3 text-[14.5px] leading-relaxed text-ink-soft">
+            <h1 className="mt-6 t-heading">Confirming your payment</h1>
+            <p className="mt-3 t-body leading-relaxed text-ink-soft">
               We're checking with the gateway. This takes a few seconds — please don't close this
               page.
             </p>
@@ -105,8 +105,8 @@ function PaymentCallback() {
             <span className="flex h-10 w-10 items-center justify-center rounded-full bg-red-50">
               <AlertCircle className="h-5 w-5 text-red-600" strokeWidth={2} />
             </span>
-            <h1 className="mt-6 text-[24px]">Payment not confirmed</h1>
-            <p className="mt-3 text-[14.5px] leading-relaxed text-ink-soft">{state.message}</p>
+            <h1 className="mt-6 t-title">Payment not confirmed</h1>
+            <p className="mt-3 t-body leading-relaxed text-ink-soft">{state.message}</p>
 
             <div className="mt-8 flex flex-col gap-2.5">
               {state.orderId && (

@@ -1,5 +1,8 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ToastContainer } from 'react-toastify';
+import { ScrollProgress } from './components/ui/Motion';
 
 // Auth pages
 import AuthSuccess from './pages/auth/AuthSuccess';
@@ -56,6 +59,31 @@ import Editstudio from './components/forms/EditStudioForm';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 
+/* Routes fade through each other rather than cutting. The wrapper also resets
+   scroll on navigation — react-router keeps the old position otherwise, which
+   drops you into the middle of the next page. */
+const PageTransition = ({ children }) => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [pathname]);
+
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={pathname}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -6 }}
+        transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
+      >
+        {children}
+      </motion.div>
+    </AnimatePresence>
+  );
+};
+
 function AppContent() {
   const location = useLocation();
   const pathname = location.pathname;
@@ -98,10 +126,12 @@ function AppContent() {
   return (
     <AuthProvider>
       <CartProvider>
+      <ScrollProgress />
       {!shouldHideHeader && !shouldShowAdminHeader && <Header />}
       {shouldShowAdminHeader && <AdminHeader />}
 
-        <Routes>
+      <PageTransition>
+        <Routes location={location}>
           {/* User Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/venues" element={<Venues />} />
@@ -152,6 +182,7 @@ function AppContent() {
           <Route path="/not-found" element={<NotFound />} />
           <Route path="*" element={<Navigate to="/not-found" replace />} />
         </Routes>
+      </PageTransition>
 
         <ToastContainer 
           position="top-right"

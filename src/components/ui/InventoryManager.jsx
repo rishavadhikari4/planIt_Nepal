@@ -180,7 +180,7 @@ const InventoryManager = ({
                       <span className="min-w-0">
                         <span className="block max-w-[24ch] truncate font-medium">{item.name}</span>
                         {item.rating && (
-                          <span className="amount block text-[12px] text-ink-mute">
+                          <span className="amount block t-caption text-ink-mute">
                             {item.rating} rating
                           </span>
                         )}
@@ -204,13 +204,13 @@ const InventoryManager = ({
                     <div className="flex items-center justify-end gap-3">
                       <button
                         onClick={() => navigate(editPath(item._id))}
-                        className="text-[13px] font-medium text-crimson hover:underline"
+                        className="t-small font-medium text-crimson hover:underline"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => setPendingDelete(item)}
-                        className="text-[13px] font-medium text-ink-mute hover:text-red-600 hover:underline"
+                        className="t-small font-medium text-ink-mute hover:text-red-600 hover:underline"
                       >
                         Delete
                       </button>

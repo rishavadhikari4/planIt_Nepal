@@ -107,7 +107,7 @@ const ResetPassword = () => {
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-crimson">
             <Check className="h-4 w-4 text-white" strokeWidth={3} />
           </span>
-          <p className="text-[14px] text-ink-soft">
+          <p className="t-small text-ink-soft">
             The old password no longer works on this account.
           </p>
         </div>
@@ -183,7 +183,7 @@ const ResetPassword = () => {
                   />
                 ))}
               </div>
-              <p className="mt-1.5 text-[12.5px] text-ink-mute">
+              <p className="mt-1.5 t-caption text-ink-mute">
                 <span className="font-semibold text-ink-soft">{STRENGTH[Math.max(0, score - 1)]}</span>
                 {missing.length > 0 && ` — add ${missing.map((r) => r.label).join(", ")}.`}
               </p>

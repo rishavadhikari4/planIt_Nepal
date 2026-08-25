@@ -116,11 +116,11 @@ const ContactDetails = () => {
         <DetailCard title="Their message">
           <div className="px-5 py-5">
             {contact.message ? (
-              <p className="max-w-[70ch] whitespace-pre-wrap text-[15px] leading-relaxed text-ink">
+              <p className="max-w-[70ch] whitespace-pre-wrap t-body leading-relaxed text-ink">
                 {contact.message}
               </p>
             ) : (
-              <p className="text-[14px] text-ink-mute">No message was included.</p>
+              <p className="t-small text-ink-mute">No message was included.</p>
             )}
           </div>
         </DetailCard>
@@ -134,8 +134,8 @@ const ContactDetails = () => {
               >
                 <Mail className="h-4 w-4 shrink-0 text-ink-mute" strokeWidth={1.75} />
                 <span className="min-w-0 flex-1">
-                  <span className="block text-[12px] text-ink-mute">Email</span>
-                  <span className="amount block truncate text-[13.5px] text-ink group-hover:underline">
+                  <span className="block t-caption text-ink-mute">Email</span>
+                  <span className="amount block truncate t-small text-ink group-hover:underline">
                     {contact.email || "—"}
                   </span>
                 </span>
@@ -146,8 +146,8 @@ const ContactDetails = () => {
               >
                 <Phone className="h-4 w-4 shrink-0 text-ink-mute" strokeWidth={1.75} />
                 <span className="min-w-0 flex-1">
-                  <span className="block text-[12px] text-ink-mute">Phone</span>
-                  <span className="amount block truncate text-[13.5px] text-ink group-hover:underline">
+                  <span className="block t-caption text-ink-mute">Phone</span>
+                  <span className="amount block truncate t-small text-ink group-hover:underline">
                     {contact.phone || "—"}
                   </span>
                 </span>

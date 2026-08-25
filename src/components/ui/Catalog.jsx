@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight, Search } from "lucide-react"
+import { Reveal, Stagger, Item } from "./Motion"
 
 /*
  * Shared chrome for the three catalogs (venues, catering, studios). They are
@@ -16,10 +17,10 @@ export const CatalogHeader = ({ step, title, blurb, count, countLabel, searching
     </p>
     <div className="mt-5 flex flex-wrap items-end justify-between gap-4">
       <div>
-        <h1 className="text-[34px] sm:text-[42px]">{title}</h1>
-        <p className="mt-3 max-w-[56ch] text-[16px] leading-relaxed text-ink-soft">{blurb}</p>
+        <h1 className="t-display">{title}</h1>
+        <p className="mt-3 max-w-[56ch] t-body leading-relaxed text-ink-soft">{blurb}</p>
       </div>
-      <p className="amount shrink-0 text-[13px] text-ink-mute">
+      <p className="amount shrink-0 t-small text-ink-mute">
         {searching ? "Matching" : "Showing"} <span className="text-ink">{count ?? 0}</span> {countLabel}
       </p>
     </div>
@@ -39,7 +40,7 @@ export const CatalogToolbar = ({
   hasFilters,
   children,
 }) => (
-  <section className="sticky top-16 z-30 -mx-5 border-b border-line bg-paper/95 px-5 py-4 backdrop-blur-[6px] sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+  <section className="sticky top-16 z-30 -mx-5 border-b border-line bg-paper/85 px-5 py-4 backdrop-blur-[10px] sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
     <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
       <div className="relative flex-1">
         <Search
@@ -134,15 +135,18 @@ export const CardSkeleton = ({ count = 8 }) => (
 
 /** An empty screen is an invitation to act, so it always offers the next move. */
 export const EmptyState = ({ title, body, action, onAction }) => (
-  <div className="card px-6 py-20 text-center">
-    <h2 className="text-[22px]">{title}</h2>
-    <p className="mx-auto mt-3 max-w-[46ch] text-[15px] leading-relaxed text-ink-soft">{body}</p>
+  <Reveal className="card px-6 py-24 text-center">
+    <span className="ornament mx-auto mb-8 max-w-[120px]" aria-hidden>
+      <span />
+    </span>
+    <h2 className="t-title">{title}</h2>
+    <p className="mx-auto mt-4 max-w-[42ch] t-body text-ink-soft">{body}</p>
     {action && (
-      <button onClick={onAction} className="btn btn-ghost mt-8">
+      <button onClick={onAction} className="btn btn-ghost mt-9">
         {action}
       </button>
     )}
-  </div>
+  </Reveal>
 )
 
 export const Pagination = ({ page, totalPages, onChange }) => {
@@ -178,10 +182,10 @@ export const Pagination = ({ page, totalPages, onChange }) => {
             key={i}
             onClick={() => step(p)}
             aria-current={p === page ? "page" : undefined}
-            className={`amount h-9 min-w-9 rounded-md px-2.5 text-[13.5px] transition-colors ${
+            className={`amount h-9 min-w-9 rounded-md px-2.5 t-small transition-colors ${
               p === page
                 ? "bg-crimson font-semibold text-white"
-                : "text-ink-soft hover:bg-gray-100"
+                : "text-ink-soft transition-colors duration-300 hover:bg-gray-100 hover:text-ink"
             }`}
           >
             {p}

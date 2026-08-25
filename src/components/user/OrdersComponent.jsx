@@ -98,8 +98,8 @@ const OrdersComponent = () => {
   if (orders.length === 0) {
     return (
       <div className="card px-6 py-16 text-center">
-        <h2 className="text-[22px]">No bookings yet</h2>
-        <p className="mx-auto mt-3 max-w-[44ch] text-[15px] leading-relaxed text-ink-soft">
+        <h2 className="t-heading">No bookings yet</h2>
+        <p className="mx-auto mt-3 max-w-[44ch] t-body leading-relaxed text-ink-soft">
           Start with a venue — it fixes your date, and the catering and studio are booked around it.
         </p>
         <button onClick={() => navigate("/venues")} className="btn btn-accent mt-8">
@@ -135,7 +135,7 @@ const OrdersComponent = () => {
       </div>
 
       {visible.length === 0 ? (
-        <p className="mt-8 rounded-lg border border-line bg-surface px-5 py-10 text-center text-[14px] text-ink-mute">
+        <p className="mt-8 rounded-lg border border-line bg-surface px-5 py-10 text-center t-small text-ink-mute">
           No orders match that.
         </p>
       ) : (
@@ -151,11 +151,11 @@ const OrdersComponent = () => {
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                      <span className="amount text-[15px] font-semibold text-ink">
+                      <span className="amount t-body font-semibold text-ink">
                         #{order._id.slice(-8).toUpperCase()}
                       </span>
                       <span
-                        className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11.5px] font-semibold capitalize ${
+                        className={`inline-flex items-center rounded-full border px-2.5 py-0.5 t-caption font-semibold capitalize ${
                           STATUS_TONE[order.status?.toLowerCase()] || STATUS_TONE.draft
                         }`}
                       >
@@ -163,15 +163,15 @@ const OrdersComponent = () => {
                       </span>
                     </div>
 
-                    <p className="amount mt-1.5 text-[12.5px] text-ink-mute">
+                    <p className="amount mt-1.5 t-caption text-ink-mute">
                       Placed {date(order.createdAt)} · {order.items?.length || 0}{" "}
                       {order.items?.length === 1 ? "item" : "items"}
                     </p>
-                    <p className="mt-1 text-[13px] text-ink-soft">{paymentLine(order)}</p>
+                    <p className="mt-1 t-small text-ink-soft">{paymentLine(order)}</p>
                   </div>
 
                   <div className="flex shrink-0 items-center gap-3">
-                    <span className="amount text-[17px] font-semibold text-ink">
+                    <span className="amount t-lead font-semibold text-ink">
                       {rs(order.totalAmount)}
                     </span>
                     <ChevronDown
@@ -202,10 +202,10 @@ const OrdersComponent = () => {
                             <div className="min-w-0 flex-1">
                               <div className="flex items-start justify-between gap-4">
                                 <div className="min-w-0">
-                                  <p className="truncate text-[14.5px] font-semibold text-ink">
+                                  <p className="truncate t-body font-semibold text-ink">
                                     {item.name}
                                   </p>
-                                  <p className="mt-0.5 text-[12.5px] capitalize text-ink-mute">
+                                  <p className="mt-0.5 t-caption capitalize text-ink-mute">
                                     {item.itemType}
                                     {item.quantity > 1 && (
                                       <>
@@ -215,13 +215,13 @@ const OrdersComponent = () => {
                                     )}
                                   </p>
                                 </div>
-                                <span className="amount shrink-0 text-[14px] font-semibold text-ink">
+                                <span className="amount shrink-0 t-small font-semibold text-ink">
                                   {rs(item.price * item.quantity)}
                                 </span>
                               </div>
 
                               {item.bookedFrom && item.bookedTill && (
-                                <p className="amount mt-2 inline-flex items-center gap-1.5 text-[12.5px] text-ink-soft">
+                                <p className="amount mt-2 inline-flex items-center gap-1.5 t-caption text-ink-soft">
                                   <Calendar className="h-3.5 w-3.5 text-ink-mute" strokeWidth={1.75} />
                                   {date(item.bookedFrom)} — {date(item.bookedTill)}
                                 </p>
@@ -230,7 +230,7 @@ const OrdersComponent = () => {
                               <div className="mt-3 flex flex-wrap items-center gap-3">
                                 <button
                                   onClick={() => openItem(item)}
-                                  className="text-[13px] font-medium text-crimson hover:underline"
+                                  className="t-small font-medium text-crimson hover:underline"
                                 >
                                   View
                                 </button>
@@ -239,14 +239,14 @@ const OrdersComponent = () => {
                                     onClick={() =>
                                       setRating({ item, itemType: item.itemType || "venue" })
                                     }
-                                    className="inline-flex items-center gap-1.5 text-[13px] font-medium text-brass-deep hover:underline"
+                                    className="inline-flex items-center gap-1.5 t-small font-medium text-brass-deep hover:underline"
                                   >
                                     <Star className="h-3.5 w-3.5" strokeWidth={2} />
                                     Rate this
                                   </button>
                                 )}
                                 {rated.has(`${item.itemId}-${item.itemType}`) && (
-                                  <span className="text-[13px] text-ink-mute">Rated</span>
+                                  <span className="t-small text-ink-mute">Rated</span>
                                 )}
                               </div>
                             </div>
@@ -268,14 +268,14 @@ const OrdersComponent = () => {
                           ],
                         ].map(([label, value]) => (
                           <div key={label} className="bg-surface px-5 py-3.5">
-                            <dt className="text-[12px] text-ink-mute">{label}</dt>
-                            <dd className="amount mt-0.5 text-[14px] text-ink">{value}</dd>
+                            <dt className="t-caption text-ink-mute">{label}</dt>
+                            <dd className="amount mt-0.5 t-small text-ink">{value}</dd>
                           </div>
                         ))}
                       </dl>
 
                       {(order.paymentTransactionId || order.stripePaymentIntentId) && (
-                        <p className="border-t border-line px-5 py-3 text-[12px] text-ink-mute">
+                        <p className="border-t border-line px-5 py-3 t-caption text-ink-mute">
                           Transaction:{" "}
                           <span className="amount">
                             {order.paymentTransactionId || order.stripePaymentIntentId}
@@ -285,7 +285,7 @@ const OrdersComponent = () => {
 
                       {order.status === "draft" && (
                         <div className="border-t border-line bg-gray-50 px-5 py-4">
-                          <p className="text-[13.5px] text-ink-soft">
+                          <p className="t-small text-ink-soft">
                             This order isn&rsquo;t confirmed yet — choose how to pay to hold your
                             dates.
                           </p>

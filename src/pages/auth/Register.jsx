@@ -155,7 +155,7 @@ const Register = () => {
                   />
                 ))}
               </div>
-              <p className="mt-1.5 text-[12.5px] text-ink-mute">
+              <p className="mt-1.5 t-caption text-ink-mute">
                 <span className="font-semibold text-ink-soft">{STRENGTH[Math.max(0, score - 1)]}</span>
                 {missing.length > 0 && ` — add ${missing.map((r) => r.label).join(", ")}.`}
               </p>

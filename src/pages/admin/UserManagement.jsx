@@ -112,7 +112,7 @@ const AdminUserList = ({ embedded }) => {
                 <tr key={user._id} className="transition-colors hover:bg-gray-50">
                   <Td>
                     <div className="flex items-center gap-3">
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-line bg-gray-100 text-[12px] font-semibold text-ink-soft">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-line bg-gray-100 t-caption font-semibold text-ink-soft">
                         {user.profileImage ? (
                           <img src={user.profileImage} alt="" className="h-full w-full object-cover" />
                         ) : (
@@ -122,7 +122,7 @@ const AdminUserList = ({ embedded }) => {
                       <span className="min-w-0">
                         <span className="block truncate font-medium">{user.name || "Unnamed"}</span>
                         {user.number && (
-                          <span className="amount block text-[12px] text-ink-mute">{user.number}</span>
+                          <span className="amount block t-caption text-ink-mute">{user.number}</span>
                         )}
                       </span>
                     </div>
@@ -144,13 +144,13 @@ const AdminUserList = ({ embedded }) => {
                     <div className="flex items-center justify-end gap-3">
                       <button
                         onClick={() => navigate(`/admin/users/inspect/${user._id}`)}
-                        className="text-[13px] font-medium text-crimson hover:underline"
+                        className="t-small font-medium text-crimson hover:underline"
                       >
                         Inspect
                       </button>
                       <button
                         onClick={() => setPendingDelete(user)}
-                        className="text-[13px] font-medium text-ink-mute hover:text-red-600 hover:underline"
+                        className="t-small font-medium text-ink-mute hover:text-red-600 hover:underline"
                       >
                         Delete
                       </button>
@@ -162,7 +162,7 @@ const AdminUserList = ({ embedded }) => {
           </Table>
 
           {!loading && visible.length > 0 && (
-            <p className="amount mt-4 text-[12.5px] text-ink-mute">
+            <p className="amount mt-4 t-caption text-ink-mute">
               Showing {visible.length} of {users.length} customers
             </p>
           )}

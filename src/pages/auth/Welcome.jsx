@@ -42,12 +42,12 @@ const Welcome = () => {
           transition={{ duration: 0.6, ease: EASE }}
         >
           <p className="eyebrow">Welcome</p>
-          <h1 className="mt-6 text-[clamp(32px,5.5vw,52px)] leading-[1.02] tracking-[-0.03em]">
+          <h1 className="mt-6 t-display">
             You&rsquo;re in{user?.name ? `, ${user.name.split(" ")[0]}` : ""}.
             <br />
             <span className="font-normal italic">Here&rsquo;s how it works.</span>
           </h1>
-          <p className="mt-6 max-w-[48ch] text-[16.5px] leading-relaxed text-ink-soft">
+          <p className="mt-6 max-w-[48ch] t-lead leading-relaxed text-ink-soft">
             An event is three bookings on one order. Choose them in this order and nothing clashes.
           </p>
         </motion.div>
@@ -64,12 +64,12 @@ const Welcome = () => {
                 onClick={() => navigate(s.path)}
                 className="group flex w-full items-start gap-5 py-6 text-left"
               >
-                <span className="amount w-8 shrink-0 pt-0.5 text-[13px] font-semibold text-brass-deep">
+                <span className="amount w-8 shrink-0 pt-0.5 t-small font-semibold text-brass-deep">
                   {s.step}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-[18px] font-semibold text-ink">{s.label}</span>
-                  <span className="mt-1.5 block max-w-[52ch] text-[14.5px] leading-relaxed text-ink-soft">
+                  <span className="block t-lead font-semibold text-ink">{s.label}</span>
+                  <span className="mt-1.5 block max-w-[52ch] t-body leading-relaxed text-ink-soft">
                     {s.body}
                   </span>
                 </span>

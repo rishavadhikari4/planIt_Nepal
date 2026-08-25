@@ -1,4 +1,5 @@
 import { useContext, useState, useRef, useEffect } from "react"
+import { AnimatePresence, motion } from "framer-motion"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { ShoppingBag, User, Menu, X, LogOut, ClipboardList } from "lucide-react"
 import { AuthContext } from "../../context/AuthContext"
@@ -23,7 +24,17 @@ const Header = () => {
   const { cartItems } = useCart()
   const [menuOpen, setMenuOpen] = useState(false)
   const [accountOpen, setAccountOpen] = useState(false)
+  const [lifted, setLifted] = useState(false)
   const accountRef = useRef(null)
+
+  /* The bar sits flush on the page at rest and lifts onto a hairline once you
+     start reading — a small signal that the page has moved under it. */
+  useEffect(() => {
+    const onScroll = () => setLifted(window.scrollY > 12)
+    onScroll()
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [])
 
   const { pathname } = location
   const onProfile = pathname.startsWith("/user-profile")
@@ -75,14 +86,22 @@ const Header = () => {
   const isActive = (path) => (path === "/" ? pathname === "/" : pathname.startsWith(path))
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-line bg-paper/95 backdrop-blur-[6px]">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-5 sm:px-6 lg:px-8">
+    <header
+      className={`sticky top-0 z-50 w-full bg-paper/85 backdrop-blur-[10px] transition-[border-color,box-shadow] duration-500 ${
+        lifted ? "border-b border-line shadow-[var(--shadow-sm)]" : "border-b border-transparent"
+      }`}
+    >
+      <div
+        className={`mx-auto flex max-w-7xl items-center gap-4 px-5 transition-[height] duration-500 sm:px-6 lg:px-8 ${
+          lifted ? "h-16" : "h-20"
+        }`}
+      >
         {/* Wordmark */}
         <Link to="/" className="group flex shrink-0 items-baseline gap-2 no-underline">
-          <span className="font-display text-[22px] font-semibold tracking-[-0.03em] text-crimson-deep">
+          <span className="font-display t-heading font-semibold text-crimson-deep">
             PlanIt
           </span>
-          <span className="font-mono text-[10px] font-medium uppercase tracking-[0.22em] text-brass-deep">
+          <span className="font-mono t-caption font-medium uppercase tracking-[0.22em] text-brass-deep">
             Nepal
           </span>
         </Link>
@@ -94,20 +113,24 @@ const Header = () => {
               key={path}
               to={path}
               aria-current={isActive(path) ? "page" : undefined}
-              className={`relative px-3 py-2 text-[14.5px] font-medium no-underline transition-colors ${
+              className={`relative px-3 py-2 t-small font-medium no-underline transition-colors duration-300 ${
                 isActive(path)
                   ? "text-ink"
                   : "text-ink-mute hover:text-ink"
               }`}
             >
               {step && (
-                <span className="mr-1.5 font-mono text-[10px] tracking-widest text-line-strong">
+                <span className="mr-1.5 font-mono t-caption tracking-widest text-line-strong">
                   {step}
                 </span>
               )}
               {label}
               {isActive(path) && (
-                <span className="absolute inset-x-3 -bottom-px block h-0.5 bg-brass" />
+                <motion.span
+                  layoutId="nav-thread"
+                  transition={{ type: "spring", stiffness: 380, damping: 34 }}
+                  className="absolute inset-x-3 -bottom-px block h-px bg-brass"
+                />
               )}
             </Link>
           ))}
@@ -127,7 +150,7 @@ const Header = () => {
           >
             <ShoppingBag className="h-[18px] w-[18px]" strokeWidth={1.75} />
             {cartCount > 0 && (
-              <span className="amount rounded-full bg-brass-deep px-1.5 py-px text-[11px] font-semibold text-white">
+              <span className="amount rounded-full bg-brass-deep px-1.5 py-px t-caption font-semibold text-white">
                 {cartCount > 99 ? "99+" : cartCount}
               </span>
             )}
@@ -150,27 +173,32 @@ const Header = () => {
                 {user.profileImage ? (
                   <img src={user.profileImage} alt="" className="h-full w-full object-cover" />
                 ) : user.name ? (
-                  <span className="text-[13px] font-semibold">{user.name.charAt(0).toUpperCase()}</span>
+                  <span className="t-small font-semibold">{user.name.charAt(0).toUpperCase()}</span>
                 ) : (
                   <User className="h-[18px] w-[18px]" strokeWidth={1.75} />
                 )}
               </button>
 
+              <AnimatePresence>
               {accountOpen && (
-                <div
+                <motion.div
                   role="menu"
-                  className="card absolute right-0 top-12 w-56 overflow-hidden p-1 shadow-lg"
+                  initial={{ opacity: 0, y: -8, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -6, scale: 0.98 }}
+                  transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                  className="card absolute right-0 top-12 w-56 origin-top-right overflow-hidden p-1 shadow-lg"
                 >
                   <div className="border-b border-line px-3 py-2.5">
-                    <p className="truncate text-[13.5px] font-semibold text-ink">
+                    <p className="truncate t-small font-semibold text-ink">
                       {user.name || "Your account"}
                     </p>
-                    <p className="truncate font-mono text-[11px] text-ink-mute">{user.email}</p>
+                    <p className="truncate font-mono t-caption text-ink-mute">{user.email}</p>
                   </div>
                   <button
                     role="menuitem"
                     onClick={goToProfile}
-                    className="flex w-full items-center gap-2.5 rounded px-3 py-2 text-left text-[13.5px] text-ink-soft hover:bg-gray-100 hover:text-ink"
+                    className="flex w-full items-center gap-2.5 rounded px-3 py-2 text-left t-small text-ink-soft hover:bg-gray-100 hover:text-ink"
                   >
                     <ClipboardList className="h-4 w-4" strokeWidth={1.75} />
                     Profile and orders
@@ -178,13 +206,14 @@ const Header = () => {
                   <button
                     role="menuitem"
                     onClick={() => logout()}
-                    className="flex w-full items-center gap-2.5 rounded px-3 py-2 text-left text-[13.5px] text-red-600 hover:bg-red-50"
+                    className="flex w-full items-center gap-2.5 rounded px-3 py-2 text-left t-small text-red-600 hover:bg-red-50"
                   >
                     <LogOut className="h-4 w-4" strokeWidth={1.75} />
                     Log out
                   </button>
-                </div>
+                </motion.div>
               )}
+              </AnimatePresence>
             </div>
           ) : (
             <Link to="/login" className="btn btn-primary ml-1 h-10 no-underline">
@@ -206,20 +235,27 @@ const Header = () => {
       </div>
 
       {/* Mobile sheet */}
+      <AnimatePresence>
       {menuOpen && (
-        <div className="border-t border-line bg-surface lg:hidden">
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: "auto", opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          className="overflow-hidden border-t border-line bg-surface lg:hidden"
+        >
           <nav className="mx-auto max-w-7xl px-3 py-2">
             {NAV.map(({ path, label, step }) => (
               <Link
                 key={path}
                 to={path}
-                className={`flex items-center gap-3 rounded-md px-3 py-3 text-[15px] no-underline ${
+                className={`flex items-center gap-3 rounded-md px-3 py-3 t-body no-underline ${
                   isActive(path)
                     ? "bg-gray-100 font-semibold text-ink"
                     : "text-ink-soft"
                 }`}
               >
-                <span className="w-6 font-mono text-[10px] tracking-widest text-line-strong">
+                <span className="w-6 font-mono t-caption tracking-widest text-line-strong">
                   {step || ""}
                 </span>
                 {label}
@@ -227,8 +263,9 @@ const Header = () => {
               </Link>
             ))}
           </nav>
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
     </header>
   )
 }

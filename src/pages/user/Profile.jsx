@@ -55,7 +55,7 @@ const PasswordField = ({ id, label, value, onChange, autoComplete, placeholder, 
           </button>
         )}
       </div>
-      {hint && <p className="mt-1.5 text-[12.5px] text-ink-mute">{hint}</p>}
+      {hint && <p className="mt-1.5 t-caption text-ink-mute">{hint}</p>}
     </div>
   )
 }
@@ -214,7 +214,7 @@ const UserProfile = () => {
       <div className="flex min-h-[70vh] items-center justify-center bg-paper">
         <div className="flex items-center gap-3 text-ink-mute">
           <span className="loader" />
-          <span className="text-[14px]">Loading your profile…</span>
+          <span className="t-small">Loading your profile…</span>
         </div>
       </div>
     )
@@ -224,8 +224,8 @@ const UserProfile = () => {
     return (
       <div className="flex min-h-[70vh] items-center justify-center bg-paper px-5">
         <div className="card max-w-md p-8 text-center">
-          <h1 className="text-[22px]">We couldn&rsquo;t load your profile</h1>
-          <p className="mt-3 text-[14.5px] leading-relaxed text-ink-soft">
+          <h1 className="t-heading">We couldn&rsquo;t load your profile</h1>
+          <p className="mt-3 t-body leading-relaxed text-ink-soft">
             Your session may have expired. Log in again to see your bookings.
           </p>
           <button onClick={() => navigate("/login")} className="btn btn-primary mt-7 w-full">
@@ -247,7 +247,7 @@ const UserProfile = () => {
           className="flex flex-wrap items-center gap-5"
         >
           <div className="relative">
-            <span className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border border-line bg-gray-100 text-[26px] font-semibold text-ink-soft">
+            <span className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border border-line bg-gray-100 t-title font-semibold text-ink-soft">
               {user.profileImage ? (
                 <img src={user.profileImage} alt="" className="h-full w-full object-cover" />
               ) : (
@@ -277,8 +277,8 @@ const UserProfile = () => {
 
           <div className="min-w-0 flex-1">
             <p className="eyebrow">Your account</p>
-            <h1 className="mt-3 text-[30px] sm:text-[36px]">{user.name || "Your profile"}</h1>
-            <p className="amount mt-1 truncate text-[14px] text-ink-mute">{user.email}</p>
+            <h1 className="mt-3 t-display">{user.name || "Your profile"}</h1>
+            <p className="amount mt-1 truncate t-small text-ink-mute">{user.email}</p>
           </div>
 
           <button onClick={logout} className="btn btn-ghost">
@@ -292,7 +292,7 @@ const UserProfile = () => {
         {!user.verified && (
           <div className="mt-8 flex flex-wrap items-center gap-4 rounded-lg border border-orange-200 bg-orange-50 px-5 py-4">
             <ShieldAlert className="h-5 w-5 shrink-0 text-orange-700" strokeWidth={1.75} />
-            <p className="flex-1 text-[14px] leading-relaxed text-orange-800">
+            <p className="flex-1 t-small leading-relaxed text-orange-800">
               Your email isn&rsquo;t verified yet. Verify it so booking confirmations and receipts
               reach you.
             </p>
@@ -322,7 +322,7 @@ const UserProfile = () => {
                 role="tab"
                 aria-selected={tab === t.id}
                 onClick={() => setTab(t.id)}
-                className={`relative px-4 py-3 text-[14.5px] font-medium transition-colors ${
+                className={`relative px-4 py-3 t-body font-medium transition-colors ${
                   tab === t.id ? "text-ink" : "text-ink-mute hover:text-ink"
                 }`}
               >
@@ -345,8 +345,8 @@ const UserProfile = () => {
                   {Object.entries(FIELDS).map(([key, field]) => (
                     <div key={key} className="flex items-center gap-4 px-5 py-4">
                       <div className="min-w-0 flex-1">
-                        <dt className="text-[12.5px] text-ink-mute">{field.label}</dt>
-                        <dd className="mt-0.5 truncate text-[15px] text-ink">
+                        <dt className="t-caption text-ink-mute">{field.label}</dt>
+                        <dd className="mt-0.5 truncate t-body text-ink">
                           {user[key] || <span className="text-ink-mute">Not set</span>}
                         </dd>
                       </div>
@@ -355,7 +355,7 @@ const UserProfile = () => {
                           setEditing(key)
                           setEditValue(user[key] || "")
                         }}
-                        className="shrink-0 text-[13px] font-medium text-crimson hover:underline"
+                        className="shrink-0 t-small font-medium text-crimson hover:underline"
                       >
                         {user[key] ? "Change" : "Add"}
                       </button>
@@ -364,11 +364,11 @@ const UserProfile = () => {
 
                   <div className="flex items-center gap-4 px-5 py-4">
                     <div className="min-w-0 flex-1">
-                      <dt className="text-[12.5px] text-ink-mute">Email</dt>
-                      <dd className="amount mt-0.5 truncate text-[15px] text-ink">{user.email}</dd>
+                      <dt className="t-caption text-ink-mute">Email</dt>
+                      <dd className="amount mt-0.5 truncate t-body text-ink">{user.email}</dd>
                     </div>
                     {user.verified ? (
-                      <span className="inline-flex shrink-0 items-center gap-1.5 text-[13px] font-medium text-green-700">
+                      <span className="inline-flex shrink-0 items-center gap-1.5 t-small font-medium text-green-700">
                         <Check className="h-4 w-4" strokeWidth={2.5} />
                         Verified
                       </span>
@@ -376,7 +376,7 @@ const UserProfile = () => {
                       <button
                         onClick={sendCode}
                         disabled={sendingCode}
-                        className="shrink-0 text-[13px] font-medium text-crimson hover:underline"
+                        className="shrink-0 t-small font-medium text-crimson hover:underline"
                       >
                         Verify
                       </button>
@@ -385,7 +385,7 @@ const UserProfile = () => {
                 </dl>
               </div>
 
-              <p className="mt-4 text-[12.5px] leading-relaxed text-ink-mute">
+              <p className="mt-4 t-caption leading-relaxed text-ink-mute">
                 Your email can&rsquo;t be changed here — it identifies your account and your
                 receipts. Contact us if you need it moved.
               </p>
@@ -395,8 +395,8 @@ const UserProfile = () => {
           {tab === "security" && (
             <section className="max-w-2xl space-y-6">
               <div className="card p-5">
-                <h2 className="text-[16px] font-semibold text-ink">Password</h2>
-                <p className="mt-1.5 text-[14px] leading-relaxed text-ink-soft">
+                <h2 className="t-body font-semibold text-ink">Password</h2>
+                <p className="mt-1.5 t-small leading-relaxed text-ink-soft">
                   Change it whenever you like. You&rsquo;ll need your current password.
                 </p>
                 <button onClick={() => setPasswordOpen(true)} className="btn btn-ghost mt-5">
@@ -405,8 +405,8 @@ const UserProfile = () => {
               </div>
 
               <div className="card border-red-200 p-5">
-                <h2 className="text-[16px] font-semibold text-ink">Delete your account</h2>
-                <p className="mt-1.5 max-w-[56ch] text-[14px] leading-relaxed text-ink-soft">
+                <h2 className="t-body font-semibold text-ink">Delete your account</h2>
+                <p className="mt-1.5 max-w-[56ch] t-small leading-relaxed text-ink-soft">
                   This removes your account, your cart and your access to past orders. Bookings
                   already confirmed with our team are not cancelled — contact us for those. This
                   cannot be undone.
@@ -486,11 +486,11 @@ const UserProfile = () => {
             placeholder="6-digit code"
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
-            className="field amount text-center text-[20px] tracking-[0.3em]"
+            className="field amount text-center t-heading"
             required
             autoFocus
           />
-          <p className="mt-3 text-[12.5px] text-ink-mute">
+          <p className="mt-3 t-caption text-ink-mute">
             Nothing arrived? Check your spam folder, then{" "}
             <button
               type="button"
@@ -581,7 +581,7 @@ const UserProfile = () => {
         width="max-w-md"
       >
         <form onSubmit={removeAccount} className="space-y-5">
-          <p className="text-[14px] leading-relaxed text-ink-soft">
+          <p className="t-small leading-relaxed text-ink-soft">
             Your account, cart and access to past orders are removed permanently. Confirmed
             bookings stay with our team — contact us if you need those cancelled.
           </p>

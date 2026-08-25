@@ -212,8 +212,8 @@ const Cuisines = () => {
               {withDishes.map((cuisine) => (
                 <section key={cuisine._id || cuisine.category}>
                   <div className="flex items-baseline justify-between border-b border-line pb-3">
-                    <h2 className="text-[24px] capitalize">{cuisine.category}</h2>
-                    <span className="amount text-[12.5px] text-ink-mute">
+                    <h2 className="t-title capitalize">{cuisine.category}</h2>
+                    <span className="amount t-caption text-ink-mute">
                       {cuisine.dishes.length} {cuisine.dishes.length === 1 ? "dish" : "dishes"}
                     </span>
                   </div>
@@ -223,8 +223,12 @@ const Cuisines = () => {
                       const chosen = Boolean(selection[dish._id])
                       const qty = selection[dish._id] || 1
                       return (
-                        <article
+                        <motion.article
                           key={dish._id}
+                          initial={{ opacity: 0, y: 20 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true, amount: 0.15 }}
+                          transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
                           className={`card group relative flex flex-col overflow-hidden transition-colors ${
                             chosen ? "border-crimson" : "hover:border-line-strong"
                           }`}
@@ -234,16 +238,16 @@ const Cuisines = () => {
                               src={dish.dishImage || dish.image || "/placeholder.svg"}
                               alt=""
                               loading="lazy"
-                              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                              className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.06]"
                             />
                             {chosen && (
-                              <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded bg-crimson px-1.5 py-0.5 text-[11px] font-semibold text-white">
+                              <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded bg-crimson px-1.5 py-0.5 t-caption font-semibold text-white">
                                 <Check className="h-3 w-3" strokeWidth={3} />
                                 On the menu
                               </span>
                             )}
                             {dish.rating && (
-                              <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded bg-crimson-deep/85 px-1.5 py-0.5 text-[11px] font-semibold text-white">
+                              <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded bg-crimson-deep/85 px-1.5 py-0.5 t-caption font-semibold text-white">
                                 <Star className="h-3 w-3 fill-brass text-brass" />
                                 <span className="amount">{dish.rating}</span>
                               </span>
@@ -268,20 +272,20 @@ const Cuisines = () => {
                           </div>
 
                           <div className="flex flex-1 flex-col p-4">
-                            <h3 className="line-clamp-2 text-[15.5px] font-semibold leading-snug text-ink">
+                            <h3 className="line-clamp-2 t-body font-semibold leading-snug text-ink">
                               {dish.name}
                             </h3>
                             {dish.description && (
-                              <p className="mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-ink-mute">
+                              <p className="mt-1.5 line-clamp-2 t-small leading-relaxed text-ink-mute">
                                 {dish.description}
                               </p>
                             )}
 
                             <p className="mt-3">
-                              <span className="amount text-[17px] font-semibold text-ink">
+                              <span className="amount t-lead font-semibold text-ink">
                                 {dish.price ? rs(dish.price) : "On request"}
                               </span>
-                              <span className="ml-1 text-[12px] text-ink-mute">per plate</span>
+                              <span className="ml-1 t-caption text-ink-mute">per plate</span>
                             </p>
 
                             <div className="mt-auto pt-4">
@@ -295,8 +299,8 @@ const Cuisines = () => {
                                   >
                                     <Minus className="h-3.5 w-3.5" strokeWidth={2} />
                                   </button>
-                                  <span className="amount text-[14px] font-semibold text-ink">
-                                    {qty} <span className="text-[12px] font-normal text-ink-mute">plates</span>
+                                  <span className="amount t-small font-semibold text-ink">
+                                    {qty} <span className="t-caption font-normal text-ink-mute">plates</span>
                                   </span>
                                   <button
                                     onClick={() => setQuantity(dish._id, qty + 1)}
@@ -309,7 +313,7 @@ const Cuisines = () => {
                               ) : (
                                 <button
                                   onClick={() => toggleDish(dish._id)}
-                                  className="btn btn-ghost w-full py-2.5 text-[13.5px]"
+                                  className="btn btn-ghost w-full py-2.5 t-small"
                                 >
                                   <Plus className="h-3.5 w-3.5" strokeWidth={2} />
                                   Add to menu
@@ -319,14 +323,14 @@ const Cuisines = () => {
                               {chosen && (
                                 <button
                                   onClick={() => toggleDish(dish._id)}
-                                  className="mt-2 w-full text-[12.5px] text-ink-mute hover:text-red-600"
+                                  className="mt-2 w-full t-caption text-ink-mute hover:text-red-600"
                                 >
                                   Remove
                                 </button>
                               )}
                             </div>
                           </div>
-                        </article>
+                        </motion.article>
                       )
                     })}
                   </div>
@@ -351,12 +355,12 @@ const Cuisines = () => {
           >
             <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-3 px-5 py-4 sm:px-6 lg:px-8">
               <div className="min-w-0">
-                <p className="text-[13.5px] text-ink-soft">
+                <p className="t-small text-ink-soft">
                   <span className="amount font-semibold text-ink">{selectedDishes.length}</span>{" "}
                   {selectedDishes.length === 1 ? "dish" : "dishes"} ·{" "}
                   <span className="amount font-semibold text-ink">{plates}</span> plates
                 </p>
-                <p className="amount text-[19px] font-semibold text-ink">{rs(subtotal)}</p>
+                <p className="amount t-heading font-semibold text-ink">{rs(subtotal)}</p>
               </div>
 
               <div className="ml-auto flex items-center gap-2">

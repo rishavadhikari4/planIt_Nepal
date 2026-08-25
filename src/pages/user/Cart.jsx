@@ -63,7 +63,7 @@ const Cart = () => {
       <div className="flex min-h-[70vh] items-center justify-center bg-paper">
         <div className="flex items-center gap-3 text-ink-mute">
           <span className="loader" />
-          <span className="text-[14px]">Loading your cart…</span>
+          <span className="t-small">Loading your cart…</span>
         </div>
       </div>
     )
@@ -73,12 +73,12 @@ const Cart = () => {
     <div className="min-h-screen bg-paper">
       <div className="mx-auto max-w-6xl px-5 py-10 sm:px-6 sm:py-14 lg:px-8">
         <p className="eyebrow">Your plan</p>
-        <h1 className="mt-5 text-[34px] sm:text-[42px]">Everything you&rsquo;ve chosen</h1>
+        <h1 className="mt-5 t-display">Everything you&rsquo;ve chosen</h1>
 
         {cartItems.length === 0 ? (
           <div className="card mt-12 px-6 py-16 text-center">
-            <h2 className="text-[22px]">Nothing here yet</h2>
-            <p className="mx-auto mt-3 max-w-[42ch] text-[15px] leading-relaxed text-ink-soft">
+            <h2 className="t-heading">Nothing here yet</h2>
+            <p className="mx-auto mt-3 max-w-[42ch] t-body leading-relaxed text-ink-soft">
               Start with a venue — it fixes the date, and everything else is booked around it.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
@@ -100,20 +100,20 @@ const Cart = () => {
                 return (
                   <section key={group.key}>
                     <div className="flex items-baseline justify-between border-b border-line pb-3">
-                      <h2 className="flex items-baseline gap-3 font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-mute">
+                      <h2 className="flex items-baseline gap-3 font-mono t-caption font-semibold uppercase tracking-[0.16em] text-ink-mute">
                         <span className="text-brass-deep">{group.step}</span>
                         {group.label}
                       </h2>
                       <button
                         onClick={() => navigate(group.path)}
-                        className="text-[13px] font-medium text-crimson hover:underline"
+                        className="t-small font-medium text-crimson hover:underline"
                       >
                         {items.length ? "Add more" : "Browse"}
                       </button>
                     </div>
 
                     {items.length === 0 ? (
-                      <p className="py-6 text-[14px] text-ink-mute">{group.empty}</p>
+                      <p className="py-6 t-small text-ink-mute">{group.empty}</p>
                     ) : (
                       <ul className="divide-y divide-line">
                         <AnimatePresence initial={false}>
@@ -122,31 +122,31 @@ const Cart = () => {
                               key={item._id}
                               layout
                               exit={{ opacity: 0, height: 0 }}
-                              className="flex gap-4 py-5"
+                              className="group flex gap-4 py-6"
                             >
                               <img
                                 src={item.image || "/placeholder.svg"}
                                 alt=""
-                                className="h-20 w-20 shrink-0 rounded-md border border-line object-cover"
+                                className="h-24 w-24 shrink-0 rounded-md border border-line object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
                               />
 
                               <div className="min-w-0 flex-1">
                                 <div className="flex items-start justify-between gap-4">
                                   <div className="min-w-0">
-                                    <h3 className="truncate text-[15.5px] font-semibold text-ink">
+                                    <h3 className="truncate t-body font-semibold text-ink">
                                       {item.name}
                                     </h3>
                                     {item.category && (
-                                      <p className="mt-0.5 text-[13px] text-ink-mute">{item.category}</p>
+                                      <p className="mt-0.5 t-small text-ink-mute">{item.category}</p>
                                     )}
                                   </div>
-                                  <span className="amount shrink-0 text-[15px] font-semibold text-ink">
+                                  <span className="amount shrink-0 t-body font-semibold text-ink">
                                     {rs(item.price * item.quantity)}
                                   </span>
                                 </div>
 
                                 {item.bookingDates && (item.type === "venue" || item.type === "studio") && (
-                                  <p className="mt-2 inline-flex items-center gap-1.5 text-[12.5px] text-ink-soft">
+                                  <p className="mt-2 inline-flex items-center gap-1.5 t-caption text-ink-soft">
                                     <Calendar className="h-3.5 w-3.5 text-ink-mute" strokeWidth={1.75} />
                                     <span className="amount">
                                       {new Date(item.bookingDates.from).toLocaleDateString("en-GB")} —{" "}
@@ -167,7 +167,7 @@ const Cart = () => {
                                     >
                                       <Minus className="h-3.5 w-3.5" strokeWidth={2} />
                                     </button>
-                                    <span className="amount w-9 text-center text-[14px] font-semibold">
+                                    <span className="amount w-9 text-center t-small font-semibold">
                                       {item.quantity}
                                     </span>
                                     <button
@@ -181,7 +181,7 @@ const Cart = () => {
 
                                   <button
                                     onClick={() => removeFromCart(item._id)}
-                                    className="inline-flex items-center gap-1.5 text-[13px] text-ink-mute transition-colors hover:text-red-600"
+                                    className="inline-flex items-center gap-1.5 t-small text-ink-mute transition-colors hover:text-red-600"
                                   >
                                     <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
                                     Remove
@@ -202,7 +202,7 @@ const Cart = () => {
             <aside className="lg:sticky lg:top-24 lg:self-start">
               <div className="card overflow-hidden">
                 <div className="border-b border-line px-5 py-4">
-                  <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-mute">
+                  <h2 className="font-mono t-caption font-semibold uppercase tracking-[0.16em] text-ink-mute">
                     Summary
                   </h2>
                 </div>
@@ -213,7 +213,7 @@ const Cart = () => {
                     if (!items.length) return null
                     const sum = items.reduce((s, i) => s + i.price * i.quantity, 0)
                     return (
-                      <div key={group.key} className="flex items-baseline justify-between text-[14px]">
+                      <div key={group.key} className="flex items-baseline justify-between t-small">
                         <span className="text-ink-soft">
                           {group.label}
                           <span className="text-ink-mute"> · {items.length}</span>
@@ -224,10 +224,10 @@ const Cart = () => {
                   })}
 
                   <div className="flex items-baseline justify-between border-t border-line pt-3">
-                    <span className="text-[15px] font-semibold text-ink">Total</span>
-                    <span className="amount text-[22px] font-semibold text-ink">{rs(total)}</span>
+                    <span className="t-body font-semibold text-ink">Total</span>
+                    <span className="amount t-heading font-semibold text-ink">{rs(total)}</span>
                   </div>
-                  <p className="text-[12.5px] text-ink-mute">
+                  <p className="t-caption text-ink-mute">
                     Or hold your dates with {rs(Math.round(total * 0.25))} now.
                   </p>
                 </div>
@@ -250,7 +250,7 @@ const Cart = () => {
                       </>
                     )}
                   </button>
-                  <p className="mt-3 text-center text-[12px] text-ink-mute">
+                  <p className="mt-3 text-center t-caption text-ink-mute">
                     You choose how to pay on the next screen.
                   </p>
                 </div>

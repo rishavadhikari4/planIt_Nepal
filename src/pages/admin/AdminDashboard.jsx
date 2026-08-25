@@ -130,13 +130,13 @@ const Admin = () => {
                 role="tab"
                 aria-selected={active}
                 onClick={() => setTab(panel.id)}
-                className={`relative px-4 py-3 text-[14.5px] font-medium transition-colors ${
+                className={`relative px-4 py-3 t-body font-medium transition-colors ${
                   active ? "text-ink" : "text-ink-mute hover:text-ink"
                 }`}
               >
                 {panel.label}
                 {!busy && !failed[panel.id] && (
-                  <span className="amount ml-2 text-[12px] text-ink-mute">{count}</span>
+                  <span className="amount ml-2 t-caption text-ink-mute">{count}</span>
                 )}
                 {active && <span className="absolute inset-x-3 bottom-0 block h-0.5 bg-brass" />}
               </button>

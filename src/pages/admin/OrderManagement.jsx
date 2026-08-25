@@ -79,7 +79,7 @@ const StatusMenu = ({ order, busy, onPick }) => {
                   setOpen(false)
                   if (s !== order.status) onPick(s)
                 }}
-                className={`flex w-full items-center gap-2 rounded px-2.5 py-2 text-left text-[13px] capitalize hover:bg-gray-100 ${
+                className={`flex w-full items-center gap-2 rounded px-2.5 py-2 text-left t-small capitalize hover:bg-gray-100 ${
                   order.status === s ? "font-semibold text-ink" : "text-ink-soft"
                 }`}
               >
@@ -187,7 +187,7 @@ const AdminOrderList = ({ embedded }) => {
                     <span className="amount font-semibold">
                       #{order._id?.slice(-8).toUpperCase()}
                     </span>
-                    <span className="mt-0.5 block text-[12px] text-ink-mute">
+                    <span className="mt-0.5 block t-caption text-ink-mute">
                       {order.items?.length || 0} {order.items?.length === 1 ? "item" : "items"}
                     </span>
                   </Td>
@@ -196,7 +196,7 @@ const AdminOrderList = ({ embedded }) => {
                     <span className="block truncate font-medium">
                       {order.userId?.name || "Unknown"}
                     </span>
-                    <span className="block truncate text-[12px] text-ink-mute">
+                    <span className="block truncate t-caption text-ink-mute">
                       {order.userId?.email || "No email"}
                     </span>
                   </Td>
@@ -215,7 +215,7 @@ const AdminOrderList = ({ embedded }) => {
 
                   <Td>
                     <StatusBadge status={order.paymentStatus} />
-                    <span className="mt-0.5 block text-[12px] text-ink-mute">
+                    <span className="mt-0.5 block t-caption text-ink-mute">
                       {order.paymentProvider
                         ? PROVIDER[order.paymentProvider] || order.paymentProvider
                         : order.paymentType === "cash_after_service"
@@ -227,7 +227,7 @@ const AdminOrderList = ({ embedded }) => {
                   <Td align="right">
                     <span className="amount font-semibold">{rs(order.totalAmount)}</span>
                     {order.paidAmount > 0 && order.paidAmount < order.totalAmount && (
-                      <span className="amount mt-0.5 block text-[12px] text-ink-mute">
+                      <span className="amount mt-0.5 block t-caption text-ink-mute">
                         {rs(order.paidAmount)} paid
                       </span>
                     )}
@@ -236,7 +236,7 @@ const AdminOrderList = ({ embedded }) => {
                   <Td align="right">
                     <button
                       onClick={() => navigate(`/admin/orders/${order._id}`)}
-                      className="text-[13px] font-medium text-crimson hover:underline"
+                      className="t-small font-medium text-crimson hover:underline"
                     >
                       Open
                     </button>
@@ -247,7 +247,7 @@ const AdminOrderList = ({ embedded }) => {
           </Table>
 
           {!loading && visible.length > 0 && (
-            <p className="amount mt-4 text-[12.5px] text-ink-mute">
+            <p className="amount mt-4 t-caption text-ink-mute">
               Showing {visible.length} of {pagination?.totalOrders || orders.length} orders
             </p>
           )}

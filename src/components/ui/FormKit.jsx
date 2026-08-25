@@ -21,9 +21,9 @@ export const FormPage = ({ backTo, backLabel, eyebrow, title, description, child
 
         <header className="border-b border-line pb-6">
           {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-          <h1 className="mt-4 text-[30px] sm:text-[34px]">{title}</h1>
+          <h1 className="mt-4 t-display">{title}</h1>
           {description && (
-            <p className="mt-3 max-w-[60ch] text-[14.5px] leading-relaxed text-ink-soft">
+            <p className="mt-3 max-w-[60ch] t-body leading-relaxed text-ink-soft">
               {description}
             </p>
           )}
@@ -42,7 +42,7 @@ export const Field = ({ id, label, hint, required, children }) => (
       {!required && <span className="ml-1.5 font-normal text-ink-mute">(optional)</span>}
     </label>
     {children}
-    {hint && <p className="mt-1.5 text-[12.5px] text-ink-mute">{hint}</p>}
+    {hint && <p className="mt-1.5 t-caption text-ink-mute">{hint}</p>}
   </div>
 )
 
@@ -99,14 +99,14 @@ export const ImagePicker = ({ label = "Photo", value, preview, onChange, hint, r
         <div className="relative overflow-hidden rounded-lg border border-line">
           <img src={preview} alt="" className="aspect-[16/9] w-full object-cover" />
           <div className="flex items-center justify-between gap-3 border-t border-line bg-surface px-4 py-3">
-            <p className="min-w-0 truncate text-[13px] text-ink-soft">
+            <p className="min-w-0 truncate t-small text-ink-soft">
               {value?.name || "Current photo"}
             </p>
             <div className="flex shrink-0 gap-3">
               <button
                 type="button"
                 onClick={() => inputRef.current?.click()}
-                className="text-[13px] font-medium text-crimson hover:underline"
+                className="t-small font-medium text-crimson hover:underline"
               >
                 Replace
               </button>
@@ -118,7 +118,7 @@ export const ImagePicker = ({ label = "Photo", value, preview, onChange, hint, r
                     if (inputRef.current) inputRef.current.value = ""
                   }}
                   aria-label="Remove photo"
-                  className="text-[13px] font-medium text-ink-mute hover:text-red-600 hover:underline"
+                  className="t-small font-medium text-ink-mute hover:text-red-600 hover:underline"
                 >
                   Remove
                 </button>
@@ -145,10 +145,10 @@ export const ImagePicker = ({ label = "Photo", value, preview, onChange, hint, r
           }`}
         >
           <ImagePlus className="h-6 w-6 text-ink-mute" strokeWidth={1.5} />
-          <span className="text-[14px] font-medium text-ink">
+          <span className="t-small font-medium text-ink">
             Drop an image here, or click to choose
           </span>
-          <span className="text-[12.5px] text-ink-mute">JPG or PNG, up to {MAX_MB}MB</span>
+          <span className="t-caption text-ink-mute">JPG or PNG, up to {MAX_MB}MB</span>
         </button>
       )}
 
@@ -160,7 +160,7 @@ export const ImagePicker = ({ label = "Photo", value, preview, onChange, hint, r
         className="sr-only"
       />
 
-      {hint && <p className="mt-1.5 text-[12.5px] text-ink-mute">{hint}</p>}
+      {hint && <p className="mt-1.5 t-caption text-ink-mute">{hint}</p>}
     </div>
   )
 }
@@ -198,12 +198,12 @@ export const GalleryManager = ({
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          className="text-[13px] font-medium text-crimson hover:underline"
+          className="t-small font-medium text-crimson hover:underline"
         >
           Add photos
         </button>
       </div>
-      <p className="mt-1.5 text-[12.5px] text-ink-mute">
+      <p className="mt-1.5 t-caption text-ink-mute">
         Extra photos shown on the detail page. The main photo above stays separate.
       </p>
 
@@ -217,7 +217,7 @@ export const GalleryManager = ({
       />
 
       {photos.length === 0 && staged.length === 0 ? (
-        <p className="mt-4 rounded-lg border border-dashed border-line-strong px-5 py-8 text-center text-[13.5px] text-ink-mute">
+        <p className="mt-4 rounded-lg border border-dashed border-line-strong px-5 py-8 text-center t-small text-ink-mute">
           No extra photos yet.
         </p>
       ) : (
@@ -250,7 +250,7 @@ export const GalleryManager = ({
               className="group relative aspect-square overflow-hidden rounded-md border-2 border-dashed border-brass bg-gray-100"
             >
               <img src={item.url} alt="" className="h-full w-full object-cover opacity-70" />
-              <span className="absolute inset-x-0 bottom-0 bg-brass-deep px-1 py-0.5 text-center text-[10px] font-semibold uppercase tracking-wider text-white">
+              <span className="absolute inset-x-0 bottom-0 bg-brass-deep px-1 py-0.5 text-center t-caption font-semibold uppercase tracking-wider text-white">
                 Not saved
               </span>
               <button
@@ -301,7 +301,7 @@ export const CheckboxGroup = ({ label, options, value = [], onChange, hint }) =>
             role="checkbox"
             aria-checked={on}
             onClick={() => onChange(on ? value.filter((v) => v !== option) : [...value, option])}
-            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[13px] font-medium transition-colors ${
+            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 t-small font-medium transition-colors ${
               on
                 ? "border-crimson bg-crimson text-white"
                 : "border-line-strong text-ink-soft hover:border-ink-mute hover:text-ink"
@@ -313,6 +313,6 @@ export const CheckboxGroup = ({ label, options, value = [], onChange, hint }) =>
         )
       })}
     </div>
-    {hint && <p className="mt-2 text-[12.5px] text-ink-mute">{hint}</p>}
+    {hint && <p className="mt-2 t-caption text-ink-mute">{hint}</p>}
   </fieldset>
 )
