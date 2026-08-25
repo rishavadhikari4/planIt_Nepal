@@ -61,7 +61,7 @@ const Register = () => {
       footer={
         <p className="text-ink-soft">
           Already have an account?{" "}
-          <Link to="/login" className="font-semibold text-pine no-underline hover:underline">
+          <Link to="/login" className="font-semibold text-crimson no-underline hover:underline">
             Log in
           </Link>
         </p>
@@ -148,7 +148,7 @@ const Register = () => {
                         ? score <= 2
                           ? "bg-red-400"
                           : score <= 3
-                            ? "bg-marigold"
+                            ? "bg-brass"
                             : "bg-green-500"
                         : "bg-line"
                     }`}
@@ -179,7 +179,7 @@ const Register = () => {
         <button
           type="submit"
           disabled={loading || Boolean(mismatch)}
-          className="btn btn-primary w-full py-3"
+          className="btn btn-accent w-full py-3"
         >
           {loading ? (
             <>

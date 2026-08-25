@@ -64,7 +64,7 @@ const Welcome = () => {
                 onClick={() => navigate(s.path)}
                 className="group flex w-full items-start gap-5 py-6 text-left"
               >
-                <span className="amount w-8 shrink-0 pt-0.5 text-[13px] font-semibold text-marigold-deep">
+                <span className="amount w-8 shrink-0 pt-0.5 text-[13px] font-semibold text-brass-deep">
                   {s.step}
                 </span>
                 <span className="min-w-0 flex-1">
@@ -74,7 +74,7 @@ const Welcome = () => {
                   </span>
                 </span>
                 <ArrowRight
-                  className="mt-1 h-4 w-4 shrink-0 text-line-strong transition-all group-hover:translate-x-1 group-hover:text-marigold"
+                  className="mt-1 h-4 w-4 shrink-0 text-line-strong transition-all group-hover:translate-x-1 group-hover:text-brass"
                   strokeWidth={2}
                 />
               </button>

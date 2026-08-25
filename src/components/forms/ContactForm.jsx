@@ -184,7 +184,7 @@ const ContactForm = ({
           />
         </div>
 
-        <button type="submit" disabled={sending} className="btn btn-primary group w-full py-3">
+        <button type="submit" disabled={sending} className="btn btn-accent group w-full py-3">
           {sending ? (
             <>
               <span className="loader h-4 w-4 border-white/40 border-t-white" />

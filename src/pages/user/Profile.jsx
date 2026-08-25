@@ -328,7 +328,7 @@ const UserProfile = () => {
               >
                 {t.label}
                 {tab === t.id && (
-                  <span className="absolute inset-x-3 bottom-0 block h-0.5 bg-marigold" />
+                  <span className="absolute inset-x-3 bottom-0 block h-0.5 bg-brass" />
                 )}
               </button>
             ))}
@@ -355,7 +355,7 @@ const UserProfile = () => {
                           setEditing(key)
                           setEditValue(user[key] || "")
                         }}
-                        className="shrink-0 text-[13px] font-medium text-pine hover:underline"
+                        className="shrink-0 text-[13px] font-medium text-crimson hover:underline"
                       >
                         {user[key] ? "Change" : "Add"}
                       </button>
@@ -376,7 +376,7 @@ const UserProfile = () => {
                       <button
                         onClick={sendCode}
                         disabled={sendingCode}
-                        className="shrink-0 text-[13px] font-medium text-pine hover:underline"
+                        className="shrink-0 text-[13px] font-medium text-crimson hover:underline"
                       >
                         Verify
                       </button>
@@ -496,7 +496,7 @@ const UserProfile = () => {
               type="button"
               onClick={sendCode}
               disabled={sendingCode}
-              className="font-medium text-pine hover:underline disabled:opacity-50"
+              className="font-medium text-crimson hover:underline disabled:opacity-50"
             >
               send a new code
             </button>

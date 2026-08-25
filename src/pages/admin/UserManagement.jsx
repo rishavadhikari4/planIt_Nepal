@@ -144,7 +144,7 @@ const AdminUserList = ({ embedded }) => {
                     <div className="flex items-center justify-end gap-3">
                       <button
                         onClick={() => navigate(`/admin/users/inspect/${user._id}`)}
-                        className="text-[13px] font-medium text-pine hover:underline"
+                        className="text-[13px] font-medium text-crimson hover:underline"
                       >
                         Inspect
                       </button>

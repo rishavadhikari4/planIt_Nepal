@@ -86,7 +86,7 @@ const RatingModal = ({ isOpen, onClose, item, itemType, onRatingSubmitted }) => 
                 >
                   <Star
                     className={`h-8 w-8 transition-colors ${
-                      star <= (hover || rating) ? "fill-marigold text-marigold" : "text-line-strong"
+                      star <= (hover || rating) ? "fill-brass text-brass" : "text-line-strong"
                     }`}
                     strokeWidth={1.5}
                   />

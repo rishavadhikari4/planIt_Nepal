@@ -236,7 +236,7 @@ const AdminOrderList = ({ embedded }) => {
                   <Td align="right">
                     <button
                       onClick={() => navigate(`/admin/orders/${order._id}`)}
-                      className="text-[13px] font-medium text-pine hover:underline"
+                      className="text-[13px] font-medium text-crimson hover:underline"
                     >
                       Open
                     </button>

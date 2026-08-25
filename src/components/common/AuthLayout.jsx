@@ -1,20 +1,49 @@
+import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
+import { getAllVenues } from "../../services/venues"
 
 /*
  * The auth pages hide the site header, so they carry the brand themselves: a
- * pine panel on the left holding the wordmark and the promise, the form on
+ * crimson panel on the left holding the wordmark and the promise, the form on
  * paper to the right. On small screens the panel collapses to a single line so
  * the form is the first thing in reach.
  */
-const AuthLayout = ({ title, subtitle, aside, children, footer }) => (
+const AuthLayout = ({ title, subtitle, aside, children, footer }) => {
+  // A real venue photograph behind the crimson, dimmed to texture — the same
+  // treatment as the payments panel on the landing page.
+  const [backdrop, setBackdrop] = useState(null)
+
+  useEffect(() => {
+    let live = true
+    getAllVenues({ limit: 4, sortField: "createdAt", sortOrder: "desc" })
+      .then((r) => {
+        const found = (r.venues || []).map((v) => v.venueImage).filter(Boolean)
+        if (live && found.length) setBackdrop(found[Math.floor(Math.random() * found.length)])
+      })
+      .catch(() => {})
+    return () => {
+      live = false
+    }
+  }, [])
+
+  return (
   <div className="grid min-h-screen bg-paper lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)]">
     {/* Brand panel */}
-    <aside className="flex flex-col justify-between bg-pine-deep px-6 py-6 text-white sm:px-10 lg:px-14 lg:py-14">
+    <aside className="relative isolate flex flex-col justify-between overflow-hidden bg-crimson-deep px-6 py-6 text-white sm:px-10 lg:px-14 lg:py-14">
+      {backdrop && (
+        <img
+          src={backdrop}
+          alt=""
+          aria-hidden
+          className="absolute inset-0 -z-10 h-full w-full object-cover opacity-[0.16]"
+        />
+      )}
+      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-crimson-deep/70 via-crimson-deep/85 to-crimson-deep" />
       <Link to="/" className="flex items-baseline gap-2 no-underline">
         <span className="font-display text-[24px] font-semibold tracking-[-0.03em] text-white">
           PlanIt
         </span>
-        <span className="font-mono text-[10px] font-medium uppercase tracking-[0.22em] text-marigold-lift">
+        <span className="font-mono text-[10px] font-medium uppercase tracking-[0.22em] text-brass-lift">
           Nepal
         </span>
       </Link>
@@ -44,7 +73,8 @@ const AuthLayout = ({ title, subtitle, aside, children, footer }) => (
       </div>
     </main>
   </div>
-)
+  )
+}
 
 /** Shared field so every auth form has the same label, hint and error voice. */
 export const Field = ({ id, label, hint, error, children }) => (

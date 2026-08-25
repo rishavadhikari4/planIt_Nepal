@@ -33,11 +33,11 @@ const AdminHeader = () => {
   return (
     /* The staff side runs on ink rather than paper — you always know which
        side of the product you are standing on. */
-    <header className="sticky top-0 z-50 w-full border-b border-pine-deep bg-pine-deep">
+    <header className="sticky top-0 z-50 w-full border-b border-crimson-deep bg-crimson-deep">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-5 sm:px-6 lg:px-8">
         <Link to="/admin" className="flex shrink-0 items-baseline gap-2 no-underline">
           <span className="font-display text-[20px] font-semibold tracking-[-0.03em] text-white">PlanIt</span>
-          <span className="font-mono text-[10px] font-medium uppercase tracking-[0.22em] text-marigold-lift">
+          <span className="font-mono text-[10px] font-medium uppercase tracking-[0.22em] text-brass-lift">
             Staff
           </span>
         </Link>
@@ -55,7 +55,7 @@ const AdminHeader = () => {
               <link.icon className="h-4 w-4" strokeWidth={1.75} />
               {link.label}
               {isActive(link) && (
-                <span className="absolute inset-x-3 -bottom-[9px] block h-0.5 bg-marigold" />
+                <span className="absolute inset-x-3 -bottom-[9px] block h-0.5 bg-brass" />
               )}
             </Link>
           ))}

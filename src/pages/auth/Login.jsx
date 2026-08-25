@@ -37,7 +37,7 @@ const Login = () => {
       footer={
         <p className="text-ink-soft">
           New here?{" "}
-          <Link to="/register" className="font-semibold text-pine no-underline hover:underline">
+          <Link to="/register" className="font-semibold text-crimson no-underline hover:underline">
             Create an account
           </Link>
         </p>
@@ -97,7 +97,7 @@ const Login = () => {
           </Link>
         </div>
 
-        <button type="submit" disabled={loading} className="btn btn-primary w-full py-3">
+        <button type="submit" disabled={loading} className="btn btn-accent w-full py-3">
           {loading ? (
             <>
               <span className="loader h-4 w-4 border-white/40 border-t-white" />

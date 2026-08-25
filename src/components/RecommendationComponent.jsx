@@ -35,7 +35,7 @@ const STEPS = ["Budget", "Preferences", "Your package"]
 const Rating = ({ value }) =>
   value ? (
     <span className="inline-flex items-center gap-1 text-[12px] text-ink-mute">
-      <Star className="h-3 w-3 fill-marigold text-marigold" strokeWidth={1.5} />
+      <Star className="h-3 w-3 fill-brass text-brass" strokeWidth={1.5} />
       <span className="amount">{value}</span>
     </span>
   ) : null
@@ -167,9 +167,9 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
             <span
               className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold ${
                 i < step
-                  ? "bg-pine text-white"
+                  ? "bg-crimson text-white"
                   : i === step
-                    ? "border border-marigold bg-marigold-soft text-marigold-deep"
+                    ? "border border-brass bg-brass-soft text-brass-deep"
                     : "border border-line-strong text-ink-mute"
               }`}
             >

@@ -187,12 +187,12 @@ function PaymentSelection() {
                       onClick={() => setAmountChoice(option.id)}
                       disabled={submitting}
                       className={`flex items-start gap-4 p-5 text-left transition-colors disabled:opacity-60 ${
-                        selected ? "bg-pine-50" : "bg-surface hover:bg-gray-50"
+                        selected ? "bg-crimson-50" : "bg-surface hover:bg-gray-50"
                       }`}
                     >
                       <span
                         className={`mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-2 ${
-                          selected ? "border-pine bg-pine" : "border-line-strong"
+                          selected ? "border-crimson bg-crimson" : "border-line-strong"
                         }`}
                       >
                         {selected && <Check className="h-2.5 w-2.5 text-white" strokeWidth={4} />}
@@ -241,7 +241,7 @@ function PaymentSelection() {
                         disabled={!available || submitting}
                         onClick={() => setGateway(g.id)}
                         className={`flex flex-col items-start p-5 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
-                          selected ? "bg-pine-50" : "bg-surface hover:bg-gray-50"
+                          selected ? "bg-crimson-50" : "bg-surface hover:bg-gray-50"
                         }`}
                       >
                         <span className="flex w-full items-center gap-2.5">
@@ -252,7 +252,7 @@ function PaymentSelection() {
                           />
                           <span className="text-[15.5px] font-semibold text-ink">{g.name}</span>
                           {selected && (
-                            <Check className="ml-auto h-4 w-4 text-pine" strokeWidth={2.5} />
+                            <Check className="ml-auto h-4 w-4 text-crimson" strokeWidth={2.5} />
                           )}
                         </span>
                         <span className="mt-2 text-[13.5px] leading-relaxed text-ink-soft">
@@ -335,7 +335,7 @@ function PaymentSelection() {
                 </div>
                 <div className="flex items-baseline justify-between border-t border-line pt-2.5">
                   <span className="text-[14.5px] font-semibold text-ink">Due now</span>
-                  <span className="amount text-[22px] font-semibold text-pine">{rs(dueNow)}</span>
+                  <span className="amount text-[22px] font-semibold text-crimson">{rs(dueNow)}</span>
                 </div>
                 {dueNow !== total && (
                   <p className="text-[12.5px] text-ink-mute">

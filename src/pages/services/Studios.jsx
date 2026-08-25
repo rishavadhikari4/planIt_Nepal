@@ -182,8 +182,8 @@ const Studios = () => {
                           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                         />
                         {studio.rating && (
-                          <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded bg-pine-deep/85 px-1.5 py-0.5 text-[11px] font-semibold text-white">
-                            <Star className="h-3 w-3 fill-marigold text-marigold" />
+                          <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded bg-crimson-deep/85 px-1.5 py-0.5 text-[11px] font-semibold text-white">
+                            <Star className="h-3 w-3 fill-brass text-brass" />
                             <span className="amount">{studio.rating}</span>
                           </span>
                         )}
@@ -242,7 +242,7 @@ const Studios = () => {
                           </p>
                           <button
                             onClick={() => setPreview(studio)}
-                            className="text-[13px] font-medium text-pine hover:underline"
+                            className="text-[13px] font-medium text-crimson hover:underline"
                           >
                             Quick look
                           </button>
@@ -263,7 +263,7 @@ const Studios = () => {
       <AnimatePresence>
         {preview && (
           <motion.div
-            className="fixed inset-0 z-50 flex items-end justify-center bg-pine-deep/50 sm:items-center sm:p-6"
+            className="fixed inset-0 z-50 flex items-end justify-center bg-crimson-deep/50 sm:items-center sm:p-6"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

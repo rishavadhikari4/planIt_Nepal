@@ -115,7 +115,7 @@ const Admin = () => {
         </StatGrid>
       </div>
 
-      {/* Panel switcher — the marigold thread marks the open panel, same as the
+      {/* Panel switcher — the brass thread marks the open panel, same as the
           customer-side nav. */}
       <div className="mt-10 border-b border-line">
         <div role="tablist" aria-label="Dashboard panels" className="-mb-px flex gap-1">
@@ -138,7 +138,7 @@ const Admin = () => {
                 {!busy && !failed[panel.id] && (
                   <span className="amount ml-2 text-[12px] text-ink-mute">{count}</span>
                 )}
-                {active && <span className="absolute inset-x-3 bottom-0 block h-0.5 bg-marigold" />}
+                {active && <span className="absolute inset-x-3 bottom-0 block h-0.5 bg-brass" />}
               </button>
             )
           })}

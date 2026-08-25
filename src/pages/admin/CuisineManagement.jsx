@@ -223,7 +223,7 @@ const AdminCuisines = () => {
                             onClick={() =>
                               navigate(`/admin-cuisines/edit/${cat._id}/${dish._id}`)
                             }
-                            className="text-[13px] font-medium text-pine hover:underline"
+                            className="text-[13px] font-medium text-crimson hover:underline"
                           >
                             Edit
                           </button>

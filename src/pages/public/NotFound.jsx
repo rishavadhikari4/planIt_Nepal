@@ -55,7 +55,7 @@ const NotFound = () => {
                   onClick={() => navigate(link.path)}
                   className="group flex w-full items-center gap-4 py-4 text-left"
                 >
-                  <span className="amount w-7 shrink-0 text-[12px] font-semibold text-marigold-deep">
+                  <span className="amount w-7 shrink-0 text-[12px] font-semibold text-brass-deep">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <span className="min-w-0 flex-1">
@@ -63,7 +63,7 @@ const NotFound = () => {
                     <span className="block text-[13.5px] text-ink-mute">{link.detail}</span>
                   </span>
                   <ArrowRight
-                    className="h-4 w-4 shrink-0 text-line-strong transition-all group-hover:translate-x-1 group-hover:text-marigold"
+                    className="h-4 w-4 shrink-0 text-line-strong transition-all group-hover:translate-x-1 group-hover:text-brass"
                     strokeWidth={2}
                   />
                 </button>

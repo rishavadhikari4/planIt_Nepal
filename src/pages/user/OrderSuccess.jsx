@@ -64,7 +64,7 @@ function OrderSuccess() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
         >
-          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-pine">
+          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-crimson">
             <Check className="h-5 w-5 text-white" strokeWidth={2.5} />
           </span>
 
@@ -163,7 +163,7 @@ function OrderSuccess() {
           <ol className="mt-6 divide-y divide-line border-y border-line">
             {next.map(([title, body], i) => (
               <li key={title} className="flex gap-4 py-4">
-                <span className="amount w-6 shrink-0 pt-0.5 text-[12px] font-semibold text-marigold-deep">
+                <span className="amount w-6 shrink-0 pt-0.5 text-[12px] font-semibold text-brass-deep">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <span>
@@ -176,7 +176,7 @@ function OrderSuccess() {
         </section>
 
         <div className="mt-10 flex flex-wrap gap-3">
-          <button onClick={goToOrders} className="btn btn-primary">
+          <button onClick={goToOrders} className="btn btn-accent">
             View this order
             <ArrowRight className="h-4 w-4" strokeWidth={2} />
           </button>
@@ -189,14 +189,14 @@ function OrderSuccess() {
           <span className="text-ink-mute">Something wrong with this order?</span>
           <a
             href="mailto:contact@planitnepal.com"
-            className="inline-flex items-center gap-1.5 text-pine no-underline hover:underline"
+            className="inline-flex items-center gap-1.5 text-crimson no-underline hover:underline"
           >
             <Mail className="h-3.5 w-3.5" strokeWidth={1.75} />
             contact@planitnepal.com
           </a>
           <a
             href="tel:+9779876543345"
-            className="inline-flex items-center gap-1.5 text-pine no-underline hover:underline"
+            className="inline-flex items-center gap-1.5 text-crimson no-underline hover:underline"
           >
             <Phone className="h-3.5 w-3.5" strokeWidth={1.75} />
             +977 987 654 3345

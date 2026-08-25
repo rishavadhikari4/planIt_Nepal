@@ -230,7 +230,7 @@ const OrdersComponent = () => {
                               <div className="mt-3 flex flex-wrap items-center gap-3">
                                 <button
                                   onClick={() => openItem(item)}
-                                  className="text-[13px] font-medium text-pine hover:underline"
+                                  className="text-[13px] font-medium text-crimson hover:underline"
                                 >
                                   View
                                 </button>
@@ -239,7 +239,7 @@ const OrdersComponent = () => {
                                     onClick={() =>
                                       setRating({ item, itemType: item.itemType || "venue" })
                                     }
-                                    className="inline-flex items-center gap-1.5 text-[13px] font-medium text-marigold-deep hover:underline"
+                                    className="inline-flex items-center gap-1.5 text-[13px] font-medium text-brass-deep hover:underline"
                                   >
                                     <Star className="h-3.5 w-3.5" strokeWidth={2} />
                                     Rate this

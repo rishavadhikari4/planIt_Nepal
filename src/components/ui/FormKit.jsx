@@ -106,7 +106,7 @@ export const ImagePicker = ({ label = "Photo", value, preview, onChange, hint, r
               <button
                 type="button"
                 onClick={() => inputRef.current?.click()}
-                className="text-[13px] font-medium text-pine hover:underline"
+                className="text-[13px] font-medium text-crimson hover:underline"
               >
                 Replace
               </button>
@@ -141,7 +141,7 @@ export const ImagePicker = ({ label = "Photo", value, preview, onChange, hint, r
             accept(e.dataTransfer.files?.[0])
           }}
           className={`flex w-full flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-6 py-10 transition-colors ${
-            dragging ? "border-marigold bg-marigold-soft/40" : "border-line-strong hover:border-ink-mute"
+            dragging ? "border-brass bg-brass-soft/40" : "border-line-strong hover:border-ink-mute"
           }`}
         >
           <ImagePlus className="h-6 w-6 text-ink-mute" strokeWidth={1.5} />
@@ -198,7 +198,7 @@ export const GalleryManager = ({
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          className="text-[13px] font-medium text-pine hover:underline"
+          className="text-[13px] font-medium text-crimson hover:underline"
         >
           Add photos
         </button>
@@ -247,10 +247,10 @@ export const GalleryManager = ({
           {staged.map((item, i) => (
             <div
               key={item.url}
-              className="group relative aspect-square overflow-hidden rounded-md border-2 border-dashed border-marigold bg-gray-100"
+              className="group relative aspect-square overflow-hidden rounded-md border-2 border-dashed border-brass bg-gray-100"
             >
               <img src={item.url} alt="" className="h-full w-full object-cover opacity-70" />
-              <span className="absolute inset-x-0 bottom-0 bg-marigold-deep px-1 py-0.5 text-center text-[10px] font-semibold uppercase tracking-wider text-white">
+              <span className="absolute inset-x-0 bottom-0 bg-brass-deep px-1 py-0.5 text-center text-[10px] font-semibold uppercase tracking-wider text-white">
                 Not saved
               </span>
               <button
@@ -303,7 +303,7 @@ export const CheckboxGroup = ({ label, options, value = [], onChange, hint }) =>
             onClick={() => onChange(on ? value.filter((v) => v !== option) : [...value, option])}
             className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[13px] font-medium transition-colors ${
               on
-                ? "border-pine bg-pine text-white"
+                ? "border-crimson bg-crimson text-white"
                 : "border-line-strong text-ink-soft hover:border-ink-mute hover:text-ink"
             }`}
           >

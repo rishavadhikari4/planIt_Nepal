@@ -180,7 +180,7 @@ export const Pagination = ({ page, totalPages, onChange }) => {
             aria-current={p === page ? "page" : undefined}
             className={`amount h-9 min-w-9 rounded-md px-2.5 text-[13.5px] transition-colors ${
               p === page
-                ? "bg-pine font-semibold text-white"
+                ? "bg-crimson font-semibold text-white"
                 : "text-ink-soft hover:bg-gray-100"
             }`}
           >

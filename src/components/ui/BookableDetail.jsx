@@ -163,7 +163,7 @@ const BookableDetail = ({
                 className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
               />
               {i === 3 && images.length > 5 && (
-                <span className="absolute inset-0 flex items-center justify-center bg-pine-deep/70 text-[15px] font-semibold text-white">
+                <span className="absolute inset-0 flex items-center justify-center bg-crimson-deep/70 text-[15px] font-semibold text-white">
                   +{images.length - 5} more
                 </span>
               )}
@@ -192,7 +192,7 @@ const BookableDetail = ({
                   )}
                   {item.rating && (
                     <span className="inline-flex items-center gap-1.5">
-                      <Star className="h-4 w-4 fill-marigold text-marigold" strokeWidth={1.5} />
+                      <Star className="h-4 w-4 fill-brass text-brass" strokeWidth={1.5} />
                       <span className="amount">{item.rating}</span>
                     </span>
                   )}
@@ -268,7 +268,7 @@ const BookableDetail = ({
                 <button
                   onClick={() => setPickerOpen(true)}
                   className={`flex w-full items-center gap-3 rounded-md border px-4 py-3 text-left transition-colors ${
-                    dates ? "border-pine bg-pine-50" : "border-line-strong hover:border-ink-mute"
+                    dates ? "border-crimson bg-crimson-50" : "border-line-strong hover:border-ink-mute"
                   }`}
                 >
                   <Calendar className="h-4 w-4 shrink-0 text-ink-mute" strokeWidth={1.75} />
@@ -278,7 +278,7 @@ const BookableDetail = ({
                       {dates ? `${fmt(dates.from)} — ${fmt(dates.till)}` : "Not chosen yet"}
                     </span>
                   </span>
-                  {dates && <Check className="h-4 w-4 shrink-0 text-pine" strokeWidth={2.5} />}
+                  {dates && <Check className="h-4 w-4 shrink-0 text-crimson" strokeWidth={2.5} />}
                 </button>
 
                 {dates && (
@@ -320,7 +320,7 @@ const BookableDetail = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-pine-deep/95 p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-crimson-deep/95 p-4"
             onClick={() => setLightbox(null)}
           >
             <button

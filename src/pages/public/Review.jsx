@@ -14,7 +14,7 @@ const Stars = ({ rating, size = "h-4 w-4" }) => (
     {Array.from({ length: 5 }, (_, i) => (
       <Star
         key={i}
-        className={`${size} ${i < rating ? "fill-marigold text-marigold" : "text-line-strong"}`}
+        className={`${size} ${i < rating ? "fill-brass text-brass" : "text-line-strong"}`}
         strokeWidth={1.5}
       />
     ))}
@@ -171,7 +171,7 @@ const Review = () => {
                       <Star
                         className={`h-7 w-7 transition-colors ${
                           (hover || rating) >= star
-                            ? "fill-marigold text-marigold"
+                            ? "fill-brass text-brass"
                             : "text-line-strong"
                         }`}
                         strokeWidth={1.5}
@@ -203,7 +203,7 @@ const Review = () => {
             <button
               type="submit"
               disabled={!rating || !comment.trim() || submitting}
-              className="btn btn-primary w-full py-3"
+              className="btn btn-accent w-full py-3"
             >
               {submitting ? (
                 <>

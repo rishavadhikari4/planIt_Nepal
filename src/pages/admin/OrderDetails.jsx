@@ -223,7 +223,7 @@ const OrderDetails = () => {
               customerId && (
                 <button
                   onClick={() => navigate(`/admin/users/inspect/${customerId}`)}
-                  className="text-[13px] font-medium text-pine hover:underline"
+                  className="text-[13px] font-medium text-crimson hover:underline"
                 >
                   Inspect
                 </button>
@@ -243,7 +243,7 @@ const OrderDetails = () => {
                   href={`mailto:${order.userId.email}?subject=${encodeURIComponent(
                     `Your PlanIt Nepal order #${order._id.slice(-8).toUpperCase()}`,
                   )}`}
-                  className="text-[13px] font-medium text-pine no-underline hover:underline"
+                  className="text-[13px] font-medium text-crimson no-underline hover:underline"
                 >
                   Email this customer
                 </a>

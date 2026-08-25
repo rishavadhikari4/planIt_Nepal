@@ -28,7 +28,7 @@ const Stars = ({ rating }) => (
       <Star
         key={i}
         className={`h-3.5 w-3.5 ${
-          i < rating ? "fill-marigold text-marigold" : "text-line-strong"
+          i < rating ? "fill-brass text-brass" : "text-line-strong"
         }`}
         strokeWidth={1.5}
       />
@@ -187,7 +187,7 @@ const AdminReviews = ({ embedded }) => {
                   <button
                     onClick={() => publish(review)}
                     disabled={toggling === review._id}
-                    className="text-[13px] font-medium text-pine hover:underline disabled:opacity-50"
+                    className="text-[13px] font-medium text-crimson hover:underline disabled:opacity-50"
                   >
                     {toggling === review._id
                       ? "Saving…"

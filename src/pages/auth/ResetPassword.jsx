@@ -88,7 +88,7 @@ const ResetPassword = () => {
       >
         <button
           onClick={() => navigate("/login/forgot-password")}
-          className="btn btn-primary w-full py-3"
+          className="btn btn-accent w-full py-3"
         >
           Send a new reset link
         </button>
@@ -104,7 +104,7 @@ const ResetPassword = () => {
         aside={ASIDE}
       >
         <div className="card mb-6 flex items-center gap-3 p-5">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-pine">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-crimson">
             <Check className="h-4 w-4 text-white" strokeWidth={3} />
           </span>
           <p className="text-[14px] text-ink-soft">
@@ -112,7 +112,7 @@ const ResetPassword = () => {
           </p>
         </div>
 
-        <button onClick={() => navigate("/login")} className="btn btn-primary w-full py-3">
+        <button onClick={() => navigate("/login")} className="btn btn-accent w-full py-3">
           Log in
         </button>
       </AuthLayout>
@@ -176,7 +176,7 @@ const ResetPassword = () => {
                         ? score <= 2
                           ? "bg-red-400"
                           : score <= 3
-                            ? "bg-marigold"
+                            ? "bg-brass"
                             : "bg-green-500"
                         : "bg-line"
                     }`}
@@ -207,7 +207,7 @@ const ResetPassword = () => {
         <button
           type="submit"
           disabled={loading || Boolean(mismatch) || score < MIN_SCORE}
-          className="btn btn-primary w-full py-3"
+          className="btn btn-accent w-full py-3"
         >
           {loading ? (
             <>

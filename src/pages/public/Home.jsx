@@ -113,85 +113,141 @@ const Home = () => {
     ...studios.map((s) => ({ src: s.studioImage, label: s.name, sub: s.location, to: `/studios/${s._id}` })),
   ].filter((i) => i.src)
 
+  const hero = bandImages[0]
+  const payingImage = bandImages[2]?.src || bandImages[1]?.src || hero?.src
+
   const stepImage = (i) =>
     i === 0 ? venues[0]?.venueImage : i === 2 ? studios[0]?.studioImage : venues[1]?.venueImage
 
   return (
     <div className="bg-paper">
-      {/* ======================= Hero ======================= */}
-      <section className="relative overflow-hidden">
-        <div className="mx-auto max-w-7xl px-5 pb-14 pt-16 sm:px-6 sm:pb-20 sm:pt-24 lg:px-8">
-          <div className="grid items-start gap-14 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20">
-            <div>
-              <motion.p
-                className="eyebrow"
-                initial={reduced ? false : { opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-              >
-                Event planning · Nepal
-              </motion.p>
+      {/* ======================= Hero =======================
+          Type first, at full width, then the plate and the plan card beneath
+          it. The old two-column split cramped both halves; this lets the
+          headline be the size it wants to be and gives the photograph room. */}
+      <section className="relative">
+        <div className="mx-auto max-w-7xl px-5 pt-16 sm:px-6 sm:pt-24 lg:px-8">
+          <motion.p
+            className="eyebrow"
+            initial={reduced ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+          >
+            Event planning · Nepal
+          </motion.p>
 
-              <h1 className="mt-7 text-[clamp(42px,8.5vw,80px)] font-semibold leading-[0.95] tracking-[-0.035em]">
-                <HeroLine delay={0.18} reduced={reduced}>Book the venue,</HeroLine>
-                <HeroLine delay={0.28} reduced={reduced}>the food, and</HeroLine>
-                <HeroLine delay={0.38} reduced={reduced}>
-                  <span className="font-normal italic">the camera.</span>
-                </HeroLine>
-              </h1>
+          <h1 className="mt-8 max-w-[15ch] text-[clamp(44px,8.5vw,92px)] font-semibold leading-[0.92] tracking-[-0.035em]">
+            <HeroLine delay={0.18} reduced={reduced}>Book the venue,</HeroLine>
+            <HeroLine delay={0.28} reduced={reduced}>the food, and</HeroLine>
+            <HeroLine delay={0.38} reduced={reduced}>
+              <span className="font-normal italic">the camera.</span>
+            </HeroLine>
+          </h1>
 
-              {/* The marigold thread draws itself under the headline. */}
-              <span className="thread-draw mt-7 block h-0.5 w-24 bg-marigold" />
+          {/* The brass thread draws itself under the headline. */}
+          <span className="thread-draw mt-9 block h-px w-28 bg-brass" />
 
-              <motion.p
-                className="mt-7 max-w-[44ch] text-[17px] leading-relaxed text-ink-soft"
-                initial={reduced ? false : { opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, ease: EASE, delay: 0.6 }}
-              >
-                One date, one order, one checkout. Compare real prices across Nepal, hold your dates
-                with a quarter down, and settle with Khalti, Fonepay, or cash after the event.
-              </motion.p>
+          <div className="mt-9 grid gap-8 sm:grid-cols-[minmax(0,46ch)_auto] sm:items-end sm:justify-between sm:gap-12">
+            <motion.p
+              className="text-[17px] leading-relaxed text-ink-soft"
+              initial={reduced ? false : { opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: EASE, delay: 0.6 }}
+            >
+              One date, one order, one checkout. Compare real prices across Nepal, hold your dates
+              with a quarter down, and settle with Khalti, Fonepay, or cash after the event.
+            </motion.p>
 
-              <motion.div
-                className="mt-9 flex flex-wrap items-center gap-3"
-                initial={reduced ? false : { opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, ease: EASE, delay: 0.72 }}
-              >
-                {isAuthenticated && isCustomer ? (
-                  <button
-                    onClick={() => setShowRecommendations(true)}
-                    className="btn btn-accent h-12 px-6"
-                  >
-                    <Sparkles className="h-4 w-4" strokeWidth={2} />
-                    Build my package
-                  </button>
-                ) : (
-                  <button onClick={() => navigate("/venues")} className="btn btn-accent group h-12 px-6">
-                    Start with a venue
-                    <ArrowRight
-                      className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                      strokeWidth={2}
-                    />
-                  </button>
-                )}
-                <button onClick={() => navigate("/cuisines")} className="btn btn-ghost h-12 px-6">
-                  Browse catering
+            <motion.div
+              className="flex flex-wrap items-center gap-3"
+              initial={reduced ? false : { opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: EASE, delay: 0.72 }}
+            >
+              {isAuthenticated && isCustomer ? (
+                <button
+                  onClick={() => setShowRecommendations(true)}
+                  className="btn btn-accent h-12 px-6"
+                >
+                  <Sparkles className="h-4 w-4" strokeWidth={2} />
+                  Build my package
                 </button>
-              </motion.div>
-            </div>
+              ) : (
+                <button onClick={() => navigate("/venues")} className="btn btn-accent group h-12 px-6">
+                  Start with a venue
+                  <ArrowRight
+                    className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                    strokeWidth={2}
+                  />
+                </button>
+              )}
+              <button onClick={() => navigate("/cuisines")} className="btn btn-ghost h-12 px-6">
+                Browse catering
+              </button>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* ---------- The plate, and the plan card beside it ---------- */}
+        <div className="mx-auto max-w-7xl px-5 pt-14 sm:px-6 sm:pt-20 lg:px-8">
+          <div className="grid gap-6 lg:grid-cols-[1.45fr_1fr] lg:items-start lg:gap-8">
+            <motion.div
+              initial={reduced ? false : { opacity: 0, y: 28 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, ease: EASE, delay: 0.35 }}
+            >
+              {hero ? (
+                <button
+                  onClick={() => navigate(hero.to)}
+                  className="plate group block aspect-[4/3] w-full sm:aspect-[16/10]"
+                  aria-label={`View ${hero.label}`}
+                >
+                  <img
+                    src={hero.src}
+                    alt=""
+                    className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.03]"
+                  />
+                  {/* A plate carries its caption, the way a bound-in photograph does. */}
+                  <span className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 bg-gradient-to-t from-crimson-deep/90 via-crimson-deep/40 to-transparent p-5 pt-16 text-left sm:p-7 sm:pt-24">
+                    <span className="min-w-0">
+                      <span className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-brass-lift">
+                        Now on PlanIt
+                      </span>
+                      <span className="mt-1.5 block truncate font-display text-[22px] text-white sm:text-[26px]">
+                        {hero.label}
+                      </span>
+                      {hero.sub && (
+                        <span className="mt-0.5 block truncate text-[13px] text-white/60">
+                          {hero.sub}
+                        </span>
+                      )}
+                    </span>
+                    <ArrowUpRight
+                      className="hidden h-5 w-5 shrink-0 text-white/60 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-brass-lift sm:block"
+                      strokeWidth={1.75}
+                    />
+                  </span>
+                </button>
+              ) : (
+                /* Before any inventory loads, the plate holds the wordmark
+                   rather than a grey box. */
+                <div className="plate flex aspect-[4/3] w-full items-center justify-center bg-crimson-deep sm:aspect-[16/10]">
+                  <p className="font-display text-[clamp(28px,5vw,52px)] text-white/12">
+                    PlanIt Nepal
+                  </p>
+                </div>
+              )}
+            </motion.div>
 
             {/* ---------- The plan card: the signature ---------- */}
             <motion.div
-              initial={reduced ? false : { opacity: 0, y: 32 }}
+              initial={reduced ? false : { opacity: 0, y: 28 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, ease: EASE, delay: 0.45 }}
-              className="lg:sticky lg:top-24"
+              transition={{ duration: 0.9, ease: EASE, delay: 0.48 }}
             >
-              <div className="card overflow-hidden shadow-lg">
+              <div className="card overflow-hidden">
                 <div className="flex items-baseline justify-between border-b border-line px-5 py-4">
-                  <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-mute">
+                  <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-mute">
                     Your plan
                   </h2>
                   <span className="amount text-[12px] text-ink-mute">{filled} of 3 chosen</span>
@@ -206,14 +262,14 @@ const Home = () => {
                         onClick={() => navigate(step.path)}
                         initial={reduced ? false : { opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.5, ease: EASE, delay: 0.65 + i * 0.09 }}
+                        transition={{ duration: 0.5, ease: EASE, delay: 0.68 + i * 0.09 }}
                         className="group flex w-full items-center gap-4 px-5 py-5 text-left transition-colors hover:bg-gray-50"
                       >
                         <span
                           className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[11px] transition-colors ${
                             chosen
-                              ? "border-pine bg-pine text-white"
-                              : "border-line-strong font-mono text-ink-mute group-hover:border-marigold group-hover:text-marigold-deep"
+                              ? "border-crimson bg-crimson text-white"
+                              : "border-line-strong font-mono text-ink-mute group-hover:border-brass group-hover:text-brass-deep"
                           }`}
                         >
                           {chosen ? <Check className="h-3.5 w-3.5" strokeWidth={2.5} /> : step.step}
@@ -231,7 +287,7 @@ const Home = () => {
                         </span>
 
                         <ArrowUpRight
-                          className="h-4 w-4 shrink-0 text-line-strong transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-marigold"
+                          className="h-4 w-4 shrink-0 text-line-strong transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-brass"
                           strokeWidth={2}
                         />
                       </motion.button>
@@ -271,7 +327,7 @@ const Home = () => {
             initial={reduced ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.9 }}
-            className="marquee relative overflow-hidden border-y border-line bg-surface py-5"
+            className="marquee relative mt-16 overflow-hidden border-y border-line bg-surface py-5 sm:mt-24"
             style={{ "--marquee-duration": `${Math.max(40, bandImages.length * 7)}s` }}
           >
             {/* Feathered edges so the strip reads as continuous, not clipped. */}
@@ -293,7 +349,7 @@ const Home = () => {
                     loading="lazy"
                     className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
-                  <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-pine-deep/85 to-transparent p-3 text-left">
+                  <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-crimson-deep/85 to-transparent p-3 text-left">
                     <span className="block truncate text-[13.5px] font-semibold text-white">
                       {item.label}
                     </span>
@@ -343,9 +399,7 @@ const Home = () => {
                   variants={childReveal}
                   onClick={() => navigate(step.path)}
                   aria-label={`Browse ${step.label.toLowerCase()}`}
-                  className={`group relative block aspect-[5/4] w-full overflow-hidden rounded-xl border border-line bg-gray-100 ${
-                    flip ? "lg:order-2" : ""
-                  }`}
+                  className={`plate group block aspect-[5/4] w-full ${flip ? "lg:order-2" : ""}`}
                 >
                   {image ? (
                     <img
@@ -355,13 +409,13 @@ const Home = () => {
                       className="h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]"
                     />
                   ) : (
-                    <span className="flex h-full w-full items-center justify-center bg-pine-deep">
+                    <span className="flex h-full w-full items-center justify-center bg-crimson-deep">
                       <span className="font-display text-[64px] text-white/15">{step.step}</span>
                     </span>
                   )}
 
                   {/* The step number sits on the image like a plate number. */}
-                  <span className="absolute left-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-paper/95 font-mono text-[13px] font-semibold text-marigold-deep">
+                  <span className="absolute left-5 top-5 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-brass/40 bg-paper font-mono text-[13px] font-semibold text-brass-deep">
                     {step.step}
                   </span>
                 </motion.button>
@@ -382,7 +436,7 @@ const Home = () => {
                   <motion.button
                     variants={childReveal}
                     onClick={() => navigate(step.path)}
-                    className="group mt-7 inline-flex items-center gap-2 border-b-2 border-marigold pb-1 text-[15px] font-semibold text-ink"
+                    className="group mt-7 inline-flex items-center gap-2 border-b-2 border-brass pb-1 text-[15px] font-semibold text-ink"
                   >
                     Browse {step.label.toLowerCase()}
                     <ArrowRight
@@ -397,8 +451,29 @@ const Home = () => {
         </div>
       </section>
 
+      {/* The single ornament in the system: a brass rule broken by a lozenge,
+          closing the three steps. It appears once on the page and nowhere
+          else. */}
+      <div className="mx-auto max-w-3xl px-5 sm:px-6 lg:px-8">
+        <div className="ornament" aria-hidden>
+          <span />
+        </div>
+      </div>
+
       {/* ======================= Paying ======================= */}
-      <section className="border-y border-line bg-pine-deep text-white">
+      <section className="relative isolate overflow-hidden border-y border-line bg-crimson-deep text-white">
+        {/* A real event photograph sits behind the crimson, dimmed almost to
+            texture. It gives the panel depth without competing with the type. */}
+        {payingImage && (
+          <img
+            src={payingImage}
+            alt=""
+            aria-hidden
+            className="absolute inset-0 -z-10 h-full w-full object-cover opacity-[0.14]"
+          />
+        )}
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-crimson-deep via-crimson-deep/85 to-crimson-deep/55" />
+
         <div className="mx-auto max-w-7xl px-5 py-20 sm:px-6 sm:py-28 lg:px-8">
           <motion.div
             initial="hidden"
@@ -412,7 +487,7 @@ const Home = () => {
                 variants={childReveal}
                 className="inline-flex items-center gap-2.5 font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-white/50"
               >
-                <span className="h-0.5 w-6 bg-marigold" />
+                <span className="h-px w-7 bg-brass" />
                 Paying
               </motion.p>
               <motion.h2
@@ -439,7 +514,7 @@ const Home = () => {
               {[
                 { name: "Khalti", dot: "#8B5FBF", detail: "Khalti wallet, mobile banking, connectIPS and cards." },
                 { name: "Fonepay", dot: "#E8536A", detail: "Straight from your bank account over the Fonepay network." },
-                { name: "Cash after service", dot: "#ECB362", detail: "Confirm now, hand over payment once the event is done." },
+                { name: "Cash after service", dot: "#DCC369", detail: "Confirm now, hand over payment once the event is done." },
               ].map((m) => (
                 <li key={m.name} className="flex items-start gap-4 py-6">
                   <span
@@ -508,7 +583,7 @@ const Home = () => {
                     <span className="amount text-[15px] text-ink">contact@planitnepal.com</span>
                   </span>
                   <ArrowUpRight
-                    className="h-4 w-4 text-line-strong transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-marigold"
+                    className="h-4 w-4 text-line-strong transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-brass"
                     strokeWidth={2}
                   />
                 </a>
@@ -519,7 +594,7 @@ const Home = () => {
                     <span className="amount text-[15px] text-ink">+977 987 654 3345</span>
                   </span>
                   <ArrowUpRight
-                    className="h-4 w-4 text-line-strong transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-marigold"
+                    className="h-4 w-4 text-line-strong transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-brass"
                     strokeWidth={2}
                   />
                 </a>
@@ -542,7 +617,7 @@ const Home = () => {
         <div className="mx-auto max-w-7xl px-5 pb-10 pt-16 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-10 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <p className="font-display text-[28px] font-semibold tracking-[-0.03em] text-pine-deep">
+              <p className="font-display text-[28px] font-semibold tracking-[-0.03em] text-crimson-deep">
                 PlanIt Nepal
               </p>
               <p className="mt-3 max-w-[34ch] text-[14px] leading-relaxed text-ink-mute">

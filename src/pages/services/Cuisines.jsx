@@ -226,7 +226,7 @@ const Cuisines = () => {
                         <article
                           key={dish._id}
                           className={`card group relative flex flex-col overflow-hidden transition-colors ${
-                            chosen ? "border-pine" : "hover:border-line-strong"
+                            chosen ? "border-crimson" : "hover:border-line-strong"
                           }`}
                         >
                           <div className="relative aspect-square overflow-hidden bg-gray-100">
@@ -237,14 +237,14 @@ const Cuisines = () => {
                               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                             />
                             {chosen && (
-                              <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded bg-pine px-1.5 py-0.5 text-[11px] font-semibold text-white">
+                              <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded bg-crimson px-1.5 py-0.5 text-[11px] font-semibold text-white">
                                 <Check className="h-3 w-3" strokeWidth={3} />
                                 On the menu
                               </span>
                             )}
                             {dish.rating && (
-                              <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded bg-pine-deep/85 px-1.5 py-0.5 text-[11px] font-semibold text-white">
-                                <Star className="h-3 w-3 fill-marigold text-marigold" />
+                              <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded bg-crimson-deep/85 px-1.5 py-0.5 text-[11px] font-semibold text-white">
+                                <Star className="h-3 w-3 fill-brass text-brass" />
                                 <span className="amount">{dish.rating}</span>
                               </span>
                             )}
@@ -286,7 +286,7 @@ const Cuisines = () => {
 
                             <div className="mt-auto pt-4">
                               {chosen ? (
-                                <div className="flex items-center justify-between rounded-md border border-line bg-pine-50 p-1">
+                                <div className="flex items-center justify-between rounded-md border border-line bg-crimson-50 p-1">
                                   <button
                                     onClick={() => setQuantity(dish._id, qty - 1)}
                                     disabled={qty <= 1}

@@ -54,7 +54,7 @@ function AuthSuccess() {
 
         {status === "done" && (
           <div className="card p-8">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-pine">
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-crimson">
               <Check className="h-5 w-5 text-white" strokeWidth={2.5} />
             </span>
             <h1 className="mt-6 text-[24px]">
@@ -65,7 +65,7 @@ function AuthSuccess() {
             </p>
             <button
               onClick={() => navigate("/", { replace: true })}
-              className="btn btn-primary group mt-7 w-full"
+              className="btn btn-accent group mt-7 w-full"
             >
               Continue
               <ArrowRight
@@ -87,7 +87,7 @@ function AuthSuccess() {
               password instead.
             </p>
             <div className="mt-7 flex flex-col gap-2.5">
-              <button onClick={() => navigate("/login")} className="btn btn-primary w-full">
+              <button onClick={() => navigate("/login")} className="btn btn-accent w-full">
                 Back to log in
               </button>
               <button onClick={() => navigate("/")} className="btn btn-ghost w-full">

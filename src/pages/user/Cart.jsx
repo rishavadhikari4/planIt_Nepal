@@ -101,12 +101,12 @@ const Cart = () => {
                   <section key={group.key}>
                     <div className="flex items-baseline justify-between border-b border-line pb-3">
                       <h2 className="flex items-baseline gap-3 font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-mute">
-                        <span className="text-marigold-deep">{group.step}</span>
+                        <span className="text-brass-deep">{group.step}</span>
                         {group.label}
                       </h2>
                       <button
                         onClick={() => navigate(group.path)}
-                        className="text-[13px] font-medium text-pine hover:underline"
+                        className="text-[13px] font-medium text-crimson hover:underline"
                       >
                         {items.length ? "Add more" : "Browse"}
                       </button>

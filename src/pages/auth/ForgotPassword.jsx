@@ -46,7 +46,7 @@ const ForgotPassword = () => {
         footer={backToLogin}
       >
         <div className="card flex gap-4 p-5">
-          <MailCheck className="mt-0.5 h-5 w-5 shrink-0 text-pine" strokeWidth={1.75} />
+          <MailCheck className="mt-0.5 h-5 w-5 shrink-0 text-crimson" strokeWidth={1.75} />
           <div className="text-[14px] leading-relaxed text-ink-soft">
             <p className="font-semibold text-ink">Nothing in your inbox?</p>
             <p className="mt-1">
@@ -88,7 +88,7 @@ const ForgotPassword = () => {
           />
         </Field>
 
-        <button type="submit" disabled={loading} className="btn btn-primary w-full py-3">
+        <button type="submit" disabled={loading} className="btn btn-accent w-full py-3">
           {loading ? (
             <>
               <span className="loader h-4 w-4 border-white/40 border-t-white" />

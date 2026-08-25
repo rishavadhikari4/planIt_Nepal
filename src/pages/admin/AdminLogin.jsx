@@ -36,7 +36,7 @@ const AdminLogin = () => {
       footer={
         <p className="text-ink-soft">
           Looking for your own bookings?{" "}
-          <Link to="/login" className="font-semibold text-pine no-underline hover:underline">
+          <Link to="/login" className="font-semibold text-crimson no-underline hover:underline">
             Customer log in
           </Link>
         </p>
@@ -87,7 +87,7 @@ const AdminLogin = () => {
           </div>
         </Field>
 
-        <button type="submit" disabled={loading} className="btn btn-primary w-full py-3">
+        <button type="submit" disabled={loading} className="btn btn-accent w-full py-3">
           {loading ? (
             <>
               <span className="loader h-4 w-4 border-white/40 border-t-white" />

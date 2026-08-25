@@ -113,7 +113,7 @@ const Contact = () => (
                     </span>
                     {href && (
                       <ArrowUpRight
-                        className="h-4 w-4 shrink-0 text-line-strong transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-marigold"
+                        className="h-4 w-4 shrink-0 text-line-strong transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-brass"
                         strokeWidth={2}
                       />
                     )}

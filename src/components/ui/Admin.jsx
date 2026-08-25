@@ -295,7 +295,7 @@ export const Modal = ({ open, onClose, title, description, children, width = "ma
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-pine-deep/50 sm:items-center sm:p-6"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-crimson-deep/50 sm:items-center sm:p-6"
       onClick={onClose}
     >
       <div

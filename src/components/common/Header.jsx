@@ -79,15 +79,15 @@ const Header = () => {
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-5 sm:px-6 lg:px-8">
         {/* Wordmark */}
         <Link to="/" className="group flex shrink-0 items-baseline gap-2 no-underline">
-          <span className="font-display text-[22px] font-semibold tracking-[-0.03em] text-pine-deep">
+          <span className="font-display text-[22px] font-semibold tracking-[-0.03em] text-crimson-deep">
             PlanIt
           </span>
-          <span className="font-mono text-[10px] font-medium uppercase tracking-[0.22em] text-marigold-deep">
+          <span className="font-mono text-[10px] font-medium uppercase tracking-[0.22em] text-brass-deep">
             Nepal
           </span>
         </Link>
 
-        {/* Desktop navigation. The marigold thread marks where you are. */}
+        {/* Desktop navigation. The brass thread marks where you are. */}
         <nav className="ml-6 hidden items-center gap-1 lg:flex">
           {NAV.map(({ path, label, step }) => (
             <Link
@@ -107,7 +107,7 @@ const Header = () => {
               )}
               {label}
               {isActive(path) && (
-                <span className="absolute inset-x-3 -bottom-px block h-0.5 bg-marigold" />
+                <span className="absolute inset-x-3 -bottom-px block h-0.5 bg-brass" />
               )}
             </Link>
           ))}
@@ -127,7 +127,7 @@ const Header = () => {
           >
             <ShoppingBag className="h-[18px] w-[18px]" strokeWidth={1.75} />
             {cartCount > 0 && (
-              <span className="amount rounded-full bg-marigold-deep px-1.5 py-px text-[11px] font-semibold text-white">
+              <span className="amount rounded-full bg-brass-deep px-1.5 py-px text-[11px] font-semibold text-white">
                 {cartCount > 99 ? "99+" : cartCount}
               </span>
             )}
@@ -143,7 +143,7 @@ const Header = () => {
                 aria-haspopup="menu"
                 className={`flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border transition-colors ${
                   onProfile || accountOpen
-                    ? "border-pine bg-pine text-white"
+                    ? "border-crimson bg-crimson text-white"
                     : "border-line-strong bg-white text-ink-soft hover:border-ink-mute"
                 }`}
               >

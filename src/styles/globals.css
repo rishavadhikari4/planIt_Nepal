@@ -3,166 +3,170 @@
 /* ==========================================================================
    PlanIt Nepal — design system
    --------------------------------------------------------------------------
-   Direction: "carved wood & marigold".
-   Deep pine-ink as the brand, marigold as the single accent, warm paper ground.
-   Marigold (sayapatri) is the flower physically present at every Nepali event —
-   it is the accent, used sparingly, so the one thing you can act on is obvious.
+   Direction: "palace limewash".
+
+   Nepal's royal palette is crimson and brass — the flag, the tika, the Shah
+   standard, the gilt on a temple roof. It sits here on the limewash stucco of
+   a Rana palace, with text in oiled sal-wood brown rather than black.
+
+   Royal, but held back: crimson appears on the one thing you can act on,
+   brass only as a hairline or a mark. The material does the work, not
+   ornament. Photography carries the colour.
 
    Every screen is authored against the semantic tokens below (ink, paper,
-   line, pine, marigold) and the .btn / .card / .field vocabulary.
-
-   The Tailwind palette scales are still remapped onto this palette. Nothing
-   uses them today — Tailwind tree-shakes what is unused, so they cost nothing
-   in the output — but they guarantee that a stray `bg-purple-600` or
-   `text-orange-500` lands inside the system instead of outside it.
+   line, crimson, brass) and the .btn / .card / .field vocabulary. The Tailwind
+   palette scales are remapped onto the same palette so a stray `bg-red-600`
+   still lands inside the system; Tailwind tree-shakes whatever goes unused.
    ========================================================================== */
 
 @theme {
-  /* --- Brand: pine ink.  Replaces purple / pink / rose / fuchsia / violet --- */
-  --color-purple-50:  #F2F6F4;  --color-pink-50:  #F2F6F4;  --color-rose-50:  #F2F6F4;
-  --color-purple-100: #E0EBE6;  --color-pink-100: #E0EBE6;  --color-rose-100: #E0EBE6;
-  --color-purple-200: #C1D7CD;  --color-pink-200: #C1D7CD;  --color-rose-200: #C1D7CD;
-  --color-purple-300: #96BAAC;  --color-pink-300: #96BAAC;  --color-rose-300: #96BAAC;
-  --color-purple-400: #659486;  --color-pink-400: #659486;  --color-rose-400: #659486;
-  --color-purple-500: #427465;  --color-pink-500: #427465;  --color-rose-500: #427465;
-  --color-purple-600: #2E5A4D;  --color-pink-600: #2E5A4D;  --color-rose-600: #2E5A4D;
-  --color-purple-700: #26473E;  --color-pink-700: #26473E;  --color-rose-700: #26473E;
-  --color-purple-800: #203A33;  --color-pink-800: #203A33;  --color-rose-800: #203A33;
-  --color-purple-900: #1B302B;  --color-pink-900: #1B302B;  --color-rose-900: #1B302B;
-  --color-purple-950: #0D1A17;  --color-pink-950: #0D1A17;  --color-rose-950: #0D1A17;
+  /* --- Brand: royal crimson. Replaces purple / pink / rose / fuchsia / violet --- */
+  --color-purple-50:  #FBF3F4;  --color-pink-50:  #FBF3F4;  --color-rose-50:  #FBF3F4;
+  --color-purple-100: #F6E3E5;  --color-pink-100: #F6E3E5;  --color-rose-100: #F6E3E5;
+  --color-purple-200: #EAC3C7;  --color-pink-200: #EAC3C7;  --color-rose-200: #EAC3C7;
+  --color-purple-300: #D7989F;  --color-pink-300: #D7989F;  --color-rose-300: #D7989F;
+  --color-purple-400: #BC6A76;  --color-pink-400: #BC6A76;  --color-rose-400: #BC6A76;
+  --color-purple-500: #9E4353;  --color-pink-500: #9E4353;  --color-rose-500: #9E4353;
+  --color-purple-600: #7E2438;  --color-pink-600: #7E2438;  --color-rose-600: #7E2438;
+  --color-purple-700: #6A1D2E;  --color-pink-700: #6A1D2E;  --color-rose-700: #6A1D2E;
+  --color-purple-800: #581926;  --color-pink-800: #581926;  --color-rose-800: #581926;
+  --color-purple-900: #491621;  --color-pink-900: #491621;  --color-rose-900: #491621;
+  --color-purple-950: #2B0F14;  --color-pink-950: #2B0F14;  --color-rose-950: #2B0F14;
 
-  --color-fuchsia-50:  #F2F6F4; --color-violet-50:  #F2F6F4;
-  --color-fuchsia-100: #E0EBE6; --color-violet-100: #E0EBE6;
-  --color-fuchsia-200: #C1D7CD; --color-violet-200: #C1D7CD;
-  --color-fuchsia-300: #96BAAC; --color-violet-300: #96BAAC;
-  --color-fuchsia-400: #659486; --color-violet-400: #659486;
-  --color-fuchsia-500: #427465; --color-violet-500: #427465;
-  --color-fuchsia-600: #2E5A4D; --color-violet-600: #2E5A4D;
-  --color-fuchsia-700: #26473E; --color-violet-700: #26473E;
-  --color-fuchsia-800: #203A33; --color-violet-800: #203A33;
-  --color-fuchsia-900: #1B302B; --color-violet-900: #1B302B;
-  --color-fuchsia-950: #0D1A17; --color-violet-950: #0D1A17;
+  --color-fuchsia-50:  #FBF3F4; --color-violet-50:  #FBF3F4;
+  --color-fuchsia-100: #F6E3E5; --color-violet-100: #F6E3E5;
+  --color-fuchsia-200: #EAC3C7; --color-violet-200: #EAC3C7;
+  --color-fuchsia-300: #D7989F; --color-violet-300: #D7989F;
+  --color-fuchsia-400: #BC6A76; --color-violet-400: #BC6A76;
+  --color-fuchsia-500: #9E4353; --color-violet-500: #9E4353;
+  --color-fuchsia-600: #7E2438; --color-violet-600: #7E2438;
+  --color-fuchsia-700: #6A1D2E; --color-violet-700: #6A1D2E;
+  --color-fuchsia-800: #581926; --color-violet-800: #581926;
+  --color-fuchsia-900: #491621; --color-violet-900: #491621;
+  --color-fuchsia-950: #2B0F14; --color-violet-950: #2B0F14;
 
-  /* --- Accent: marigold.  Replaces amber / orange / yellow --- */
-  --color-orange-50:  #FDF6EC;  --color-amber-50:  #FDF6EC;  --color-yellow-50:  #FDF6EC;
-  --color-orange-100: #FAE9CE;  --color-amber-100: #FAE9CE;  --color-yellow-100: #FAE9CE;
-  --color-orange-200: #F4D19C;  --color-amber-200: #F4D19C;  --color-yellow-200: #F4D19C;
-  --color-orange-300: #ECB362;  --color-amber-300: #ECB362;  --color-yellow-300: #ECB362;
-  --color-orange-400: #E29434;  --color-amber-400: #E29434;  --color-yellow-400: #E29434;
-  --color-orange-500: #D07C18;  --color-amber-500: #D07C18;  --color-yellow-500: #D07C18;
-  --color-orange-600: #AE6212;  --color-amber-600: #AE6212;  --color-yellow-600: #AE6212;
-  --color-orange-700: #8A4D14;  --color-amber-700: #8A4D14;  --color-yellow-700: #8A4D14;
-  --color-orange-800: #703F16;  --color-amber-800: #703F16;  --color-yellow-800: #703F16;
-  --color-orange-900: #5E3616;  --color-amber-900: #5E3616;  --color-yellow-900: #5E3616;
-  --color-orange-950: #341B09;  --color-amber-950: #341B09;  --color-yellow-950: #341B09;
+  /* --- Accent: antique brass. Replaces amber / orange / yellow --- */
+  --color-orange-50:  #FBF7EA;  --color-amber-50:  #FBF7EA;  --color-yellow-50:  #FBF7EA;
+  --color-orange-100: #F5ECCF;  --color-amber-100: #F5ECCF;  --color-yellow-100: #F5ECCF;
+  --color-orange-200: #EADAA0;  --color-amber-200: #EADAA0;  --color-yellow-200: #EADAA0;
+  --color-orange-300: #DCC369;  --color-amber-300: #DCC369;  --color-yellow-300: #DCC369;
+  --color-orange-400: #C9A93C;  --color-amber-400: #C9A93C;  --color-yellow-400: #C9A93C;
+  --color-orange-500: #B08D2E;  --color-amber-500: #B08D2E;  --color-yellow-500: #B08D2E;
+  --color-orange-600: #917226;  --color-amber-600: #917226;  --color-yellow-600: #917226;
+  --color-orange-700: #73591F;  --color-amber-700: #73591F;  --color-yellow-700: #73591F;
+  --color-orange-800: #5E491D;  --color-amber-800: #5E491D;  --color-yellow-800: #5E491D;
+  --color-orange-900: #4F3D1B;  --color-amber-900: #4F3D1B;  --color-yellow-900: #4F3D1B;
+  --color-orange-950: #2B200C;  --color-amber-950: #2B200C;  --color-yellow-950: #2B200C;
 
-  /* --- Neutrals: warm paper & ink.  Replaces gray / slate / zinc / neutral / stone --- */
-  --color-gray-50:  #F8F8F6; --color-slate-50:  #F8F8F6; --color-zinc-50:  #F8F8F6;
-  --color-gray-100: #F1F0EC; --color-slate-100: #F1F0EC; --color-zinc-100: #F1F0EC;
-  --color-gray-200: #E4E2DC; --color-slate-200: #E4E2DC; --color-zinc-200: #E4E2DC;
-  --color-gray-300: #CFCCC4; --color-slate-300: #CFCCC4; --color-zinc-300: #CFCCC4;
-  --color-gray-400: #A5A199; --color-slate-400: #A5A199; --color-zinc-400: #A5A199;
-  --color-gray-500: #726E65; --color-slate-500: #726E65; --color-zinc-500: #726E65;
-  --color-gray-600: #625E56; --color-slate-600: #625E56; --color-zinc-600: #625E56;
-  --color-gray-700: #4E4A44; --color-slate-700: #4E4A44; --color-zinc-700: #4E4A44;
-  --color-gray-800: #35322D; --color-slate-800: #35322D; --color-zinc-800: #35322D;
-  --color-gray-900: #1F1D1A; --color-slate-900: #1F1D1A; --color-zinc-900: #1F1D1A;
-  --color-gray-950: #121110; --color-slate-950: #121110; --color-zinc-950: #121110;
+  /* --- Neutrals: limewash and sal wood. Replaces gray / slate / zinc / neutral / stone --- */
+  --color-gray-50:  #F7F5F0; --color-slate-50:  #F7F5F0; --color-zinc-50:  #F7F5F0;
+  --color-gray-100: #EFEDE6; --color-slate-100: #EFEDE6; --color-zinc-100: #EFEDE6;
+  --color-gray-200: #E2DED4; --color-slate-200: #E2DED4; --color-zinc-200: #E2DED4;
+  --color-gray-300: #CDC7B9; --color-slate-300: #CDC7B9; --color-zinc-300: #CDC7B9;
+  --color-gray-400: #A0968A; --color-slate-400: #A0968A; --color-zinc-400: #A0968A;
+  --color-gray-500: #695D55; --color-slate-500: #695D55; --color-zinc-500: #695D55;
+  --color-gray-600: #5C5049; --color-slate-600: #5C5049; --color-zinc-600: #5C5049;
+  --color-gray-700: #4A3E37; --color-slate-700: #4A3E37; --color-zinc-700: #4A3E37;
+  --color-gray-800: #332924; --color-slate-800: #332924; --color-zinc-800: #332924;
+  --color-gray-900: #241C18; --color-slate-900: #241C18; --color-zinc-900: #241C18;
+  --color-gray-950: #16100D; --color-slate-950: #16100D; --color-zinc-950: #16100D;
 
-  --color-neutral-50:  #F8F8F6; --color-stone-50:  #F8F8F6;
-  --color-neutral-100: #F1F0EC; --color-stone-100: #F1F0EC;
-  --color-neutral-200: #E4E2DC; --color-stone-200: #E4E2DC;
-  --color-neutral-300: #CFCCC4; --color-stone-300: #CFCCC4;
-  --color-neutral-400: #A5A199; --color-stone-400: #A5A199;
-  --color-neutral-500: #726E65; --color-stone-500: #726E65;
-  --color-neutral-600: #625E56; --color-stone-600: #625E56;
-  --color-neutral-700: #4E4A44; --color-stone-700: #4E4A44;
-  --color-neutral-800: #35322D; --color-stone-800: #35322D;
-  --color-neutral-900: #1F1D1A; --color-stone-900: #1F1D1A;
-  --color-neutral-950: #121110; --color-stone-950: #121110;
+  --color-neutral-50:  #F7F5F0; --color-stone-50:  #F7F5F0;
+  --color-neutral-100: #EFEDE6; --color-stone-100: #EFEDE6;
+  --color-neutral-200: #E2DED4; --color-stone-200: #E2DED4;
+  --color-neutral-300: #CDC7B9; --color-stone-300: #CDC7B9;
+  --color-neutral-400: #A0968A; --color-stone-400: #A0968A;
+  --color-neutral-500: #695D55; --color-stone-500: #695D55;
+  --color-neutral-600: #5C5049; --color-stone-600: #5C5049;
+  --color-neutral-700: #4A3E37; --color-stone-700: #4A3E37;
+  --color-neutral-800: #332924; --color-stone-800: #332924;
+  --color-neutral-900: #241C18; --color-stone-900: #241C18;
+  --color-neutral-950: #16100D; --color-stone-950: #16100D;
 
-  /* --- Status: info (deep blue).  Replaces blue / indigo / sky / cyan --- */
-  --color-blue-50:  #F1F5F8; --color-indigo-50:  #F1F5F8; --color-sky-50:  #F1F5F8; --color-cyan-50:  #F1F5F8;
-  --color-blue-100: #DFE9F1; --color-indigo-100: #DFE9F1; --color-sky-100: #DFE9F1; --color-cyan-100: #DFE9F1;
-  --color-blue-200: #BFD2E2; --color-indigo-200: #BFD2E2; --color-sky-200: #BFD2E2; --color-cyan-200: #BFD2E2;
-  --color-blue-300: #93B2CB; --color-indigo-300: #93B2CB; --color-sky-300: #93B2CB; --color-cyan-300: #93B2CB;
-  --color-blue-400: #628DAE; --color-indigo-400: #628DAE; --color-sky-400: #628DAE; --color-cyan-400: #628DAE;
-  --color-blue-500: #3F6E92; --color-indigo-500: #3F6E92; --color-sky-500: #3F6E92; --color-cyan-500: #3F6E92;
-  --color-blue-600: #305777; --color-indigo-600: #305777; --color-sky-600: #305777; --color-cyan-600: #305777;
-  --color-blue-700: #294660; --color-indigo-700: #294660; --color-sky-700: #294660; --color-cyan-700: #294660;
-  --color-blue-800: #24394D; --color-indigo-800: #24394D; --color-sky-800: #24394D; --color-cyan-800: #24394D;
-  --color-blue-900: #1F2F40; --color-indigo-900: #1F2F40; --color-sky-900: #1F2F40; --color-cyan-900: #1F2F40;
-  --color-blue-950: #101B26; --color-indigo-950: #101B26; --color-sky-950: #101B26; --color-cyan-950: #101B26;
+  /* --- Status: info, a muted indigo slate. Replaces blue / indigo / sky / cyan --- */
+  --color-blue-50:  #F1F4F7; --color-indigo-50:  #F1F4F7; --color-sky-50:  #F1F4F7; --color-cyan-50:  #F1F4F7;
+  --color-blue-100: #DFE6EE; --color-indigo-100: #DFE6EE; --color-sky-100: #DFE6EE; --color-cyan-100: #DFE6EE;
+  --color-blue-200: #BFCDDD; --color-indigo-200: #BFCDDD; --color-sky-200: #BFCDDD; --color-cyan-200: #BFCDDD;
+  --color-blue-300: #93AAC4; --color-indigo-300: #93AAC4; --color-sky-300: #93AAC4; --color-cyan-300: #93AAC4;
+  --color-blue-400: #6284A6; --color-indigo-400: #6284A6; --color-sky-400: #6284A6; --color-cyan-400: #6284A6;
+  --color-blue-500: #4A6C8C; --color-indigo-500: #4A6C8C; --color-sky-500: #4A6C8C; --color-cyan-500: #4A6C8C;
+  --color-blue-600: #3C5A73; --color-indigo-600: #3C5A73; --color-sky-600: #3C5A73; --color-cyan-600: #3C5A73;
+  --color-blue-700: #33495D; --color-indigo-700: #33495D; --color-sky-700: #33495D; --color-cyan-700: #33495D;
+  --color-blue-800: #2C3D4D; --color-indigo-800: #2C3D4D; --color-sky-800: #2C3D4D; --color-cyan-800: #2C3D4D;
+  --color-blue-900: #263441; --color-indigo-900: #263441; --color-sky-900: #263441; --color-cyan-900: #263441;
+  --color-blue-950: #141D26; --color-indigo-950: #141D26; --color-sky-950: #141D26; --color-cyan-950: #141D26;
 
-  /* --- Status: success (olive).  Replaces green / emerald / teal / lime --- */
-  --color-green-50:  #F3F7EE; --color-emerald-50:  #F3F7EE; --color-teal-50:  #F3F7EE; --color-lime-50:  #F3F7EE;
-  --color-green-100: #E4EFD8; --color-emerald-100: #E4EFD8; --color-teal-100: #E4EFD8; --color-lime-100: #E4EFD8;
-  --color-green-200: #C9DFB2; --color-emerald-200: #C9DFB2; --color-teal-200: #C9DFB2; --color-lime-200: #C9DFB2;
-  --color-green-300: #A4C782; --color-emerald-300: #A4C782; --color-teal-300: #A4C782; --color-lime-300: #A4C782;
-  --color-green-400: #7FAB57; --color-emerald-400: #7FAB57; --color-teal-400: #7FAB57; --color-lime-400: #7FAB57;
-  --color-green-500: #628F3C; --color-emerald-500: #628F3C; --color-teal-500: #628F3C; --color-lime-500: #628F3C;
-  --color-green-600: #4B722D; --color-emerald-600: #4B722D; --color-teal-600: #4B722D; --color-lime-600: #4B722D;
-  --color-green-700: #3C5926; --color-emerald-700: #3C5926; --color-teal-700: #3C5926; --color-lime-700: #3C5926;
-  --color-green-800: #324823; --color-emerald-800: #324823; --color-teal-800: #324823; --color-lime-800: #324823;
-  --color-green-900: #2B3D20; --color-emerald-900: #2B3D20; --color-teal-900: #2B3D20; --color-lime-900: #2B3D20;
-  --color-green-950: #14200D; --color-emerald-950: #14200D; --color-teal-950: #14200D; --color-lime-950: #14200D;
+  /* --- Status: success, a hill sage. Replaces green / emerald / teal / lime --- */
+  --color-green-50:  #F2F6EE; --color-emerald-50:  #F2F6EE; --color-teal-50:  #F2F6EE; --color-lime-50:  #F2F6EE;
+  --color-green-100: #E2ECD9; --color-emerald-100: #E2ECD9; --color-teal-100: #E2ECD9; --color-lime-100: #E2ECD9;
+  --color-green-200: #C6D9B5; --color-emerald-200: #C6D9B5; --color-teal-200: #C6D9B5; --color-lime-200: #C6D9B5;
+  --color-green-300: #A1BD8A; --color-emerald-300: #A1BD8A; --color-teal-300: #A1BD8A; --color-lime-300: #A1BD8A;
+  --color-green-400: #7C9C63; --color-emerald-400: #7C9C63; --color-teal-400: #7C9C63; --color-lime-400: #7C9C63;
+  --color-green-500: #67854C; --color-emerald-500: #67854C; --color-teal-500: #67854C; --color-lime-500: #67854C;
+  --color-green-600: #4F6A3C; --color-emerald-600: #4F6A3C; --color-teal-600: #4F6A3C; --color-lime-600: #4F6A3C;
+  --color-green-700: #405532; --color-emerald-700: #405532; --color-teal-700: #405532; --color-lime-700: #405532;
+  --color-green-800: #35452B; --color-emerald-800: #35452B; --color-teal-800: #35452B; --color-lime-800: #35452B;
+  --color-green-900: #2D3A26; --color-emerald-900: #2D3A26; --color-teal-900: #2D3A26; --color-lime-900: #2D3A26;
+  --color-green-950: #151E11; --color-emerald-950: #151E11; --color-teal-950: #151E11; --color-lime-950: #151E11;
 
-  /* --- Status: danger (clay).  Replaces red --- */
-  --color-red-50:  #FDF3F1;
-  --color-red-100: #FAE3DE;
-  --color-red-200: #F3C5BB;
-  --color-red-300: #E79E8E;
-  --color-red-400: #D8735E;
-  --color-red-500: #C25340;
-  --color-red-600: #A53E2D;
-  --color-red-700: #863125;
-  --color-red-800: #6E2B22;
-  --color-red-900: #5C2720;
-  --color-red-950: #32110C;
+  /* --- Status: danger, a brick rust. Kept orange-leaning so it never reads
+         as the crimson brand. --- */
+  --color-red-50:  #FDF3F0;
+  --color-red-100: #FAE3DC;
+  --color-red-200: #F3C6B7;
+  --color-red-300: #E7A088;
+  --color-red-400: #D77354;
+  --color-red-500: #C4562F;
+  --color-red-600: #B04227;
+  --color-red-700: #8E3521;
+  --color-red-800: #742D1E;
+  --color-red-900: #61281C;
+  --color-red-950: #33120B;
 
-  /* --- Semantic aliases, for the surfaces written against this system --- */
-  --color-ink:      #1F1D1A;
-  --color-ink-soft: #4E4A44;
-  --color-ink-mute: #726E65;   /* 4.9:1 on paper — safe for 12-13px secondary text */
-  --color-paper:    #FBFAF8;
+  /* --- Semantic tokens --- */
+  --color-ink:      #241C18;   /* oiled sal wood, not black */
+  --color-ink-soft: #4A3E37;
+  --color-ink-mute: #695D55;   /* 5.8:1 on paper */
+  --color-paper:    #F7F5F0;   /* limewash stucco */
   --color-surface:  #FFFFFF;
-  --color-line:     #E4E2DC;
-  --color-line-strong: #CFCCC4;
-  --color-pine-50:  #F2F6F4;
-  --color-pine:     #2E5A4D;
-  --color-pine-deep:#1B302B;
-  /* Marigold comes in three weights because contrast, not taste, decides which
-     one a given element may use:
-       --color-marigold       rules, hairlines, icons, fills  (non-text only)
-       --color-marigold-deep  marigold text on paper          (6.4:1)
-       --color-marigold-lift  marigold text on ink            (7.4:1)
-     Plain --color-marigold on white is 3.2:1 and must never carry text. */
-  --color-marigold:      #D07C18;
-  --color-marigold-deep: #8A4D14;
-  --color-marigold-lift: #ECB362;
-  --color-marigold-soft: #FAE9CE;
+  --color-line:     #E2DED4;
+  --color-line-strong: #CDC7B9;
+
+  --color-crimson-50:  #FBF3F4;
+  --color-crimson:     #7E2438;  /* 9.6:1 on white */
+  --color-crimson-deep:#2B0F14;  /* the dark ground for royal panels */
+
+  /* Brass has three weights because contrast, not taste, decides which one an
+     element may use:
+       --color-brass       rules, marks, icons, fills   (non-text only, 3.1:1)
+       --color-brass-deep  brass text on paper          (6.1:1)
+       --color-brass-lift  brass text on a dark ground  (10:1) */
+  --color-brass:      #B08D2E;
+  --color-brass-deep: #73591F;
+  --color-brass-lift: #DCC369;
+  --color-brass-soft: #F5ECCF;
 
   /* --- Type --- */
   --font-sans:  "Instrument Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-serif: "Fraunces", ui-serif, Georgia, "Times New Roman", serif;
   --font-mono:  "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* --- Geometry: small, consistent radii. No pill-everything, no 24px blobs. --- */
-  --radius-sm:  4px;
-  --radius-md:  6px;
-  --radius-lg:  8px;
-  --radius-xl:  10px;
-  --radius-2xl: 12px;
-  --radius-3xl: 14px;
+  /* --- Geometry: shallow radii. Palaces have corners, not blobs. --- */
+  --radius-sm:  2px;
+  --radius-md:  4px;
+  --radius-lg:  6px;
+  --radius-xl:  8px;
+  --radius-2xl: 10px;
+  --radius-3xl: 12px;
 
   /* --- Elevation: hairlines first, shadow as a whisper --- */
-  --shadow-2xs: 0 1px 1px rgb(31 29 26 / 0.03);
-  --shadow-xs:  0 1px 2px rgb(31 29 26 / 0.04);
-  --shadow-sm:  0 1px 2px rgb(31 29 26 / 0.05);
-  --shadow-md:  0 2px 6px rgb(31 29 26 / 0.06);
-  --shadow-lg:  0 4px 14px rgb(31 29 26 / 0.07);
-  --shadow-xl:  0 8px 26px rgb(31 29 26 / 0.08);
-  --shadow-2xl: 0 14px 40px rgb(31 29 26 / 0.10);
+  --shadow-2xs: 0 1px 1px rgb(36 28 24 / 0.03);
+  --shadow-xs:  0 1px 2px rgb(36 28 24 / 0.04);
+  --shadow-sm:  0 1px 2px rgb(36 28 24 / 0.05);
+  --shadow-md:  0 2px 6px rgb(36 28 24 / 0.06);
+  --shadow-lg:  0 4px 16px rgb(36 28 24 / 0.08);
+  --shadow-xl:  0 10px 30px rgb(36 28 24 / 0.09);
+  --shadow-2xl: 0 18px 48px rgb(36 28 24 / 0.12);
 }
 
 /* ==========================================================================
@@ -175,7 +179,11 @@
   html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
 
   body {
-    background: var(--color-paper);
+    /* Limewash carries a faint tooth. The grain sits in the page ground only —
+       cards and photographs are opaque over it — so it reads as the wall
+       behind the work rather than a filter on top of it. */
+    background-color: var(--color-paper);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E");
     color: var(--color-ink);
     font-family: var(--font-sans);
     font-size: 16px;
@@ -185,29 +193,30 @@
     font-feature-settings: "cv05" 1, "ss01" 1;
   }
 
-  /* Fraunces carries the personality; it is used only at the top of the
-     hierarchy so it stays an event, not wallpaper. */
+  /* Fraunces at its sharpest optical cut — high stroke contrast, no wonk.
+     It carries the whole personality, so it stays at the top of the
+     hierarchy and nowhere else. */
   h1, h2, .font-display {
     font-family: var(--font-serif);
-    font-variation-settings: "SOFT" 20, "WONK" 1, "opsz" 40;
-    letter-spacing: -0.018em;
-    line-height: 1.08;
+    font-variation-settings: "opsz" 144, "SOFT" 0, "WONK" 0;
+    letter-spacing: -0.022em;
+    line-height: 1.06;
     color: var(--color-ink);
   }
-  h3, h4, h5, h6 { letter-spacing: -0.012em; line-height: 1.25; }
+  h3, h4, h5, h6 { letter-spacing: -0.011em; line-height: 1.25; }
 
-  /* Numbers are receipts: prices, dates, order ids, quantities. */
+  /* Numbers are a record: prices, dates, order ids, quantities. */
   .font-mono, code, kbd, samp { font-family: var(--font-mono); font-feature-settings: "zero" 1; }
 
   a { color: inherit; text-underline-offset: 3px; }
 
-  ::selection { background: var(--color-marigold-soft); color: var(--color-pine-deep); }
+  ::selection { background: var(--color-brass-soft); color: var(--color-crimson-deep); }
 
   /* Accessibility floor: a visible, consistent focus ring everywhere. */
   :focus-visible {
-    outline: 2px solid var(--color-marigold);
+    outline: 2px solid var(--color-crimson);
     outline-offset: 2px;
-    border-radius: 3px;
+    border-radius: 2px;
   }
 
   input, textarea, select, button { font-family: inherit; font-size: inherit; }
@@ -215,7 +224,6 @@
 
   img { max-width: 100%; }
 
-  /* Quiet scrollbars in the paper palette */
   * { scrollbar-width: thin; scrollbar-color: var(--color-line-strong) transparent; }
   ::-webkit-scrollbar { width: 10px; height: 10px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -224,46 +232,87 @@
 }
 
 /* ==========================================================================
-   Component vocabulary — used by the rebuilt surfaces, available to the rest
+   Component vocabulary
    ========================================================================== */
 
 @layer components {
-  /* The marigold thread: one hairline that marks "you are here" / "this is the
-     start of something". It runs under the active nav item, under section
-     eyebrows, and along the checkout steps. It is the connective signature. */
+  /* The brass thread: one hairline that marks "you are here" and "this starts
+     something". It runs under the active nav item, beside every section
+     eyebrow, and along the checkout steps — the single connective device. */
   .thread {
     display: inline-block;
     width: 28px;
-    height: 2px;
-    background: var(--color-marigold);
+    height: 1px;
+    background: var(--color-brass);
     vertical-align: middle;
   }
 
   .eyebrow {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     font-family: var(--font-mono);
     font-size: 11px;
     font-weight: 500;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--color-ink-mute);
   }
   .eyebrow::before {
     content: "";
-    width: 24px;
-    height: 2px;
-    background: var(--color-marigold);
+    width: 26px;
+    height: 1px;
+    background: var(--color-brass);
+  }
+
+  /* The one piece of ornament in the system: a brass rule broken by a small
+     lozenge, borrowed from the inlay on a carved window frame. Used to close
+     a section, never to decorate one. */
+  .ornament {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--color-brass);
+  }
+  .ornament::before,
+  .ornament::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.45;
+  }
+  .ornament > span {
+    width: 6px;
+    height: 6px;
+    background: currentColor;
+    transform: rotate(45deg);
   }
 
   .card {
     background: var(--color-surface);
     border: 1px solid var(--color-line);
-    border-radius: var(--radius-xl);
+    border-radius: var(--radius-lg);
   }
-  .card-hover { transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
+  .card-hover { transition: border-color .2s ease, box-shadow .2s ease; }
   .card-hover:hover { border-color: var(--color-line-strong); box-shadow: var(--shadow-md); }
+
+  /* A photograph framed the way a plate is bound into a book: a hairline of
+     brass held a little away from the image. */
+  .plate {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: var(--color-gray-100);
+  }
+  .plate::after {
+    content: "";
+    position: absolute;
+    inset: 10px;
+    border: 1px solid rgb(255 255 255 / 0.28);
+    border-radius: 2px;
+    pointer-events: none;
+  }
 
   .btn {
     display: inline-flex;
@@ -283,14 +332,15 @@
   }
   .btn:disabled { opacity: .5; cursor: not-allowed; }
 
-  .btn-primary { background: var(--color-pine); color: #fff; }
-  .btn-primary:hover:not(:disabled) { background: var(--color-pine-deep); }
+  /* Three weights of action, so a screen holding several of them still reads
+     in order: crimson for the one thing worth doing, ink for a solid but
+     ordinary action, ghost for everything else. Crimson is the royal colour
+     and it is spent in one place per screen. */
+  .btn-accent { background: var(--color-crimson); color: #fff; }
+  .btn-accent:hover:not(:disabled) { background: #6A1D2E; }
 
-  /* Marigold is reserved for the single most important action on a screen.
-     White on plain marigold is only 3.2:1, so the button uses the deeper
-     weight (4.6:1) and goes deeper still on hover. */
-  .btn-accent { background: #AE6212; color: #fff; }
-  .btn-accent:hover:not(:disabled) { background: var(--color-marigold-deep); }
+  .btn-primary { background: var(--color-ink); color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: #16100D; }
 
   .btn-ghost { background: transparent; color: var(--color-ink); border-color: var(--color-line-strong); }
   .btn-ghost:hover:not(:disabled) { background: var(--color-gray-100); border-color: var(--color-ink-mute); }
@@ -305,10 +355,10 @@
     border: 1px solid var(--color-line-strong);
     border-radius: var(--radius-md);
     color: var(--color-ink);
-    transition: border-color .15s ease;
+    transition: border-color .15s ease, box-shadow .15s ease;
   }
   .field:hover { border-color: var(--color-ink-mute); }
-  .field:focus { outline: none; border-color: var(--color-pine); box-shadow: 0 0 0 3px rgb(46 90 77 / 0.10); }
+  .field:focus { outline: none; border-color: var(--color-crimson); box-shadow: 0 0 0 3px rgb(126 36 56 / 0.10); }
 
   .label {
     display: block;
@@ -333,14 +383,14 @@
     color: var(--color-ink-soft);
   }
 
-  /* Money and dates read as printed record, not as UI chrome. */
   .amount { font-family: var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
 
   .rule { height: 1px; background: var(--color-line); border: 0; }
+  .rule-brass { height: 1px; background: var(--color-brass); opacity: 0.5; border: 0; }
 
   .loader {
     border: 2px solid var(--color-line);
-    border-top-color: var(--color-pine);
+    border-top-color: var(--color-crimson);
     border-radius: 50%;
     width: 20px;
     height: 20px;
@@ -348,10 +398,14 @@
   }
 }
 
+/* ==========================================================================
+   Motion
+   ========================================================================== */
+
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Ambient marquee for the live inventory band on the landing page. The track
-   holds two copies of the same list, so translating it by -50% loops seamlessly. */
+/* Ambient marquee for the live inventory band. The track holds two copies of
+   the list, so translating by -50% loops seamlessly. */
 @keyframes marquee {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
@@ -363,26 +417,17 @@
 }
 .marquee:hover .marquee-track { animation-play-state: paused; }
 
-/* The marigold thread drawing itself in under a headline. */
+/* The brass thread drawing itself in under a headline. */
 @keyframes draw-thread {
   from { transform: scaleX(0); }
   to   { transform: scaleX(1); }
 }
 .thread-draw {
   transform-origin: left;
-  animation: draw-thread 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
+  animation: draw-thread 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.55s both;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .marquee-track { animation: none; }
-  .thread-draw { animation: none; transform: none; }
-}
-
-/* ==========================================================================
-   Cross-cutting rules
-   ========================================================================== */
-
-/* Respect the reader. framer-motion reads prefers-reduced-motion on its own;
+/* Respect the reader. framer-motion reads prefers-reduced-motion itself;
    this covers the CSS animations and smooth scrolling. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -391,6 +436,8 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+  .marquee-track { animation: none; }
+  .thread-draw { animation: none; transform: none; }
 }
 
 /* ==========================================================================
@@ -409,7 +456,7 @@
 }
 .Toastify__toast-body { padding: 0; margin: 0; align-items: flex-start; }
 .Toastify__close-button { color: var(--color-ink-mute); opacity: 1; align-self: center; }
-.Toastify__progress-bar { height: 2px; background: var(--color-marigold); }
+.Toastify__progress-bar { height: 2px; background: var(--color-brass); }
 .Toastify__progress-bar--success { background: var(--color-green-600); }
 .Toastify__progress-bar--error   { background: var(--color-red-600); }
 .Toastify__progress-bar--info    { background: var(--color-blue-600); }
@@ -417,4 +464,4 @@
 .Toastify__toast--success .Toastify__toast-icon svg { fill: var(--color-green-600); }
 .Toastify__toast--error   .Toastify__toast-icon svg { fill: var(--color-red-600); }
 .Toastify__toast--info    .Toastify__toast-icon svg { fill: var(--color-blue-600); }
-.Toastify__toast--warning .Toastify__toast-icon svg { fill: var(--color-marigold); }
+.Toastify__toast--warning .Toastify__toast-icon svg { fill: var(--color-brass-deep); }

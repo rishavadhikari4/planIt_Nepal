@@ -158,12 +158,12 @@ const DateRangePicker = ({
               })}
               aria-pressed={Boolean(isFrom || isTill)}
               className={`relative mx-auto flex h-10 w-10 items-center justify-center text-[13.5px] transition-colors
-                ${inRange ? "bg-pine-50" : ""}
+                ${inRange ? "bg-crimson-50" : ""}
                 ${isFrom ? "rounded-l-md" : ""}
                 ${isTill ? "rounded-r-md" : ""}
                 ${
                   isFrom || isTill
-                    ? "bg-pine font-semibold text-white"
+                    ? "bg-crimson font-semibold text-white"
                     : isDisabled
                       ? "cursor-not-allowed text-line-strong line-through"
                       : "rounded-md text-ink hover:bg-gray-100"
@@ -181,11 +181,11 @@ const DateRangePicker = ({
       {showLegend && (
         <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 border-t border-line pt-4 text-[12px] text-ink-mute">
           <span className="inline-flex items-center gap-1.5">
-            <span className="h-3 w-3 rounded-sm bg-pine" />
+            <span className="h-3 w-3 rounded-sm bg-crimson" />
             Your dates
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="h-3 w-3 rounded-sm bg-pine-50 ring-1 ring-inset ring-line" />
+            <span className="h-3 w-3 rounded-sm bg-crimson-50 ring-1 ring-inset ring-line" />
             In between
           </span>
           <span className="inline-flex items-center gap-1.5">
@@ -216,7 +216,7 @@ const DateRangePicker = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-pine-deep/50 sm:items-center sm:p-6"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-crimson-deep/50 sm:items-center sm:p-6"
       onClick={onClose}
     >
       <div

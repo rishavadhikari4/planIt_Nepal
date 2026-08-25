@@ -112,7 +112,7 @@ function PaymentCallback() {
               {state.orderId && (
                 <button
                   onClick={() => navigate(`/payment/${state.orderId}`, { replace: true })}
-                  className="btn btn-primary w-full"
+                  className="btn btn-accent w-full"
                 >
                   <RotateCcw className="h-4 w-4" strokeWidth={2} />
                   Try the payment again
