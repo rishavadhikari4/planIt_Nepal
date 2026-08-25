@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { Calendar } from "lucide-react"
+import { Calendar, Undo2 } from "lucide-react"
 import { toast } from "react-toastify"
-import { getOrderById, updateOrderStatus } from "../../services/orders"
+import {
+  getOrderById,
+  updateOrderStatus,
+  updateOrderItemStatus,
+  settleRefund,
+} from "../../services/orders"
 import {
   AdminPage,
   BackLink,
@@ -12,10 +17,12 @@ import {
   StatusBadge,
   AdminLoading,
   AdminError,
+  Modal,
   rs,
   formatDate,
   formatDateTime,
 } from "../../components/ui/Admin"
+import { img, SIZES } from "../../utils/image"
 
 const STATUSES = ["pending", "confirmed", "processing", "completed", "cancelled"]
 
@@ -36,6 +43,11 @@ const OrderDetails = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [saving, setSaving] = useState(false)
+  const [movingItem, setMovingItem] = useState(null)
+  const [refunding, setRefunding] = useState(false)
+  const [refundAmount, setRefundAmount] = useState("")
+  const [refundReference, setRefundReference] = useState("")
+  const [settling, setSettling] = useState(false)
 
   const load = async () => {
     setLoading(true)
@@ -68,6 +80,38 @@ const OrderDetails = () => {
       toast.error("The status didn't save. The order is unchanged.")
     } finally {
       setSaving(false)
+    }
+  }
+
+  /* One line at a time. The order-wide status could never say that the venue
+     was confirmed while the studio fell through. */
+  const changeItemStatus = async (item, bookingStatus) => {
+    setMovingItem(item._id)
+    try {
+      const result = await updateOrderItemStatus(order._id, item._id, bookingStatus)
+      setOrder(result.data.order)
+      toast.success(result.message)
+    } catch (err) {
+      toast.error(err.response?.data?.message || "That didn't save.")
+    } finally {
+      setMovingItem(null)
+    }
+  }
+
+  const recordRefund = async () => {
+    setSettling(true)
+    try {
+      const result = await settleRefund(order._id, {
+        amount: refundAmount === "" ? undefined : Number(refundAmount),
+        reference: refundReference,
+      })
+      setOrder(result.data.order)
+      toast.success("Refund recorded.")
+      setRefunding(false)
+    } catch (err) {
+      toast.error(err.response?.data?.message || "The refund didn't save.")
+    } finally {
+      setSettling(false)
     }
   }
 
@@ -124,7 +168,7 @@ const OrderDetails = () => {
                 {order.items.map((item, i) => (
                   <li key={item._id || i} className="flex gap-4 px-5 py-4">
                     <img
-                      src={item.image || "/placeholder.svg"}
+                      src={img(item.image, { w: SIZES.thumb }) || "/placeholder.svg"}
                       alt=""
                       loading="lazy"
                       className="h-16 w-16 shrink-0 rounded-md border border-line object-cover"
@@ -157,6 +201,34 @@ const OrderDetails = () => {
                           </span>
                         )}
                       </div>
+
+                      {item.statusNote && (
+                        <p className="mt-1.5 t-caption leading-relaxed text-ink-soft">
+                          {item.statusNote}
+                        </p>
+                      )}
+
+                      {/* Only dated lines have a booking status; a dish is
+                          not held against a day. */}
+                      {item.bookingStatus && (
+                        <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                          {["pending", "confirmed", "cancelled"].map((next) => (
+                            <button
+                              key={next}
+                              onClick={() => changeItemStatus(item, next)}
+                              disabled={movingItem === item._id || item.bookingStatus === next}
+                              className={`rounded-full border px-2.5 py-1 t-caption font-semibold capitalize transition-colors active:scale-95 disabled:cursor-not-allowed ${
+                                item.bookingStatus === next
+                                  ? "border-crimson bg-crimson-50 text-crimson opacity-100"
+                                  : "border-line text-ink-mute hover:border-ink-mute hover:text-ink"
+                              }`}
+                            >
+                              {next}
+                            </button>
+                          ))}
+                          {movingItem === item._id && <span className="loader h-3.5 w-3.5" />}
+                        </div>
+                      )}
                     </div>
                   </li>
                 ))}
@@ -217,6 +289,50 @@ const OrderDetails = () => {
             />
           </DetailCard>
 
+          {/* Refunds. Neither Khalti nor Fonepay refunds over their public API,
+              so cancelling records what is owed and this is where a human
+              says the money has actually gone back. */}
+          {order.refundStatus && order.refundStatus !== "none" && (
+            <DetailCard
+              title="Refund"
+              action={
+                order.refundStatus !== "refunded" && (
+                  <button
+                    onClick={() => {
+                      setRefundAmount("")
+                      setRefundReference("")
+                      setRefunding(true)
+                    }}
+                    className="t-small font-medium text-crimson hover:underline"
+                  >
+                    Record payout
+                  </button>
+                )
+              }
+            >
+              <DetailRows
+                rows={[
+                  ["Status", <StatusBadge key="r" status={order.refundStatus} />],
+                  order.refundedAmount > 0 && ["Returned", rs(order.refundedAmount), true],
+                  order.refundedAt && ["Paid back", formatDateTime(order.refundedAt), true],
+                  order.refundReference && ["Reference", order.refundReference, true],
+                ]}
+              />
+            </DetailCard>
+          )}
+
+          {order.status === "cancelled" && (
+            <DetailCard title="Cancellation">
+              <DetailRows
+                rows={[
+                  order.cancelledAt && ["Cancelled", formatDateTime(order.cancelledAt), true],
+                  order.cancelledBy && ["By", order.cancelledBy],
+                  order.cancellationReason && ["Reason", order.cancellationReason],
+                ]}
+              />
+            </DetailCard>
+          )}
+
           <DetailCard
             title="Customer"
             action={
@@ -252,6 +368,68 @@ const OrderDetails = () => {
           </DetailCard>
         </div>
       </div>
+      <Modal
+        open={refunding}
+        onClose={() => !settling && setRefunding(false)}
+        title="Record a refund"
+        description={`Order #${order._id?.slice(-8).toUpperCase()} · ${rs(paid)} was taken`}
+        width="max-w-md"
+      >
+        <p className="t-body leading-relaxed text-ink-soft">
+          This records money you have already sent back. It does not move any funds — the gateways
+          do not refund over their API, so the transfer happens outside this system.
+        </p>
+
+        <div className="mt-6 space-y-4">
+          <div>
+            <label htmlFor="refund-amount" className="label">
+              Amount returned
+            </label>
+            <input
+              id="refund-amount"
+              type="number"
+              min="0"
+              max={paid}
+              inputMode="numeric"
+              value={refundAmount}
+              onChange={(e) => setRefundAmount(e.target.value)}
+              placeholder="Leave blank for the full policy amount"
+              className="field amount"
+            />
+          </div>
+          <div>
+            <label htmlFor="refund-ref" className="label">
+              Reference <span className="font-normal text-ink-mute">(optional)</span>
+            </label>
+            <input
+              id="refund-ref"
+              value={refundReference}
+              onChange={(e) => setRefundReference(e.target.value)}
+              placeholder="Bank transfer ID, cheque number…"
+              className="field"
+            />
+          </div>
+        </div>
+
+        <div className="mt-7 flex justify-end gap-2">
+          <button onClick={() => setRefunding(false)} disabled={settling} className="btn btn-ghost">
+            Cancel
+          </button>
+          <button onClick={recordRefund} disabled={settling} className="btn btn-accent">
+            {settling ? (
+              <>
+                <span className="loader h-4 w-4 border-white/40 border-t-white" />
+                Saving…
+              </>
+            ) : (
+              <>
+                <Undo2 className="h-4 w-4" strokeWidth={2} />
+                Record refund
+              </>
+            )}
+          </button>
+        </div>
+      </Modal>
     </AdminPage>
   )
 }
