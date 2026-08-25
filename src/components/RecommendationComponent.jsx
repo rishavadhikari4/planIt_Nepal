@@ -1,733 +1,454 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { 
-  Sparkles,  
-  MapPin, 
-  Users, 
-  Camera, 
-  Utensils, 
-  Building2,
-  Star,
-  Heart,
-  CheckCircle,
-  AlertCircle,
-  TrendingUp,
-  Eye,
-  X,
-  ArrowRight,
-  PiggyBank,
-  Award,
-  Target,
-  ShoppingCart
-} from "lucide-react"
-import { toast } from "react-toastify"
-import { getWeddingPackageRecommendation } from "../services/recommendations"
+import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { motion, AnimatePresence } from "framer-motion"
+import { ArrowLeft, ArrowRight, Check, Star } from "lucide-react"
+import { toast } from "react-toastify"
 import { useCart } from "../context/CartContext"
+import { getWeddingPackageRecommendation } from "../services/recommendations"
+import { Modal } from "./ui/Admin"
+import { Field, Row, CheckboxGroup } from "./ui/FormKit"
+
+const rs = (n) => `Rs ${Number(n || 0).toLocaleString("en-IN")}`
+
+const SERVICES = [
+  "Wedding Photography",
+  "Pre-wedding Shoot",
+  "Video Recording",
+  "Event Coverage",
+  "Portrait Session",
+  "Drone Photography",
+  "Photo Editing",
+  "Album Design",
+]
+
+const EMPTY = {
+  venueBudget: "",
+  studioBudget: "",
+  foodBudget: "",
+  location: "",
+  guestCount: "",
+  preferredServices: [],
+}
+
+const STEPS = ["Budget", "Preferences", "Your package"]
+
+const Rating = ({ value }) =>
+  value ? (
+    <span className="inline-flex items-center gap-1 text-[12px] text-ink-mute">
+      <Star className="h-3 w-3 fill-marigold text-marigold" strokeWidth={1.5} />
+      <span className="amount">{value}</span>
+    </span>
+  ) : null
+
+const PackageRow = ({ image, name, meta, price }) => (
+  <li className="flex items-center gap-4 px-5 py-4">
+    <img
+      src={image || "/placeholder.svg"}
+      alt=""
+      loading="lazy"
+      className="h-14 w-14 shrink-0 rounded-md border border-line object-cover"
+    />
+    <div className="min-w-0 flex-1">
+      <p className="truncate text-[14.5px] font-semibold text-ink">{name}</p>
+      <div className="mt-0.5 flex flex-wrap items-center gap-x-3 text-[12.5px] text-ink-mute">
+        {meta}
+      </div>
+    </div>
+    <span className="amount shrink-0 text-[14px] font-semibold text-ink">{rs(price)}</span>
+  </li>
+)
 
 const RecommendationComponent = ({ isOpen, onClose }) => {
   const navigate = useNavigate()
   const { addToCart } = useCart()
-  const [step, setStep] = useState(1)
+
+  const [step, setStep] = useState(0)
+  const [form, setForm] = useState(EMPTY)
   const [loading, setLoading] = useState(false)
-  const [recommendations, setRecommendations] = useState(null)
-  const [formData, setFormData] = useState({
-    venueBudget: "",
-    studioBudget: "",
-    foodBudget: "",
-    location: "",
-    guestCount: "",
-    preferredServices: []
-  })
+  const [result, setResult] = useState(null)
 
-  const services = [
-    'Wedding Photography',
-    'Pre-wedding Shoot', 
-    'Video Recording',
-    'Event Coverage',
-    'Portrait Session',
-    'Drone Photography',
-    'Photo Editing',
-    'Album Design'
-  ]
+  const set = (field, value) => setForm((prev) => ({ ...prev, [field]: value }))
 
-  // Add useEffect to debug formData changes
-  useEffect(() => {
-  }, [formData])
-
-  const modalVariants = {
-    hidden: { opacity: 0, scale: 0.8, y: 50 },
-    visible: { 
-      opacity: 1, 
-      scale: 1, 
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 200,
-        damping: 20
-      }
-    },
-    exit: { 
-      opacity: 0, 
-      scale: 0.9, 
-      y: 30,
-      transition: { duration: 0.2 }
-    }
+  const reset = () => {
+    setStep(0)
+    setForm(EMPTY)
+    setResult(null)
+    onClose()
   }
 
-  const stepVariants = {
-    hidden: { opacity: 0, x: 100 },
-    visible: { 
-      opacity: 1, 
-      x: 0,
-      transition: { duration: 0.4 }
-    },
-    exit: { 
-      opacity: 0, 
-      x: -100,
-      transition: { duration: 0.3 }
-    }
-  }
-
-  const handleInputChange = (field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }))
-  }
-
-  const handleServiceToggle = (service) => {
-    setFormData(prev => ({
-      ...prev,
-      preferredServices: prev.preferredServices.includes(service)
-        ? prev.preferredServices.filter(s => s !== service)
-        : [...prev.preferredServices, service]
-    }))
-  }
-
-  const validateStep1 = () => {
-    // No validation needed for step 1 anymore since all fields are optional
-    return true
-  }
-
-  const handleNextStep = () => {
-    console.log('Next button clicked, current formData:', formData)
-    if (validateStep1()) {
-      setStep(2)
-      toast.success("Moving to preferences step")
-    }
-  }
-
-  const handleGetRecommendations = async () => {
+  const fetchPackage = async () => {
     setLoading(true)
     try {
-      console.log('Sending recommendation request with data:', formData)
-      
-      // Calculate total budget from individual budgets
-      const totalBudget = (parseFloat(formData.venueBudget || 0) + 
-                          parseFloat(formData.studioBudget || 0) + 
-                          parseFloat(formData.foodBudget || 0)) || 100000; // Default if no budgets specified
-      
-      const requestData = {
-        totalBudget: totalBudget.toString(),
-        venueBudget: formData.venueBudget,
-        studioBudget: formData.studioBudget,
-        foodBudget: formData.foodBudget,
-        location: formData.location,
-        guestCount: formData.guestCount,
-        preferredServices: formData.preferredServices.join(',')
-      }
-      
-      const response = await getWeddingPackageRecommendation(requestData)
-      
-      console.log('Recommendation response:', response)
-      if (response.success) {
-        setRecommendations(response.data)
-        setStep(3)
-        toast.success("Perfect package recommendations found! 🎉")
-      }
+      // The API wants one total; an unspecified budget falls back to a sane default.
+      const total =
+        Number(form.venueBudget || 0) + Number(form.studioBudget || 0) + Number(form.foodBudget || 0) ||
+        100000
+
+      const response = await getWeddingPackageRecommendation({
+        totalBudget: String(total),
+        venueBudget: form.venueBudget,
+        studioBudget: form.studioBudget,
+        foodBudget: form.foodBudget,
+        location: form.location,
+        guestCount: form.guestCount,
+        preferredServices: form.preferredServices.join(","),
+      })
+
+      if (!response.success) throw new Error(response.message)
+      setResult(response.data)
+      setStep(2)
     } catch (error) {
-      console.error('Recommendation error:', error)
-      toast.error(error.message || "Failed to get recommendations")
+      toast.error(error.message || "We couldn't build a package from that. Try widening the budget.")
     } finally {
       setLoading(false)
     }
   }
 
-  const handleAddPackageToCart = () => {
-    if (!recommendations) return
+  const addPackage = () => {
+    const pkg = result?.package
+    if (!pkg) return
 
-    const packageItems = []
-    
-    // Add venue if available
-    if (recommendations.package.venue) {
-      packageItems.push({
-        _id: recommendations.package.venue._id,
-        name: recommendations.package.venue.name,
-        price: recommendations.package.venue.price,
-        image: recommendations.package.venue.venueImage,
-        type: "venue"
-      })
-    }
-
-    // Add studio if available
-    if (recommendations.package.studio) {
-      packageItems.push({
-        _id: recommendations.package.studio._id,
-        name: recommendations.package.studio.name,
-        price: recommendations.package.studio.price,
-        image: recommendations.package.studio.studioImage,
-        type: "studio"
-      })
-    }
-
-    // Add dishes
-    recommendations.package.dishes.forEach(dish => {
-      packageItems.push({
+    const items = [
+      pkg.venue && {
+        _id: pkg.venue._id,
+        name: pkg.venue.name,
+        price: pkg.venue.price,
+        image: pkg.venue.venueImage,
+        type: "venue",
+      },
+      pkg.studio && {
+        _id: pkg.studio._id,
+        name: pkg.studio.name,
+        price: pkg.studio.price,
+        image: pkg.studio.studioImage,
+        type: "studio",
+      },
+      ...(pkg.dishes || []).map((dish) => ({
         _id: dish._id,
         name: dish.name,
         price: dish.price,
         image: dish.image,
         type: "cuisine",
-        category: dish.category
-      })
+        category: dish.category,
+      })),
+    ].filter(Boolean)
+
+    let added = 0
+    items.forEach((item) => {
+      const needsDates = item.type === "venue" || item.type === "studio"
+      if (addToCart(item, null, true, needsDates)) added++
     })
 
-    // Add all items to cart with recommendation package flag
-    let successCount = 0;
-    packageItems.forEach(item => {
-      const isVenueOrStudio = item.type === "venue" || item.type === "studio";
-      const success = addToCart(item, null, true, isVenueOrStudio); // silent mode for individual items
-      if (success) successCount++;
-    })
-    
-    if (successCount > 0) {
-      toast.success(`Added ${successCount} items from recommended package to cart! 🛒`);
-      onClose()
-      navigate('/cart')
-    } else {
-      toast.error("Failed to add package items to cart. Please try again.");
+    if (added === 0) {
+      return toast.error("Nothing could be added. Try again, or add the items yourself.")
     }
+
+    toast.success(`${added} ${added === 1 ? "item" : "items"} added to your cart.`)
+    reset()
+    navigate("/cart")
   }
 
-  const renderStep1 = () => (
-    <motion.div
-      key="step1"
-      variants={stepVariants}
-      initial="hidden"
-      animate="visible"
-      exit="exit"
-      className="space-y-6"
+  const pkg = result?.package
+  const analysis = result?.budgetAnalysis
+  const insights = result?.insights
+
+  return (
+    <Modal
+      open={isOpen}
+      onClose={reset}
+      title="Build my package"
+      description="Tell us the shape of your event and we'll put a whole plan together."
+      width="max-w-2xl"
     >
-      <div className="text-center mb-8">
-        <motion.div
-          className="w-20 h-20 mx-auto mb-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center"
-          animate={{ rotate: [0, 5, -5, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <Sparkles className="w-10 h-10 text-white" />
-        </motion.div>
-        <h3 className="text-2xl font-bold text-gray-800 mb-2">Budget Planning</h3>
-        <p className="text-gray-600">Tell us your budget for each service (all optional)</p>
-      </div>
-
-      {/* Budget Distribution */}
-      <div className="space-y-4">
-        <h4 className="font-semibold text-gray-700 mb-3">
-          Service Budgets (Optional)
-        </h4>
-        <div className="grid grid-cols-1 gap-4">
-          <div className="flex items-center space-x-3">
-            <Building2 className="w-5 h-5 text-purple-500" />
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Venue Budget</label>
-              <input
-                type="number"
-                placeholder="e.g., 50000"
-                value={formData.venueBudget}
-                onChange={(e) => handleInputChange('venueBudget', e.target.value)}
-                className="w-full px-3 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300"
-              />
-            </div>
-          </div>
-          <div className="flex items-center space-x-3">
-            <Camera className="w-5 h-5 text-purple-500" />
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Photography Budget</label>
-              <input
-                type="number"
-                placeholder="e.g., 30000"
-                value={formData.studioBudget}
-                onChange={(e) => handleInputChange('studioBudget', e.target.value)}
-                className="w-full px-3 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300"
-              />
-            </div>
-          </div>
-          <div className="flex items-center space-x-3">
-            <Utensils className="w-5 h-5 text-purple-500" />
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Food Budget</label>
-              <input
-                type="number"
-                placeholder="e.g., 25000"
-                value={formData.foodBudget}
-                onChange={(e) => handleInputChange('foodBudget', e.target.value)}
-                className="w-full px-3 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <motion.button
-        onClick={handleNextStep}
-        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2"
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-      >
-        <span>Next: Preferences</span>
-        <ArrowRight className="w-5 h-5" />
-      </motion.button>
-    </motion.div>
-  )
-
-  const renderStep2 = () => (
-    <motion.div
-      key="step2"
-      variants={stepVariants}
-      initial="hidden"
-      animate="visible"
-      exit="exit"
-      className="space-y-6"
-    >
-      <div className="text-center mb-8">
-        <motion.div
-          className="w-20 h-20 mx-auto mb-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center"
-          animate={{ scale: [1, 1.1, 1] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <Heart className="w-10 h-10 text-white" />
-        </motion.div>
-        <h3 className="text-2xl font-bold text-gray-800 mb-2">Your Preferences</h3>
-        <p className="text-gray-600">Help us personalize your event package</p>
-      </div>
-
-      {/* Location */}
-      <div className="space-y-3">
-        <label className="block text-sm font-semibold text-gray-700">
-          Preferred Location
-        </label>
-        <div className="relative">
-          <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-          <input
-            type="text"
-            placeholder="Enter city or area"
-            value={formData.location}
-            onChange={(e) => handleInputChange('location', e.target.value)}
-            className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300"
-          />
-        </div>
-      </div>
-
-      {/* Guest Count */}
-      <div className="space-y-3">
-        <label className="block text-sm font-semibold text-gray-700">
-          Expected Guest Count
-        </label>
-        <div className="relative">
-          <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-          <input
-            type="number"
-            placeholder="Number of guests"
-            value={formData.guestCount}
-            onChange={(e) => handleInputChange('guestCount', e.target.value)}
-            className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300"
-          />
-        </div>
-      </div>
-
-      {/* Photography Services */}
-      <div className="space-y-3">
-        <label className="block text-sm font-semibold text-gray-700">
-          Preferred Photography Services
-        </label>
-        <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
-          {services.map(service => (
-            <motion.button
-              key={service}
-              onClick={() => handleServiceToggle(service)}
-              className={`p-3 rounded-lg text-sm font-medium transition-all duration-300 ${
-                formData.preferredServices.includes(service)
-                  ? 'bg-purple-500 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-purple-100'
+      {/* Step indicator — the same numbered thread used across the product. */}
+      <ol className="mb-8 flex items-center gap-2" aria-label="Progress">
+        {STEPS.map((label, i) => (
+          <li key={label} className="flex flex-1 items-center gap-2">
+            <span
+              className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold ${
+                i < step
+                  ? "bg-pine text-white"
+                  : i === step
+                    ? "border border-marigold bg-marigold-soft text-marigold-deep"
+                    : "border border-line-strong text-ink-mute"
               }`}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
             >
-              {service}
-            </motion.button>
-          ))}
-        </div>
-      </div>
+              {i < step ? <Check className="h-3 w-3" strokeWidth={3} /> : i + 1}
+            </span>
+            <span
+              className={`hidden text-[12.5px] sm:block ${
+                i === step ? "font-semibold text-ink" : "text-ink-mute"
+              }`}
+            >
+              {label}
+            </span>
+            {i < STEPS.length - 1 && <span className="h-px flex-1 bg-line" />}
+          </li>
+        ))}
+      </ol>
 
-      <div className="flex space-x-4">
-        <motion.button
-          onClick={() => setStep(1)}
-          className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-xl transition-all duration-300"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          Back
-        </motion.button>
-        <motion.button
-          onClick={handleGetRecommendations}
-          disabled={loading}
-          className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-400 disabled:to-gray-400 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2"
-          whileHover={{ scale: loading ? 1 : 1.02 }}
-          whileTap={{ scale: loading ? 1 : 0.98 }}
-        >
-          {loading ? (
-            <motion.div
-              className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            />
-          ) : (
-            <>
-              <Sparkles className="w-5 h-5" />
-              <span>Get Recommendations</span>
-            </>
-          )}
-        </motion.button>
-      </div>
-    </motion.div>
-  )
-
-  const renderStep3 = () => {
-    if (!recommendations) return null
-
-    const { package: pkg, budgetAnalysis, insights } = recommendations
-
-    return (
-      <motion.div
-        key="step3"
-        variants={stepVariants}
-        initial="hidden"
-        animate="visible"
-        exit="exit"
-        className="space-y-4"
-      >
-        <div className="text-center mb-6">
+      <AnimatePresence mode="wait">
+        {/* ---------------- Step 1: budget ---------------- */}
+        {step === 0 && (
           <motion.div
-            className="w-20 h-20 mx-auto mb-4 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center"
-            animate={{ scale: [1, 1.2, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
+            key="budget"
+            initial={{ opacity: 0, x: 12 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -12 }}
+            transition={{ duration: 0.22 }}
+            className="space-y-5"
           >
-            <Award className="w-10 h-10 text-white" />
+            <p className="text-[14.5px] leading-relaxed text-ink-soft">
+              Every field here is optional. Fill in what you know and we&rsquo;ll work around the
+              rest.
+            </p>
+
+            <Row>
+              <Field id="venueBudget" label="Venue budget" hint="In rupees.">
+                <input
+                  id="venueBudget"
+                  type="number"
+                  min="0"
+                  inputMode="numeric"
+                  value={form.venueBudget}
+                  onChange={(e) => set("venueBudget", e.target.value)}
+                  placeholder="80000"
+                  className="field amount"
+                />
+              </Field>
+              <Field id="foodBudget" label="Catering budget" hint="In rupees.">
+                <input
+                  id="foodBudget"
+                  type="number"
+                  min="0"
+                  inputMode="numeric"
+                  value={form.foodBudget}
+                  onChange={(e) => set("foodBudget", e.target.value)}
+                  placeholder="60000"
+                  className="field amount"
+                />
+              </Field>
+            </Row>
+
+            <Row>
+              <Field id="studioBudget" label="Studio budget" hint="In rupees.">
+                <input
+                  id="studioBudget"
+                  type="number"
+                  min="0"
+                  inputMode="numeric"
+                  value={form.studioBudget}
+                  onChange={(e) => set("studioBudget", e.target.value)}
+                  placeholder="40000"
+                  className="field amount"
+                />
+              </Field>
+              <Field id="guestCount" label="Guests" hint="Drives the catering count.">
+                <input
+                  id="guestCount"
+                  type="number"
+                  min="1"
+                  inputMode="numeric"
+                  value={form.guestCount}
+                  onChange={(e) => set("guestCount", e.target.value)}
+                  placeholder="150"
+                  className="field amount"
+                />
+              </Field>
+            </Row>
+
+            <div className="flex justify-end gap-2 border-t border-line pt-6">
+              <button onClick={reset} className="btn btn-ghost">
+                Cancel
+              </button>
+              <button onClick={() => setStep(1)} className="btn btn-primary group">
+                Next
+                <ArrowRight
+                  className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                  strokeWidth={2}
+                />
+              </button>
+            </div>
           </motion.div>
-          <h3 className="text-2xl font-bold text-gray-800 mb-2">Your Perfect Package</h3>
-          <p className="text-gray-600">Curated just for your dream event</p>
-        </div>
-
-        {/* Package Overview */}
-        <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="text-lg font-bold text-gray-800">Package Total</h4>
-            <div className="text-right">
-              <div className="text-xl font-bold text-purple-600">
-                Rs {pkg.totalPrice?.toLocaleString()}
-              </div>
-              <div className="text-xs text-gray-600">
-                {budgetAnalysis.budgetUtilization}% of budget used
-              </div>
-            </div>
-          </div>
-          
-          {budgetAnalysis.savings > 0 && (
-            <div className="flex items-center text-green-600 bg-green-50 rounded-lg p-2">
-              <PiggyBank className="w-4 h-4 mr-2" />
-              <span className="font-semibold text-sm">
-                You save Rs {budgetAnalysis.savings?.toLocaleString()}!
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Package Items */}
-        <div className="space-y-3">
-          {/* Venue */}
-          {pkg.venue && (
-            <motion.div
-              className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
-              whileHover={{ scale: 1.01, y: -1 }}
-            >
-              <div className="flex items-start space-x-4">
-                <img
-                  src={pkg.venue.venueImage || "/placeholder.svg"}
-                  alt={pkg.venue.name}
-                  className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Building2 className="w-4 h-4 text-purple-500 flex-shrink-0" />
-                    <h5 className="font-semibold text-gray-800 truncate">{pkg.venue.name}</h5>
-                  </div>
-                  <p className="text-sm text-gray-600 mb-2 truncate">{pkg.venue.location}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-purple-600 font-bold text-lg">
-                      Rs {pkg.venue.price?.toLocaleString()}
-                    </span>
-                    <Rating value={pkg.venue.rating} reviews={pkg.venue.reviewsCount} />
-                  </div>
-                </div>
-                <motion.button
-                  onClick={() => navigate(`/venues/${pkg.venue._id}`)}
-                  className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors flex-shrink-0"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <Eye className="w-4 h-4" />
-                </motion.button>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Studio */}
-          {pkg.studio && (
-            <motion.div
-              className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
-              whileHover={{ scale: 1.01, y: -1 }}
-            >
-              <div className="flex items-start space-x-4">
-                <img
-                  src={pkg.studio.studioImage || "/placeholder.svg"}
-                  alt={pkg.studio.name}
-                  className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Camera className="w-4 h-4 text-purple-500 flex-shrink-0" />
-                    <h5 className="font-semibold text-gray-800 truncate">{pkg.studio.name}</h5>
-                  </div>
-                  <p className="text-sm text-gray-600 mb-2 truncate">{pkg.studio.location}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-purple-600 font-bold text-lg">
-                      Rs {pkg.studio.price?.toLocaleString()}
-                    </span>
-                    <Rating value={pkg.studio.rating} reviews={pkg.studio.reviewsCount} />
-                  </div>
-                </div>
-                <motion.button
-                  onClick={() => navigate(`/studios/${pkg.studio._id}`)}
-                  className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors flex-shrink-0"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <Eye className="w-4 h-4" />
-                </motion.button>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Dishes */}
-          {pkg.dishes && pkg.dishes.length > 0 && (
-            <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
-              <div className="flex items-center gap-2 mb-3">
-                <Utensils className="w-4 h-4 text-purple-500" />
-                <h5 className="font-semibold text-gray-800">
-                  Recommended Dishes ({pkg.dishes.length} items)
-                </h5>
-              </div>
-              <div className="space-y-3 max-h-40 overflow-y-auto">
-                {pkg.dishes.map((dish, index) => (
-                  <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={dish.image || "/placeholder.svg"}
-                        alt={dish.name}
-                        className="w-10 h-10 object-cover rounded-lg"
-                      />
-                      <div>
-                        <div className="font-medium text-sm text-gray-800">{dish.name}</div>
-                        <div className="text-xs text-gray-500">{dish.category}</div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-purple-600 font-semibold text-sm block">
-                        Rs {dish.price?.toLocaleString()}
-                      </span>
-                      <Rating value={dish.rating} size="text-xs" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Insights - Compact */}
-        {((insights.benefits && insights.benefits.length > 0) || (insights.recommendations && insights.recommendations.length > 0)) && (
-          <div className="space-y-2">
-            {insights.benefits && insights.benefits.length > 0 && (
-              <div className="bg-green-50 rounded-xl p-3 border border-green-200">
-                <h5 className="font-semibold text-green-800 mb-1 flex items-center text-sm">
-                  <CheckCircle className="w-3 h-3 mr-1" />
-                  Benefits
-                </h5>
-                <ul className="space-y-0.5">
-                  {insights.benefits.slice(0, 3).map((benefit, index) => (
-                    <li key={index} className="text-xs text-green-700 flex items-center">
-                      <div className="w-1 h-1 bg-green-500 rounded-full mr-1" />
-                      {benefit}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {insights.recommendations && insights.recommendations.length > 0 && (
-              <div className="bg-amber-50 rounded-xl p-3 border border-amber-200">
-                <h5 className="font-semibold text-amber-800 mb-1 flex items-center text-sm">
-                  <AlertCircle className="w-3 h-3 mr-1" />
-                  Tips
-                </h5>
-                <ul className="space-y-0.5">
-                  {insights.recommendations.slice(0, 2).map((rec, index) => (
-                    <li key={index} className="text-xs text-amber-700 flex items-center">
-                      <div className="w-1 h-1 bg-amber-500 rounded-full mr-1" />
-                      {rec}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
         )}
 
-        {/* Actions */}
-        <div className="flex space-x-3 pt-2">
-          <motion.button
-            onClick={() => setStep(2)}
-            className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-4 rounded-xl transition-all duration-300 text-sm"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+        {/* ---------------- Step 2: preferences ---------------- */}
+        {step === 1 && (
+          <motion.div
+            key="prefs"
+            initial={{ opacity: 0, x: 12 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -12 }}
+            transition={{ duration: 0.22 }}
+            className="space-y-6"
           >
-            Modify
-          </motion.button>
-          <motion.button
-            onClick={handleAddPackageToCart}
-            className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-2.5 px-4 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 text-sm"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <ShoppingCart className="w-4 h-4" />
-            <span>Add to Cart</span>
-          </motion.button>
-        </div>
-      </motion.div>
-    )
-  }
-
-  if (!isOpen) return null
-
-  return (
-    <AnimatePresence>
-      <motion.div
-        className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
-      >
-        <motion.div
-          className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[85vh] flex flex-col"
-          variants={modalVariants}
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Header */}
-          <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-4 text-white rounded-t-2xl flex-shrink-0">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-bold">Event Package Recommender</h2>
-                <p className="text-purple-100 text-sm">Step {step} of 3</p>
-              </div>
-              <motion.button
-                onClick={onClose}
-                className="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors"
-                whileHover={{ scale: 1.1, rotate: 90 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                <X className="w-4 h-4" />
-              </motion.button>
-            </div>
-            
-            {/* Progress Bar */}
-            <div className="mt-3 bg-white/20 rounded-full h-1.5">
-              <motion.div
-                className="bg-white rounded-full h-full"
-                initial={{ width: "0%" }}
-                animate={{ width: `${(step / 3) * 100}%` }}
-                transition={{ duration: 0.5 }}
+            <Field id="location" label="Preferred area" hint="Leave blank to search everywhere.">
+              <input
+                id="location"
+                value={form.location}
+                onChange={(e) => set("location", e.target.value)}
+                placeholder="Lalitpur"
+                className="field"
               />
+            </Field>
+
+            <CheckboxGroup
+              label="Studio services you want"
+              options={SERVICES}
+              value={form.preferredServices}
+              onChange={(preferredServices) => set("preferredServices", preferredServices)}
+              hint="Pick none and we'll match on price alone."
+            />
+
+            <div className="flex justify-between gap-2 border-t border-line pt-6">
+              <button onClick={() => setStep(0)} className="btn btn-quiet">
+                <ArrowLeft className="h-4 w-4" strokeWidth={2} />
+                Back
+              </button>
+              <button onClick={fetchPackage} disabled={loading} className="btn btn-accent">
+                {loading ? (
+                  <>
+                    <span className="loader h-4 w-4 border-white/40 border-t-white" />
+                    Building your package…
+                  </>
+                ) : (
+                  "Build my package"
+                )}
+              </button>
             </div>
-          </div>
-
-          {/* Content - Scrollable */}
-          <div className="p-4 overflow-y-auto flex-1">
-            <AnimatePresence mode="wait">
-              {step === 1 && renderStep1()}
-              {step === 2 && renderStep2()}
-              {step === 3 && renderStep3()}
-            </AnimatePresence>
-          </div>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
-  )
-}
-
-// Improved Rating component with better UI and conditional display
-const Rating = ({ value = 0, reviews = null, size = "text-xs" }) => {
-  const num = Number(value) || 0
-  
-  // Don't render anything if rating is 0 or invalid
-  if (num <= 0) return null
-  
-  const clamped = Math.max(0, Math.min(5, num))
-  const percentage = (clamped / 5) * 100
-  
-  // Show integer without ".0", otherwise one decimal place
-  const display = Number.isInteger(num) ? String(num) : num.toFixed(1)
-
-  return (
-    <div className="flex items-center gap-1.5" aria-label={`Rating ${num} out of 5`}>
-      <div className={`relative ${size} flex items-center`}>
-        {/* Background stars */}
-        <div className="text-gray-200" aria-hidden="true">
-          ★★★★★
-        </div>
-        {/* Filled stars overlay */}
-        <div
-          className="absolute top-0 left-0 overflow-hidden text-amber-400"
-          style={{ width: `${percentage}%` }}
-          aria-hidden="true"
-        >
-          ★★★★★
-        </div>
-      </div>
-      
-      <div className="flex items-center gap-0.5">
-        <span className={`font-medium text-gray-700 ${size}`}>{display}</span>
-        {reviews && reviews > 0 && (
-          <span className="text-[10px] text-gray-400">({reviews})</span>
+          </motion.div>
         )}
-      </div>
-    </div>
+
+        {/* ---------------- Step 3: the package ---------------- */}
+        {step === 2 && pkg && (
+          <motion.div
+            key="result"
+            initial={{ opacity: 0, x: 12 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -12 }}
+            transition={{ duration: 0.22 }}
+          >
+            <div className="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-5">
+              <div>
+                <p className="text-[13.5px] text-ink-mute">Package total</p>
+                <p className="amount mt-1 text-[30px] font-semibold text-ink">
+                  {rs(pkg.totalPrice)}
+                </p>
+              </div>
+              {analysis && (
+                <div className="text-right">
+                  {analysis.savings > 0 && (
+                    <p className="amount text-[14px] font-semibold text-green-700">
+                      {rs(analysis.savings)} under budget
+                    </p>
+                  )}
+                  {analysis.budgetUtilization && (
+                    <p className="amount mt-0.5 text-[12.5px] text-ink-mute">
+                      {analysis.budgetUtilization}% of your budget
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <ul className="divide-y divide-line rounded-lg border border-line">
+              {pkg.venue && (
+                <PackageRow
+                  image={pkg.venue.venueImage}
+                  name={pkg.venue.name}
+                  price={pkg.venue.price}
+                  meta={
+                    <>
+                      <span>Venue</span>
+                      {pkg.venue.location && <span>{pkg.venue.location}</span>}
+                      <Rating value={pkg.venue.rating} />
+                    </>
+                  }
+                />
+              )}
+
+              {pkg.studio && (
+                <PackageRow
+                  image={pkg.studio.studioImage}
+                  name={pkg.studio.name}
+                  price={pkg.studio.price}
+                  meta={
+                    <>
+                      <span>Studio</span>
+                      {pkg.studio.location && <span>{pkg.studio.location}</span>}
+                      <Rating value={pkg.studio.rating} />
+                    </>
+                  }
+                />
+              )}
+
+              {(pkg.dishes || []).map((dish) => (
+                <PackageRow
+                  key={dish._id}
+                  image={dish.image}
+                  name={dish.name}
+                  price={dish.price}
+                  meta={
+                    <>
+                      <span>{dish.category || "Dish"}</span>
+                      <Rating value={dish.rating} />
+                    </>
+                  }
+                />
+              ))}
+            </ul>
+
+            {(insights?.benefits?.length > 0 || insights?.recommendations?.length > 0) && (
+              <div className="mt-6 space-y-4">
+                {insights.benefits?.length > 0 && (
+                  <div>
+                    <p className="eyebrow">Why this works</p>
+                    <ul className="mt-3 space-y-1.5">
+                      {insights.benefits.slice(0, 3).map((benefit, i) => (
+                        <li key={i} className="text-[13.5px] leading-relaxed text-ink-soft">
+                          {benefit}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {insights.recommendations?.length > 0 && (
+                  <div className="rounded-lg border border-orange-200 bg-orange-50 p-4">
+                    <p className="text-[13px] font-semibold text-orange-800">Worth considering</p>
+                    <ul className="mt-2 space-y-1.5">
+                      {insights.recommendations.slice(0, 2).map((rec, i) => (
+                        <li key={i} className="text-[13px] leading-relaxed text-orange-800/85">
+                          {rec}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <p className="mt-6 text-[12.5px] leading-relaxed text-ink-mute">
+              Venues and studios still need dates — pick those in your cart before checking out.
+            </p>
+
+            <div className="mt-6 flex flex-wrap justify-between gap-2 border-t border-line pt-6">
+              <button onClick={() => setStep(1)} className="btn btn-quiet">
+                <ArrowLeft className="h-4 w-4" strokeWidth={2} />
+                Change my answers
+              </button>
+              <button onClick={addPackage} className="btn btn-accent group">
+                Add all to cart
+                <ArrowRight
+                  className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                  strokeWidth={2}
+                />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </Modal>
   )
 }
 

@@ -1,209 +1,226 @@
 import { useState, useEffect, useContext } from "react"
-import { postReview, getVerifiedReviews } from "../../services/reviews"
+import { motion } from "framer-motion"
+import { Star } from "lucide-react"
 import { toast } from "react-toastify"
+import { postReview, getVerifiedReviews } from "../../services/reviews"
 import { AuthContext } from "../../context/AuthContext"
 
+const EASE = [0.16, 1, 0.3, 1]
+
+const RATING_WORD = ["", "Poor", "Fair", "Good", "Very good", "Excellent"]
+
+const Stars = ({ rating, size = "h-4 w-4" }) => (
+  <span className="inline-flex gap-0.5" aria-label={`${rating} out of 5`}>
+    {Array.from({ length: 5 }, (_, i) => (
+      <Star
+        key={i}
+        className={`${size} ${i < rating ? "fill-marigold text-marigold" : "text-line-strong"}`}
+        strokeWidth={1.5}
+      />
+    ))}
+  </span>
+)
+
 const Review = () => {
-  const [rating, setRating] = useState(0)
-  const [hoverRating, setHoverRating] = useState(0)
-  const [comment, setComment] = useState("")
-  const [reviews, setReviews] = useState([])
   const { isCustomer } = useContext(AuthContext)
+  const [reviews, setReviews] = useState([])
+  const [rating, setRating] = useState(0)
+  const [hover, setHover] = useState(0)
+  const [comment, setComment] = useState("")
+  const [submitting, setSubmitting] = useState(false)
+
+  const load = () =>
+    getVerifiedReviews()
+      .then((res) => setReviews(res?.data || []))
+      .catch(() => toast.error("The reviews couldn't be loaded."))
 
   useEffect(() => {
-    getVerifiedReviews()
-      .then((res) => {
-        if (res?.data) {
-          setReviews(res.data)
-        }
-      })
-      .catch(() => {
-        toast.error("Failed to fetch reviews.")
-      })
+    load()
   }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setSubmitting(true)
     try {
       await postReview({ rating, comment })
-      toast.success("Review submitted successfully! 🎉")
+      // Reviews are held for staff approval, so say that rather than implying
+      // it is already on the page.
+      toast.success("Thanks — your review goes live once our team checks it.")
       setRating(0)
       setComment("")
-      getVerifiedReviews().then((res) => {
-        if (res?.data) {
-          setReviews(res.data) 
-        }
-      })
-    } catch (err) {
-      toast.error("Failed to submit review. Please try again.")
+      load()
+    } catch {
+      toast.error("The review didn't send. Please try again.")
+    } finally {
+      setSubmitting(false)
     }
   }
 
-  return (
-    <div className="max-w-7xl mx-auto py-12 sm:py-16 px-4 sm:px-6">
-      {/* Header Section */}
-      <div className="text-center mb-12 sm:mb-16">
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
-          What Our Clients Say
-        </h2>
-        <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
-          Real experiences from clients who trusted us with their special events
-        </p>
-      </div>
+  const average = reviews.length
+    ? (reviews.reduce((sum, r) => sum + (Number(r.rating) || 0), 0) / reviews.length).toFixed(1)
+    : null
 
-      {/* Reviews Grid */}
-      {reviews.length === 0 ? (
-        <div className="text-center py-16">
-          <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full flex items-center justify-center">
-            <span className="text-4xl">💭</span>
+  return (
+    <div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.4 }}
+        transition={{ duration: 0.6, ease: EASE }}
+        className="flex flex-wrap items-end justify-between gap-6"
+      >
+        <div className="max-w-xl">
+          <p className="eyebrow">In their words</p>
+          <h2 className="mt-5 text-[clamp(30px,4.5vw,46px)]">
+            What people say
+            <br />
+            <span className="font-normal italic">after the event.</span>
+          </h2>
+        </div>
+
+        {average && (
+          <div className="text-right">
+            <p className="amount text-[40px] font-semibold leading-none text-ink">{average}</p>
+            <div className="mt-2 flex justify-end">
+              <Stars rating={Math.round(Number(average))} />
+            </div>
+            <p className="amount mt-1.5 text-[12.5px] text-ink-mute">
+              {reviews.length} {reviews.length === 1 ? "review" : "reviews"}
+            </p>
           </div>
-          <p className="text-xl text-gray-500 mb-2">No reviews yet</p>
-          <p className="text-gray-400">Be the first to share your experience!</p>
+        )}
+      </motion.div>
+
+      {reviews.length === 0 ? (
+        <div className="mt-12 border-y border-line py-16 text-center">
+          <p className="text-[17px] text-ink-soft">No reviews published yet.</p>
+          <p className="mt-2 text-[14px] text-ink-mute">
+            {isCustomer
+              ? "If we've run your event, yours could be the first."
+              : "Check back after the next season of events."}
+          </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-16">
-          {reviews.map((review) => (
-            <div
+        /* A masonry-ish column layout keeps quotes of different lengths from
+           forcing every card to the height of the longest one. */
+        <div className="mt-14 gap-5 sm:columns-2 lg:columns-3">
+          {reviews.map((review, i) => (
+            <motion.figure
               key={review._id}
-              className="group bg-gradient-to-br from-white to-purple-50 border border-purple-100/50 rounded-2xl shadow-lg hover:shadow-2xl p-6 sm:p-8 transition-all duration-500 hover:scale-105 hover:-translate-y-2"
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.5, ease: EASE, delay: Math.min(i, 5) * 0.06 }}
+              className="card mb-5 break-inside-avoid p-6"
             >
-              {/* Review Text */}
-              <p className="text-gray-700 text-base sm:text-lg leading-relaxed mb-6 italic">
-                "{review.comment}"
-              </p>
+              <Stars rating={Number(review.rating) || 0} />
 
-              {/* Rating Stars */}
-              <div className="flex items-center mb-4">
-                <div className="flex text-yellow-400 text-xl mr-3">
-                  {[...Array(5)].map((_, i) => (
-                    <span
-                      key={i}
-                      className={`${
-                        i < review.rating ? "text-yellow-400" : "text-gray-300"
-                      } transition-colors duration-200`}
-                    >
-                      ★
-                    </span>
-                  ))}
-                </div>
-                <span className="text-sm text-gray-500 font-medium">
-                  {review.rating}/5
-                </span>
-              </div>
+              <blockquote className="mt-4 text-[15px] leading-relaxed text-ink-soft">
+                {review.comment}
+              </blockquote>
 
-              {/* User Info */}
-              <div className="flex items-center">
-                <div className="w-10 h-10 rounded-full overflow-hidden mr-3">
+              <figcaption className="mt-5 flex items-center gap-3 border-t border-line pt-4">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-line bg-gray-100 text-[12px] font-semibold text-ink-soft">
                   {review.user?.profileImage ? (
-                    <img
-                      src={review.user.profileImage}
-                      alt={review.user.name}
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={review.user.profileImage} alt="" className="h-full w-full object-cover" />
                   ) : (
-                    <div className="w-10 h-10 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold text-sm">
-                        {review.user?.name?.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
+                    (review.user?.name || "?").charAt(0).toUpperCase()
                   )}
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-800">{review.user?.name}</p>
-                  {/* Conditionally show verified status */}
-                  {!review.user?.verified && (
-                    <p className="text-xs text-green-600 font-medium flex items-center">
-                      <span className="mr-1">✓</span>
-                      Verified Customer
-                    </p>
-                  )}
-                  {review.user?.verified && (
-                    <p className="text-xs text-gray-500">Customer</p>
-                  )}
-                </div>
-              </div>
-            </div>
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate text-[13.5px] font-semibold text-ink">
+                    {review.user?.name || "A customer"}
+                  </span>
+                  <span className="block text-[12px] text-ink-mute">Booked through PlanIt Nepal</span>
+                </span>
+              </figcaption>
+            </motion.figure>
           ))}
         </div>
       )}
 
-      {/* Review Form - Only show if user is logged in */}
-      {isCustomer ? (
-        <div className="max-w-2xl mx-auto">
-            <div className="bg-gradient-to-br from-white to-purple-50 shadow-2xl rounded-2xl p-8 sm:p-10 border border-purple-100/50">
-              <div className="text-center mb-8">
-                <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-                  Share Your Experience
-                </h3>
-                <p className="text-gray-600">Help other clients by sharing your event story</p>
-              </div>
+      {/* Only customers can leave a review, so the form only exists for them. */}
+      {isCustomer && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6, ease: EASE }}
+          className="card mx-auto mt-16 max-w-2xl p-7 sm:p-9"
+        >
+          <h3 className="text-[22px]">How did we do?</h3>
+          <p className="mt-2 text-[14.5px] leading-relaxed text-ink-soft">
+            Your review is read by our team before it goes on the site.
+          </p>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Star Rating */}
-                <div className="text-center">
-                  <label className="block text-lg font-semibold text-gray-700 mb-4">
-                    How was your experience?
-                  </label>
-                  <div className="flex justify-center items-center space-x-2 mb-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        className={`text-4xl sm:text-5xl transition-all duration-200 transform hover:scale-125 focus:outline-none ${
-                          (hoverRating || rating) >= star
-                            ? "text-yellow-400 drop-shadow-lg"
-                            : "text-gray-300 hover:text-yellow-200"
+          <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+            <fieldset>
+              <legend className="label">Your rating</legend>
+              <div className="flex items-center gap-3">
+                <div className="flex gap-1" onMouseLeave={() => setHover(0)}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onMouseEnter={() => setHover(star)}
+                      onClick={() => setRating(star)}
+                      aria-label={`${star} ${star === 1 ? "star" : "stars"}`}
+                      aria-pressed={rating === star}
+                      className="rounded p-0.5 transition-transform hover:scale-110"
+                    >
+                      <Star
+                        className={`h-7 w-7 transition-colors ${
+                          (hover || rating) >= star
+                            ? "fill-marigold text-marigold"
+                            : "text-line-strong"
                         }`}
-                        onMouseEnter={() => setHoverRating(star)}
-                        onMouseLeave={() => setHoverRating(0)}
-                        onClick={() => setRating(star)}
-                        aria-label={`${star} Star`}
-                      >
-                        ★
-                      </button>
-                    ))}
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    {rating > 0 && (
-                      <span className="font-medium">
-                        {rating === 1 && "Poor"}
-                        {rating === 2 && "Fair"}
-                        {rating === 3 && "Good"}
-                        {rating === 4 && "Very Good"}
-                        {rating === 5 && "Excellent"}
-                      </span>
-                    )}
-                  </p>
+                        strokeWidth={1.5}
+                      />
+                    </button>
+                  ))}
                 </div>
+                <span className="text-[13.5px] font-medium text-ink-soft">
+                  {RATING_WORD[hover || rating]}
+                </span>
+              </div>
+            </fieldset>
 
-                {/* Comment Textarea */}
-                <div>
-                  <label htmlFor="comment" className="block text-lg font-semibold text-gray-700 mb-3">
-                    Tell us about your experience
-                  </label>
-                  <textarea
-                    id="comment"
-                    className="w-full p-4 text-base border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300 bg-gray-50 focus:bg-white resize-none"
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    placeholder="Share your thoughts about our service, venues, catering, photography, or overall event management experience..."
-                    rows={5}
-                    required
-                  />
-                </div>
-
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  disabled={!rating || !comment.trim()}
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-400 disabled:to-gray-500 text-white py-4 px-6 rounded-xl text-lg font-semibold transition-all duration-300 transform hover:scale-[1.02] disabled:hover:scale-100 shadow-lg hover:shadow-xl disabled:cursor-not-allowed"
-                >
-                  {rating && comment.trim() ? "Submit Review ✨" : "Please rate and comment"}
-                </button>
-              </form>
+            <div>
+              <label htmlFor="comment" className="label">
+                What happened
+              </label>
+              <textarea
+                id="comment"
+                rows={5}
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="The venue, the food, the team on the day — whatever stood out."
+                className="field resize-y"
+                required
+              />
             </div>
-          </div>
-        ) : null}
+
+            <button
+              type="submit"
+              disabled={!rating || !comment.trim() || submitting}
+              className="btn btn-primary w-full py-3"
+            >
+              {submitting ? (
+                <>
+                  <span className="loader h-4 w-4 border-white/40 border-t-white" />
+                  Sending…
+                </>
+              ) : !rating ? (
+                "Pick a rating first"
+              ) : !comment.trim() ? (
+                "Add a few words"
+              ) : (
+                "Send review"
+              )}
+            </button>
+          </form>
+        </motion.div>
+      )}
     </div>
   )
 }

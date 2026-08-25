@@ -7,11 +7,11 @@ export const submitContactForm = async (formData) => {
       success: true,
       message: response.data.message || 'Contact form submitted successfully!'
     };
-  } catch (err) {
-    console.error('Error submitting contact form:', err);
+  } catch (error) {
+    console.error('Error submitting contact form:', error);
     return { 
       success: false, 
-      message: err.response?.data?.message || 'Error submitting contact form. Please try again.' 
+      message: error.response?.data?.message || 'Error submitting contact form. Please try again.' 
     };
   }
 };
@@ -22,11 +22,11 @@ export const getContacts = async ({ page = 1, limit = 10, subject = "" } = {}) =
     if (subject) params.subject = subject;
     const response = await API.get('/api/contacts/form', { params });
     return response.data;
-  } catch (err) {
-    console.error('Error fetching contacts:', err);
+  } catch (error) {
+    console.error('Error fetching contacts:', error);
     return {
       success: false,
-      message: err.response?.data?.message || 'Failed to fetch contacts form'
+      message: error.response?.data?.message || 'Failed to fetch contacts form'
     };
   }
 };
@@ -39,7 +39,7 @@ export const getContactById = async (id) =>{
     console.error("Error Fetching Contacts: ", error);
     return{
       success:false,
-      message:err.response?.data?.message || "Failed to fetch the Contact Form"
+      message: error.response?.data?.message || "Failed to fetch the Contact Form"
     }
   }
 }
@@ -52,7 +52,7 @@ export const deleteContactById = async(id) =>{
     console.error("Error Fetching Contacts: ", error);
     return {
       success:false,
-      message: err.response?.data?.message || 'Failed to delete the contacts form'
+      message: error.response?.data?.message || 'Failed to delete the contacts form'
     }
   }
 }

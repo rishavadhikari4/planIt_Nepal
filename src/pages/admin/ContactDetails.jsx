@@ -1,358 +1,182 @@
-"use client"
-
 import { useEffect, useState } from "react"
-import { Mail, Phone, MessageSquare, User, FileText, ArrowLeft } from "lucide-react"
 import { useParams, useNavigate } from "react-router-dom"
-import { getContactById } from "../../services/contact"
-import { motion, AnimatePresence } from "framer-motion"
+import { Mail, Phone } from "lucide-react"
+import { toast } from "react-toastify"
+import { getContactById, deleteContactById } from "../../services/contact"
+import {
+  AdminPage,
+  BackLink,
+  AdminHeading,
+  DetailCard,
+  DetailRows,
+  AdminLoading,
+  AdminError,
+  ConfirmDialog,
+  formatDateTime,
+} from "../../components/ui/Admin"
+
+const SUBJECT_LABELS = {
+  "wedding-planning": "Wedding",
+  "corporate-event": "Corporate event",
+  "birthday-party": "Birthday",
+  "anniversary-celebration": "Anniversary",
+  "graduation-party": "Graduation",
+  "baby-shower": "Baby shower / Pasni",
+  "conference-seminar": "Conference or seminar",
+  "photography-inquiry": "Photography only",
+  "catering-inquiry": "Catering only",
+  "venue-rental": "Venue only",
+  "pricing-inquiry": "Pricing",
+  others: "Something else",
+}
+
+const budgetLabel = (value) => {
+  if (!value) return "Not given"
+  const fmt = (n) => Number(n).toLocaleString("en-IN")
+  if (value.endsWith("+")) return `Over Rs ${fmt(value.slice(0, -1))}`
+  const [min, max] = value.split("-")
+  return max ? `Rs ${fmt(min)} – ${fmt(max)}` : `Rs ${fmt(min)}`
+}
 
 const ContactDetails = () => {
-  const [contact, setContact] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const navigate = useNavigate()
   const { contactId } = useParams()
+  const navigate = useNavigate()
+  const [contact, setContact] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [confirming, setConfirming] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
-  const fetchContact = async (id) => {
+  const load = async () => {
+    setLoading(true)
+    setError(null)
     try {
-      setIsLoading(true)
-      const response = await getContactById(id)
-      setContact(response.data.contact)
-    } catch (error) {
-      console.error("Error fetching contact:", error)
+      const res = await getContactById(contactId)
+      if (res?.success === false) throw new Error(res.message)
+      setContact(res.contact || res.data || res)
+    } catch (err) {
+      setError(err.message || "This enquiry didn't load.")
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
   useEffect(() => {
-    if (contactId) fetchContact(contactId)
+    load()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contactId])
 
-  const handleBack = () => {
-    navigate("/admin-contact")
+  const confirmDelete = async () => {
+    setDeleting(true)
+    try {
+      const res = await deleteContactById(contactId)
+      if (res?.success === false) throw new Error(res.message)
+      toast.success("Enquiry deleted.")
+      navigate("/admin-contact")
+    } catch (err) {
+      toast.error(err.message || "The enquiry couldn't be deleted.")
+      setDeleting(false)
+    }
   }
 
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        duration: 0.2,
-        staggerChildren: 0.05,
-      },
-    },
-  }
+  if (loading) return <AdminLoading label="Loading the enquiry…" />
 
-  const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.25,
-        ease: [0.25, 0.46, 0.45, 0.94],
-      },
-    },
-  }
-
-  const fieldVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: {
-        duration: 0.2,
-        ease: [0.25, 0.46, 0.45, 0.94],
-      },
-    },
-  }
-
-  const buttonVariants = {
-    hover: {
-      scale: 1.02,
-      y: -1,
-      transition: {
-        duration: 0.1,
-        ease: [0.25, 0.46, 0.45, 0.94],
-      },
-    },
-    tap: {
-      scale: 0.98,
-      transition: {
-        duration: 0.05,
-      },
-    },
-  }
-
-  const iconVariants = {
-    hover: {
-      scale: 1.1,
-      rotate: 3,
-      transition: {
-        duration: 0.15,
-        ease: [0.25, 0.46, 0.45, 0.94],
-      },
-    },
-  }
-
-  const loadingVariants = {
-    animate: {
-      rotate: 360,
-      transition: {
-        duration: 0.8,
-        repeat: Number.POSITIVE_INFINITY,
-        ease: "linear",
-      },
-    },
-  }
-
-  if (isLoading) {
+  if (error || !contact) {
     return (
-      <motion.div
-        className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.2 }}
-      >
-        <div className="text-center">
-          <motion.div
-            className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"
-            variants={loadingVariants}
-            animate="animate"
-          />
-          <motion.p
-            className="text-slate-600 text-lg font-medium"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.1 }}
-          >
-            Loading contact details...
-          </motion.p>
-        </div>
-      </motion.div>
+      <AdminPage>
+        <BackLink to="/admin-contact">Back to enquiries</BackLink>
+        <AdminError message={error || "This enquiry no longer exists."} onRetry={load} />
+      </AdminPage>
     )
   }
 
-  if (!contact) {
-    return (
-      <motion.div
-        className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.2 }}
-      >
-        <div className="text-center">
-          <motion.div
-            className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 20 }}
-          >
-            <User className="w-10 h-10 text-red-500" />
-          </motion.div>
-          <p className="text-slate-600 text-lg font-medium">Contact not found</p>
-        </div>
-      </motion.div>
-    )
-  }
+  const subject = SUBJECT_LABELS[contact.subject] || contact.subject || "Not specified"
 
-  const contactFields = [
-    { icon: Mail, label: "Email", value: contact.email, color: "text-blue-600", bg: "bg-blue-50" },
-    { icon: Phone, label: "Phone", value: contact.phone, color: "text-green-600", bg: "bg-green-50" },
-    { icon: FileText, label: "Subject", value: contact.subject, color: "text-purple-600", bg: "bg-purple-50" },
-    { icon: "Rs", label: "Budget", value: contact.budget, color: "text-emerald-600", bg: "bg-emerald-50" },
-  ]
+  /* Replying is the whole point of this screen, so the reply is prefilled with
+     enough context that the planner does not have to retype it. */
+  const replyHref = `mailto:${contact.email}?subject=${encodeURIComponent(
+    `Re: your ${subject.toLowerCase()} enquiry — PlanIt Nepal`,
+  )}&body=${encodeURIComponent(`Hi ${contact.name || "there"},\n\nThanks for getting in touch about your event.\n\n`)}`
 
   return (
-    <motion.div
-      className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-    >
-      {/* Header */}
-      <motion.div
-        className="bg-white shadow-sm border-b border-slate-200"
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-      >
-        <div className="max-w-4xl mx-auto px-6 py-4">
-          <motion.button
-            className="inline-flex items-center text-slate-600 hover:text-slate-800 transition-colors duration-150 mb-2"
-            whileHover={{ x: -3 }}
-            transition={{ duration: 0.1 }}
-            onClick={handleBack}
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to contacts
-          </motion.button>
+    <AdminPage>
+      <BackLink to="/admin-contact">Back to enquiries</BackLink>
 
-          <motion.h1
-            className="text-2xl font-bold text-slate-900"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.1 }}
-          >
-            Contact Details
-          </motion.h1>
-        </div>
-      </motion.div>
+      <AdminHeading eyebrow="Enquiry" title={contact.name || "No name given"}>
+        <a href={replyHref} className="btn btn-accent no-underline">
+          <Mail className="h-4 w-4" strokeWidth={2} />
+          Reply by email
+        </a>
+        <button onClick={() => setConfirming(true)} className="btn btn-ghost">
+          Delete
+        </button>
+      </AdminHeading>
 
-      {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-6 py-8">
-        <motion.div
-          className="bg-white rounded-3xl shadow-xl overflow-hidden"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          {/* Profile Header */}
-          <motion.div
-            className="bg-gradient-to-r from-blue-600 to-indigo-700 px-8 py-12 text-white relative overflow-hidden"
-            variants={cardVariants}
-          >
-            <div className="absolute inset-0 bg-black opacity-10"></div>
-            <motion.div
-              className="absolute -top-4 -right-4 w-24 h-24 bg-white opacity-10 rounded-full"
-              animate={{
-                scale: [1, 1.1, 1],
-                opacity: [0.1, 0.15, 0.1],
-              }}
-              transition={{
-                duration: 2.5,
-                repeat: Number.POSITIVE_INFINITY,
-                ease: "easeInOut",
-              }}
-            />
-            <motion.div
-              className="absolute -bottom-6 -left-6 w-32 h-32 bg-white opacity-5 rounded-full"
-              animate={{
-                scale: [1, 1.05, 1],
-                opacity: [0.05, 0.1, 0.05],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Number.POSITIVE_INFINITY,
-                ease: "easeInOut",
-                delay: 0.5,
-              }}
-            />
-
-            <div className="relative z-10">
-              <motion.h2
-                className="text-4xl font-bold mb-2"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15, duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-              >
-                {contact.name}
-              </motion.h2>
-              <motion.p
-                className="text-blue-100 text-lg opacity-90"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.9 }}
-                transition={{ delay: 0.2, duration: 0.25 }}
-              >
-                New contact inquiry
-              </motion.p>
-            </div>
-          </motion.div>
-
-          {/* Contact Information Grid */}
-          <div className="p-8">
-            <motion.div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8" variants={containerVariants}>
-              <AnimatePresence>
-                {contactFields.map((field, index) => (
-                  <motion.div
-                    key={field.label}
-                    className="group p-6 rounded-2xl border border-slate-200 hover:border-slate-300 transition-all duration-150 cursor-pointer hover:shadow-lg"
-                    variants={fieldVariants}
-                    whileHover={{
-                      y: -3,
-                      transition: { duration: 0.15, ease: [0.25, 0.46, 0.45, 0.94] },
-                    }}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 + 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-                  >
-                    <div className="flex items-start space-x-4">
-                      <motion.div
-                        className={`w-12 h-12 ${field.bg} rounded-xl flex items-center justify-center`}
-                        variants={iconVariants}
-                        whileHover="hover"
-                      >
-                        <field.icon className={`w-6 h-6 ${field.color}`} />
-                      </motion.div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-slate-500 mb-1">{field.label}</p>
-                        <p className="text-lg font-semibold text-slate-900 break-words">{field.value}</p>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </motion.div>
-
-            {/* Message Section */}
-            <motion.div
-              className="bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:shadow-md transition-shadow duration-150"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-            >
-              <div className="flex items-start space-x-4 mb-4">
-                <motion.div
-                  className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center"
-                  whileHover={{ scale: 1.05, rotate: 2 }}
-                  transition={{ duration: 0.1 }}
-                >
-                  <MessageSquare className="w-6 h-6 text-orange-600" />
-                </motion.div>
-                <div>
-                  <motion.h3
-                    className="text-xl font-bold text-slate-900 mb-2"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.6 }}
-                  >
-                    Message
-                  </motion.h3>
-                  <div className="prose prose-slate max-w-none">
-                    <motion.p
-                      className="text-slate-700 leading-relaxed text-lg"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.65 }}
-                    >
-                      {contact.message}
-                    </motion.p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Action Buttons */}
-            <motion.div
-              className="mt-8 flex flex-wrap gap-4"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7, duration: 0.25 }}
-            >
-              <motion.button
-                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-150"
-                variants={buttonVariants}
-                whileHover="hover"
-                whileTap="tap"
-              >
-                Reply to Contact
-              </motion.button>
-            </motion.div>
+      <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_360px]">
+        <DetailCard title="Their message">
+          <div className="px-5 py-5">
+            {contact.message ? (
+              <p className="max-w-[70ch] whitespace-pre-wrap text-[15px] leading-relaxed text-ink">
+                {contact.message}
+              </p>
+            ) : (
+              <p className="text-[14px] text-ink-mute">No message was included.</p>
+            )}
           </div>
-        </motion.div>
+        </DetailCard>
+
+        <div className="space-y-6">
+          <DetailCard title="Contact">
+            <div className="divide-y divide-line">
+              <a
+                href={`mailto:${contact.email}`}
+                className="group flex items-center gap-3 px-5 py-3.5 no-underline"
+              >
+                <Mail className="h-4 w-4 shrink-0 text-ink-mute" strokeWidth={1.75} />
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[12px] text-ink-mute">Email</span>
+                  <span className="amount block truncate text-[13.5px] text-ink group-hover:underline">
+                    {contact.email || "—"}
+                  </span>
+                </span>
+              </a>
+              <a
+                href={`tel:${contact.phone}`}
+                className="group flex items-center gap-3 px-5 py-3.5 no-underline"
+              >
+                <Phone className="h-4 w-4 shrink-0 text-ink-mute" strokeWidth={1.75} />
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[12px] text-ink-mute">Phone</span>
+                  <span className="amount block truncate text-[13.5px] text-ink group-hover:underline">
+                    {contact.phone || "—"}
+                  </span>
+                </span>
+              </a>
+            </div>
+          </DetailCard>
+
+          <DetailCard title="The event">
+            <DetailRows
+              rows={[
+                ["Occasion", subject],
+                ["Budget", budgetLabel(contact.budget), true],
+                ["Received", formatDateTime(contact.createdAt), true],
+              ]}
+            />
+          </DetailCard>
+        </div>
       </div>
-    </motion.div>
+
+      <ConfirmDialog
+        open={confirming}
+        onCancel={() => setConfirming(false)}
+        onConfirm={confirmDelete}
+        busy={deleting}
+        title="Delete this enquiry?"
+        body={`The message from ${contact.name || "this person"} will be removed permanently. If you haven't replied yet, copy their email first: ${contact.email || "—"}`}
+        confirmLabel="Delete enquiry"
+      />
+    </AdminPage>
   )
 }
 

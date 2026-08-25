@@ -8,10 +8,13 @@
    Marigold (sayapatri) is the flower physically present at every Nepali event —
    it is the accent, used sparingly, so the one thing you can act on is obvious.
 
-   The whole app is authored with Tailwind palette names (purple/pink/gray/...),
-   so the theme is applied by REMAPPING those scales rather than editing 50
-   files. Every `bg-purple-600` in the codebase is now pine; every
-   `text-orange-500` is now marigold.
+   Every screen is authored against the semantic tokens below (ink, paper,
+   line, pine, marigold) and the .btn / .card / .field vocabulary.
+
+   The Tailwind palette scales are still remapped onto this palette. Nothing
+   uses them today — Tailwind tree-shakes what is unused, so they cost nothing
+   in the output — but they guarantee that a stray `bg-purple-600` or
+   `text-orange-500` lands inside the system instead of outside it.
    ========================================================================== */
 
 @theme {
@@ -347,67 +350,40 @@
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* Ambient marquee for the live inventory band on the landing page. The track
+   holds two copies of the same list, so translating it by -50% loops seamlessly. */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee var(--marquee-duration, 60s) linear infinite;
+}
+.marquee:hover .marquee-track { animation-play-state: paused; }
+
+/* The marigold thread drawing itself in under a headline. */
+@keyframes draw-thread {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+.thread-draw {
+  transform-origin: left;
+  animation: draw-thread 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; }
+  .thread-draw { animation: none; transform: none; }
+}
+
 /* ==========================================================================
-   Retheming the surfaces that were not rewritten by hand.
-   These rules sit OUTSIDE @layer, so they win over Tailwind's utilities and
-   pull the older pages (admin tables, forms, listings) into the same visual
-   language: no frosted glass, no blob radii, no gradient text, no drop shadows
-   doing the job a hairline should do.
+   Cross-cutting rules
    ========================================================================== */
 
-/* 1. Glassmorphism out, paper in. */
-.backdrop-blur-none, .backdrop-blur-sm, .backdrop-blur, .backdrop-blur-md,
-.backdrop-blur-lg, .backdrop-blur-xl, .backdrop-blur-2xl, .backdrop-blur-3xl {
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-}
-.bg-white\/10, .bg-white\/20, .bg-white\/30, .bg-white\/40, .bg-white\/50,
-.bg-white\/60, .bg-white\/70, .bg-white\/80, .bg-white\/90, .bg-white\/95 {
-  background-color: var(--color-surface);
-}
-.border-white\/10, .border-white\/20, .border-white\/30, .border-white\/40, .border-white\/50 {
-  border-color: var(--color-line);
-}
-
-/* 2. Gradient text back to solid ink — the wordmark is the type, not a fill. */
-.bg-clip-text.text-transparent {
-  background-image: none;
-  color: var(--color-ink);
-  -webkit-text-fill-color: var(--color-ink);
-}
-/* ...except over dark imagery, where it must stay light. */
-.text-white .bg-clip-text.text-transparent,
-.bg-clip-text.text-transparent.on-dark {
-  color: #fff;
-  -webkit-text-fill-color: #fff;
-}
-
-/* 3. Every page stands on the same paper. The older screens each wrapped
-      themselves in their own tinted gradient (`min-h-screen bg-gradient-to-br
-      from-purple-50 …`), which read as a different product per route. Only
-      full-page wrappers are flattened — small gradient accents are untouched. */
-.min-h-screen.bg-gradient-to-br,
-.min-h-screen.bg-gradient-to-r,
-.min-h-screen.bg-gradient-to-b {
-  background-image: none;
-  background-color: var(--color-paper);
-}
-
-/* 4. Blob radii clamped to the system's geometry. */
-.rounded-2xl { border-radius: var(--radius-2xl); }
-.rounded-3xl { border-radius: var(--radius-3xl); }
-.rounded-\[2rem\] { border-radius: var(--radius-3xl); }
-
-/* 5. Shadows stop shouting; hairlines carry the separation. */
-.shadow-lg  { box-shadow: var(--shadow-md); }
-.shadow-xl  { box-shadow: var(--shadow-lg); }
-.shadow-2xl { box-shadow: var(--shadow-xl); }
-
-/* 6. Legacy fonts pinned to the new stack. */
-.font-sans { font-family: var(--font-sans); }
-.font-serif { font-family: var(--font-serif); }
-
-/* 7. Respect the reader. */
+/* Respect the reader. framer-motion reads prefers-reduced-motion on its own;
+   this covers the CSS animations and smooth scrolling. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

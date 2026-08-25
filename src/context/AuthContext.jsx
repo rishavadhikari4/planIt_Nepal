@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, useCallback } from "react";
+import { createContext, useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import API from "../services/api";
 import { fetchLoginUser } from "../services/users";
@@ -32,6 +32,10 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // `logout` is declared further down, so it is reached through a ref rather
+  // than closed over — otherwise this callback captures it before it exists.
+  const logoutRef = useRef(null);
+
   const getNewAccessToken = useCallback(async () => {
     try {
       const { data } = await API.post("/api/auths/refresh-token");
@@ -41,9 +45,9 @@ export const AuthProvider = ({ children }) => {
         return data.accessToken;
       }
       throw new Error("No access token returned");
-    } catch (err) {
+    } catch {
       showError("Session expired. Please login again.");
-      logout();
+      logoutRef.current?.();
       return null;
     }
   }, []);
@@ -221,6 +225,12 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
     navigate("/");
   };
+
+  // Kept current after every render, so getNewAccessToken always calls the
+  // latest logout without depending on it.
+  useEffect(() => {
+    logoutRef.current = logout;
+  });
 
   const adminLogout = async () => {
     setLoading(true);
