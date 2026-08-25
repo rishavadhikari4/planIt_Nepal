@@ -4,17 +4,18 @@ import { Link, useLocation, useNavigate } from "react-router-dom"
 import { ShoppingBag, User, Menu, X, LogOut, ClipboardList } from "lucide-react"
 import { AuthContext } from "../../context/AuthContext"
 import { useCart } from "../../context/CartContext"
+import { useLanguage } from "../../context/LanguageContext"
 import { toast } from "react-toastify"
 
 /* The three things you book, in the order you book them. The numbers are not
    decoration — a venue fixes the date, catering follows the venue, the studio
    follows both. */
 const NAV = [
-  { path: "/", label: "Home" },
-  { path: "/venues", label: "Venues", step: "01" },
-  { path: "/cuisines", label: "Catering", step: "02" },
-  { path: "/studios", label: "Studios", step: "03" },
-  { path: "/contact", label: "About" },
+  { path: "/", key: "nav.home", label: "Home" },
+  { path: "/venues", key: "nav.venues", label: "Venues", step: "01" },
+  { path: "/cuisines", key: "nav.catering", label: "Catering", step: "02" },
+  { path: "/studios", key: "nav.studios", label: "Studios", step: "03" },
+  { path: "/contact", key: "nav.about", label: "About" },
 ]
 
 const Header = () => {
@@ -22,6 +23,7 @@ const Header = () => {
   const navigate = useNavigate()
   const { isAuthenticated, user, logout } = useContext(AuthContext)
   const { cartItems } = useCart()
+  const { lang, setLang, t } = useLanguage()
   const [menuOpen, setMenuOpen] = useState(false)
   const [accountOpen, setAccountOpen] = useState(false)
   const [lifted, setLifted] = useState(false)
@@ -131,7 +133,7 @@ const Header = () => {
 
         {/* Desktop navigation. The brass thread marks where you are. */}
         <nav className="ml-6 hidden items-center gap-1 lg:flex">
-          {NAV.map(({ path, label, step }) => (
+          {NAV.map(({ path, key, label, step }) => (
             <Link
               key={path}
               to={path}
@@ -155,7 +157,7 @@ const Header = () => {
                   {step}
                 </span>
               )}
-              {label}
+              {t(key, label)}
               {isActive(path) && (
                 <motion.span
                   layoutId="nav-thread"
@@ -168,11 +170,29 @@ const Header = () => {
         </nav>
 
         <div className="ml-auto flex items-center gap-1.5">
+          {/* Language. Two languages, so a toggle rather than a menu — the
+              alternative is always one click away and always visible. */}
+          <button
+            type="button"
+            onClick={() => setLang(lang === "en" ? "np" : "en")}
+            aria-label={lang === "en" ? "नेपालीमा हेर्नुहोस्" : "View in English"}
+            title={lang === "en" ? "नेपाली" : "English"}
+            className={`flex h-10 items-center rounded-md px-2.5 font-mono t-caption font-semibold uppercase tracking-[0.1em] transition-colors duration-300 active:scale-95 ${
+              overHero
+                ? "text-white/70 hover:bg-white/10 hover:text-white"
+                : "text-ink-mute hover:bg-gray-100 hover:text-ink"
+            }`}
+          >
+            <span className={lang === "en" ? "text-inherit" : "opacity-40"}>EN</span>
+            <span className="mx-1 opacity-30">/</span>
+            <span className={lang === "np" ? "text-inherit" : "opacity-40"}>ने</span>
+          </button>
+
           {/* Cart */}
           <Link
             to="/cart"
             onClick={guardCart}
-            aria-label={`Cart, ${cartCount} ${cartCount === 1 ? "item" : "items"}`}
+            aria-label={`${t("nav.cart", "Cart")}, ${cartCount} ${cartCount === 1 ? "item" : "items"}`}
             className={`relative flex h-10 items-center gap-2 rounded-md px-3 no-underline transition-colors duration-300 ${
               overHero
                 ? "text-white/75 hover:bg-white/10 hover:text-white"
@@ -259,7 +279,7 @@ const Header = () => {
                   : "btn-primary"
               }`}
             >
-              Log in
+              {t("nav.login", "Log in")}
             </Link>
           )}
 
@@ -289,7 +309,7 @@ const Header = () => {
           className="overflow-hidden border-t border-line bg-surface lg:hidden"
         >
           <nav className="mx-auto max-w-7xl px-3 py-2">
-            {NAV.map(({ path, label, step }) => (
+            {NAV.map(({ path, key, label, step }) => (
               <Link
                 key={path}
                 to={path}
@@ -302,7 +322,7 @@ const Header = () => {
                 <span className="w-6 font-mono t-caption tracking-widest text-line-strong">
                   {step || ""}
                 </span>
-                {label}
+                {t(key, label)}
                 {isActive(path) && <span className="thread ml-auto" />}
               </Link>
             ))}

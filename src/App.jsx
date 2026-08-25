@@ -75,6 +75,7 @@ const RouteFallback = () => (
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { FavoritesProvider } from './context/FavoritesContext';
+import { LanguageProvider } from './context/LanguageContext';
 
 /* Routes fade through each other rather than cutting. The wrapper also resets
    scroll on navigation — react-router keeps the old position otherwise, which
@@ -227,9 +228,11 @@ function AppContent() {
 function App() {
   return (
     <BrowserRouter future={{ v7_startTransition: true }}>
+      <LanguageProvider>
       <main>
         <AppContent />
       </main>
+      </LanguageProvider>
     </BrowserRouter>
   );
 }
