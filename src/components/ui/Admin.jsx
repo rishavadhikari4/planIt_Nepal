@@ -1,6 +1,6 @@
-import { AlertCircle, ArrowLeft, Search, X } from "lucide-react"
-import { useEffect } from "react"
+import { AlertCircle, ArrowLeft, Search } from "lucide-react"
 import { useNavigate } from "react-router-dom"
+import Sheet from "./Sheet"
 
 /*
  * Shared chrome for the staff side. Twelve management screens were each
@@ -279,50 +279,12 @@ export const AdminLoading = ({ label = "Loading…" }) => (
  * Dialogs
  * ------------------------------------------------------------------ */
 
-export const Modal = ({ open, onClose, title, description, children, width = "max-w-lg" }) => {
-  useEffect(() => {
-    if (!open) return
-    const onEsc = (e) => e.key === "Escape" && onClose()
-    document.addEventListener("keydown", onEsc)
-    document.body.style.overflow = "hidden"
-    return () => {
-      document.removeEventListener("keydown", onEsc)
-      document.body.style.overflow = ""
-    }
-  }, [open, onClose])
-
-  if (!open) return null
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-crimson-deep/50 sm:items-center sm:p-6"
-      onClick={onClose}
-    >
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
-        onClick={(e) => e.stopPropagation()}
-        className={`card max-h-[90vh] w-full overflow-y-auto rounded-b-none sm:rounded-b-xl ${width}`}
-      >
-        <div className="flex items-start justify-between gap-4 border-b border-line px-6 py-4">
-          <div>
-            <h2 className="t-heading">{title}</h2>
-            {description && <p className="mt-1 t-small text-ink-soft">{description}</p>}
-          </div>
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            className="-mr-2 flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-ink-mute hover:bg-gray-100 hover:text-ink"
-          >
-            <X className="h-4 w-4" strokeWidth={2} />
-          </button>
-        </div>
-        <div className="p-6">{children}</div>
-      </div>
-    </div>
-  )
-}
+/* The admin dialogs are the site dialog with staff padding — see ui/Sheet. */
+export const Modal = ({ open, onClose, title, description, children, width = "max-w-lg" }) => (
+  <Sheet open={open} onClose={onClose} title={title} heading={title} description={description} width={width}>
+    <div className="p-6">{children}</div>
+  </Sheet>
+)
 
 /**
  * Destructive actions name the thing being destroyed and say what cannot be

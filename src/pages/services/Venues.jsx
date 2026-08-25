@@ -13,6 +13,7 @@ import {
   Pagination,
   rs,
 } from "../../components/ui/Catalog"
+import Sheet, { useLingering } from "../../components/ui/Sheet"
 
 const SORTS = [
   { value: "createdAt-desc", label: "Newest first" },
@@ -33,6 +34,8 @@ const Venues = () => {
   const [page, setPage] = useState(1)
   const [searching, setSearching] = useState(false)
   const [preview, setPreview] = useState(null)
+  // Keeps the panel populated through its exit animation.
+  const shown = useLingering(preview)
   const [favorites, setFavorites] = useState(new Set())
 
   const [searchTerm, setSearchTerm] = useState("")
@@ -262,82 +265,66 @@ const Venues = () => {
       </div>
 
       {/* ---------------- Quick look ---------------- */}
-      <AnimatePresence>
-        {preview && (
-          <motion.div
-            className="fixed inset-0 z-50 flex items-end justify-center bg-crimson-deep/50 p-0 sm:items-center sm:p-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setPreview(null)}
-          >
-            <motion.div
-              role="dialog"
-              aria-modal="true"
-              aria-label={preview.name}
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 16 }}
-              transition={{ duration: 0.22, ease: "easeOut" }}
-              onClick={(e) => e.stopPropagation()}
-              className="card max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-b-none sm:rounded-b-xl"
-            >
-              <div className="relative">
-                <img
-                  src={preview.venueImage || "/placeholder.svg"}
-                  alt=""
-                  className="aspect-[16/9] w-full object-cover"
-                />
-                <button
-                  onClick={() => setPreview(null)}
-                  aria-label="Close"
-                  className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-surface text-ink-soft hover:text-ink"
-                >
-                  <X className="h-4 w-4" strokeWidth={2} />
+      <Sheet
+        open={Boolean(preview)}
+        onClose={() => setPreview(null)}
+        title={shown?.name}
+        width="max-w-xl"
+      >
+        {shown && (
+          <>
+            <div className="relative">
+              <img
+                src={shown.venueImage || "/placeholder.svg"}
+                alt=""
+                className="aspect-[16/9] w-full object-cover"
+              />
+              <button
+                onClick={() => setPreview(null)}
+                aria-label="Close"
+                className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-surface text-ink-soft transition-colors hover:text-ink active:scale-95"
+              >
+                <X className="h-4 w-4" strokeWidth={2} />
+              </button>
+            </div>
+
+            <div className="p-6">
+              <h2 className="t-title">{shown.name}</h2>
+
+              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 t-small text-ink-mute">
+                {shown.location && (
+                  <span className="inline-flex items-center gap-1.5">
+                    <MapPin className="h-4 w-4" strokeWidth={1.75} />
+                    {shown.location}
+                  </span>
+                )}
+                {shown.capacity && (
+                  <span className="inline-flex items-center gap-1.5">
+                    <Users className="h-4 w-4" strokeWidth={1.75} />
+                    Holds <span className="amount">{shown.capacity}</span>
+                  </span>
+                )}
+              </div>
+
+              <p className="mt-5 t-body leading-relaxed text-ink-soft">
+                {shown.description || "No description has been added for this venue yet."}
+              </p>
+
+              <div className="mt-7 flex flex-wrap items-end justify-between gap-4 border-t border-line pt-5">
+                <p>
+                  <span className="amount block t-title font-semibold text-ink">
+                    {shown.price ? rs(shown.price) : "On request"}
+                  </span>
+                  {shown.price && <span className="t-caption text-ink-mute">per event</span>}
+                </p>
+                <button onClick={() => navigate(`/venues/${shown._id}`)} className="btn btn-accent">
+                  See dates and book
                 </button>
               </div>
-
-              <div className="p-6">
-                <h2 className="t-title">{preview.name}</h2>
-
-                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 t-small text-ink-mute">
-                  {preview.location && (
-                    <span className="inline-flex items-center gap-1.5">
-                      <MapPin className="h-4 w-4" strokeWidth={1.75} />
-                      {preview.location}
-                    </span>
-                  )}
-                  {preview.capacity && (
-                    <span className="inline-flex items-center gap-1.5">
-                      <Users className="h-4 w-4" strokeWidth={1.75} />
-                      Holds <span className="amount">{preview.capacity}</span>
-                    </span>
-                  )}
-                </div>
-
-                <p className="mt-5 t-body leading-relaxed text-ink-soft">
-                  {preview.description || "No description has been added for this venue yet."}
-                </p>
-
-                <div className="mt-7 flex flex-wrap items-end justify-between gap-4 border-t border-line pt-5">
-                  <p>
-                    <span className="amount block t-title font-semibold text-ink">
-                      {preview.price ? rs(preview.price) : "On request"}
-                    </span>
-                    {preview.price && <span className="t-caption text-ink-mute">per event</span>}
-                  </p>
-                  <button
-                    onClick={() => navigate(`/venues/${preview._id}`)}
-                    className="btn btn-accent"
-                  >
-                    See dates and book
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
+            </div>
+          </>
         )}
-      </AnimatePresence>
+      </Sheet>
     </div>
   )
 }

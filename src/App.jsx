@@ -184,19 +184,17 @@ function AppContent() {
         </Routes>
       </PageTransition>
 
-        <ToastContainer 
+        {/* Styling lives in globals.css so toasts inherit the house type and
+            palette. The inline fontFamily that used to sit here named Inter,
+            which this site does not load. */}
+        <ToastContainer
           position="top-right"
           autoClose={4000}
-          hideProgressBar={false}
           newestOnTop={false}
           closeOnClick
-          rtl={false}
           pauseOnFocusLoss
           draggable
           theme="light"
-          toastStyle={{
-            fontFamily: 'Inter, system-ui, sans-serif',
-          }}
         />
       </CartProvider>
     </AuthProvider>

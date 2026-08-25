@@ -60,8 +60,15 @@ const Review = () => {
     ? (reviews.reduce((sum, r) => sum + (Number(r.rating) || 0), 0) / reviews.length).toFixed(1)
     : null
 
+  /* A testimonial wall with nothing on it argues against the company. When
+     there is nothing to show and the reader has no standing to add anything,
+     the section does not exist — a customer who has actually been to an event
+     still gets the invitation to write the first one. */
+  if (reviews.length === 0 && !isCustomer) return null
+
   return (
-    <div>
+    <section className="border-t border-line bg-surface">
+      <div className="mx-auto max-w-6xl px-5 py-18 sm:px-6 sm:py-24 lg:px-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -221,7 +228,8 @@ const Review = () => {
           </form>
         </motion.div>
       )}
-    </div>
+      </div>
+    </section>
   )
 }
 

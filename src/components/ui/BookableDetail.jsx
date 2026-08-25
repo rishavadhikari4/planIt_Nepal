@@ -135,7 +135,7 @@ const BookableDetail = ({
   return (
     <div className="min-h-screen bg-paper">
       {/* ================= Hero ================= */}
-      <section className="relative isolate h-[58vh] min-h-[420px] w-full overflow-hidden bg-crimson-deep sm:h-[66vh]">
+      <section className="relative isolate h-[62vh] min-h-[460px] w-full overflow-hidden bg-crimson-deep sm:h-[70vh]">
         <motion.div
           className="absolute inset-0"
           style={reduced ? undefined : { y: heroY, scale: heroScale }}
@@ -150,11 +150,15 @@ const BookableDetail = ({
           />
         </motion.div>
 
-        {/* Weighted to the lower left, so the top of the photograph breathes. */}
-        <div className="absolute inset-0 bg-gradient-to-t from-crimson-deep via-crimson-deep/45 to-crimson-deep/5" />
-        <div className="absolute inset-0 bg-gradient-to-r from-crimson-deep/70 to-transparent" />
+        {/* Weighted to the lower left, so the top of the photograph breathes.
+            The third scrim buys the transparent header its contrast — over a
+            bright hall the wordmark and nav had nothing to sit on. */}
+        <div className="absolute inset-0 bg-gradient-to-t from-crimson-deep via-crimson-deep/50 to-crimson-deep/10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-crimson-deep/75 to-transparent" />
+        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-crimson-deep/70 to-transparent" />
 
-        <div className="absolute inset-0 mx-auto flex max-w-7xl flex-col justify-between px-5 py-6 sm:px-6 sm:py-8 lg:px-8">
+        {/* pt clears the fixed header, which overlays this hero. */}
+        <div className="absolute inset-0 mx-auto flex max-w-7xl flex-col justify-between px-5 pb-6 pt-24 sm:px-6 sm:pb-8 sm:pt-28 lg:px-8">
           <button
             onClick={() => navigate(backPath)}
             className="inline-flex w-fit items-center gap-2 rounded-md px-3 py-2 t-small font-medium text-white/75 backdrop-blur-sm transition-colors duration-300 hover:bg-white/10 hover:text-white"
@@ -199,7 +203,7 @@ const BookableDetail = ({
           onClick={() => setFavorite((v) => !v)}
           aria-pressed={favorite}
           aria-label={favorite ? "Remove from shortlist" : "Add to shortlist"}
-          className="absolute right-5 top-6 flex h-11 w-11 items-center justify-center rounded-full border border-white/25 text-white/80 backdrop-blur-sm transition-colors duration-300 hover:border-white/50 hover:text-white sm:right-6 sm:top-8 lg:right-8"
+          className="absolute right-5 top-24 flex h-11 w-11 items-center justify-center rounded-full border border-white/25 text-white/80 backdrop-blur-sm transition-colors duration-300 hover:border-white/50 hover:text-white sm:right-6 sm:top-28 lg:right-8"
         >
           <Heart className={`h-4 w-4 ${favorite ? "fill-white text-white" : ""}`} strokeWidth={1.75} />
         </button>

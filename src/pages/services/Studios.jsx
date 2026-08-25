@@ -13,6 +13,7 @@ import {
   Pagination,
   rs,
 } from "../../components/ui/Catalog"
+import Sheet, { useLingering } from "../../components/ui/Sheet"
 
 const SORTS = [
   { value: "createdAt-desc", label: "Newest first" },
@@ -39,6 +40,8 @@ const Studios = () => {
   const [page, setPage] = useState(1)
   const [searching, setSearching] = useState(false)
   const [preview, setPreview] = useState(null)
+  // Keeps the panel populated through its exit animation.
+  const shown = useLingering(preview)
   const [favorites, setFavorites] = useState(new Set())
 
   const [searchTerm, setSearchTerm] = useState("")
@@ -261,84 +264,68 @@ const Studios = () => {
       </div>
 
       {/* ---------------- Quick look ---------------- */}
-      <AnimatePresence>
-        {preview && (
-          <motion.div
-            className="fixed inset-0 z-50 flex items-end justify-center bg-crimson-deep/50 sm:items-center sm:p-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setPreview(null)}
-          >
-            <motion.div
-              role="dialog"
-              aria-modal="true"
-              aria-label={preview.name}
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 16 }}
-              transition={{ duration: 0.22, ease: "easeOut" }}
-              onClick={(e) => e.stopPropagation()}
-              className="card max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-b-none sm:rounded-b-xl"
-            >
-              <div className="relative">
-                <img
-                  src={preview.studioImage || "/placeholder.svg"}
-                  alt=""
-                  className="aspect-[16/9] w-full object-cover"
-                />
-                <button
-                  onClick={() => setPreview(null)}
-                  aria-label="Close"
-                  className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-surface text-ink-soft hover:text-ink"
-                >
-                  <X className="h-4 w-4" strokeWidth={2} />
+      <Sheet
+        open={Boolean(preview)}
+        onClose={() => setPreview(null)}
+        title={shown?.name}
+        width="max-w-xl"
+      >
+        {shown && (
+          <>
+            <div className="relative">
+              <img
+                src={shown.studioImage || "/placeholder.svg"}
+                alt=""
+                className="aspect-[16/9] w-full object-cover"
+              />
+              <button
+                onClick={() => setPreview(null)}
+                aria-label="Close"
+                className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-surface text-ink-soft transition-colors hover:text-ink active:scale-95"
+              >
+                <X className="h-4 w-4" strokeWidth={2} />
+              </button>
+            </div>
+
+            <div className="p-6">
+              <h2 className="t-title">{shown.name}</h2>
+
+              {shown.location && (
+                <p className="mt-3 inline-flex items-center gap-1.5 t-small text-ink-mute">
+                  <MapPin className="h-4 w-4" strokeWidth={1.75} />
+                  {shown.location}
+                </p>
+              )}
+
+              {serviceList(shown).length > 0 && (
+                <ul className="mt-4 flex flex-wrap gap-1.5">
+                  {serviceList(shown).map((s) => (
+                    <li key={s} className="chip">
+                      {s}
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              <p className="mt-5 t-body leading-relaxed text-ink-soft">
+                {shown.description || "No description has been added for this studio yet."}
+              </p>
+
+              <div className="mt-7 flex flex-wrap items-end justify-between gap-4 border-t border-line pt-5">
+                <p>
+                  <span className="amount block t-title font-semibold text-ink">
+                    {shown.price ? rs(shown.price) : "On request"}
+                  </span>
+                  {shown.price && <span className="t-caption text-ink-mute">per event</span>}
+                </p>
+                <button onClick={() => navigate(`/studios/${shown._id}`)} className="btn btn-accent">
+                  See dates and book
                 </button>
               </div>
-
-              <div className="p-6">
-                <h2 className="t-title">{preview.name}</h2>
-
-                {preview.location && (
-                  <p className="mt-3 inline-flex items-center gap-1.5 t-small text-ink-mute">
-                    <MapPin className="h-4 w-4" strokeWidth={1.75} />
-                    {preview.location}
-                  </p>
-                )}
-
-                {serviceList(preview).length > 0 && (
-                  <ul className="mt-4 flex flex-wrap gap-1.5">
-                    {serviceList(preview).map((s) => (
-                      <li key={s} className="chip">
-                        {s}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-
-                <p className="mt-5 t-body leading-relaxed text-ink-soft">
-                  {preview.description || "No description has been added for this studio yet."}
-                </p>
-
-                <div className="mt-7 flex flex-wrap items-end justify-between gap-4 border-t border-line pt-5">
-                  <p>
-                    <span className="amount block t-title font-semibold text-ink">
-                      {preview.price ? rs(preview.price) : "On request"}
-                    </span>
-                    {preview.price && <span className="t-caption text-ink-mute">per event</span>}
-                  </p>
-                  <button
-                    onClick={() => navigate(`/studios/${preview._id}`)}
-                    className="btn btn-accent"
-                  >
-                    See dates and book
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
+            </div>
+          </>
         )}
-      </AnimatePresence>
+      </Sheet>
     </div>
   )
 }

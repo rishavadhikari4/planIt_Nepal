@@ -1,5 +1,6 @@
 import { useState } from "react"
-import { ChevronLeft, ChevronRight, X } from "lucide-react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
+import Sheet, { CloseButton } from "./Sheet"
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -210,69 +211,51 @@ const DateRangePicker = ({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-crimson-deep/50 sm:items-center sm:p-6"
-      onClick={onClose}
-    >
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
-        onClick={(e) => e.stopPropagation()}
-        className={`card max-h-[90vh] w-full max-w-md overflow-y-auto rounded-b-none sm:rounded-b-xl ${className}`}
-      >
-        <div className="flex items-start justify-between gap-4 border-b border-line px-5 py-4">
-          <div>
-            <h3 className="t-lead">{title}</h3>
-            <p className="mt-1 t-small text-ink-soft">
-              {!from
-                ? "Tap the first day."
-                : !till
-                  ? "Now tap the last day."
-                  : `${fmt(from)} — ${fmt(till)} · ${nights(from, till)} ${
-                      nights(from, till) === 1 ? "day" : "days"
-                    }`}
-            </p>
-          </div>
-          {onClose && (
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close"
-              className="-mr-2 flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-ink-mute hover:bg-gray-100 hover:text-ink"
-            >
-              <X className="h-4 w-4" strokeWidth={2} />
-            </button>
-          )}
+    <Sheet open onClose={onClose} title={title} width="max-w-md" className={className}>
+      <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-line bg-surface px-5 py-4">
+        <div>
+          <h3 className="t-lead">{title}</h3>
+          {/* The hint is the instruction — it names the next tap rather than
+              restating what the calendar already shows. */}
+          <p className="mt-1 t-small text-ink-soft">
+            {!from
+              ? "Tap the first day."
+              : !till
+                ? "Now tap the last day."
+                : `${fmt(from)} — ${fmt(till)} · ${nights(from, till)} ${
+                    nights(from, till) === 1 ? "day" : "days"
+                  }`}
+          </p>
         </div>
-
-        <div className="p-5">{grid}</div>
-
-        {!readOnly && (
-          <div className="flex gap-2 border-t border-line bg-gray-50 px-5 py-4">
-            <button
-              type="button"
-              onClick={() => {
-                setFrom(null)
-                setTill(null)
-              }}
-              disabled={!from}
-              className="btn btn-ghost flex-1"
-            >
-              Clear
-            </button>
-            <button
-              type="button"
-              onClick={confirm}
-              disabled={!from || !till}
-              className="btn btn-primary flex-1"
-            >
-              {from && till ? "Use these dates" : "Pick two days"}
-            </button>
-          </div>
-        )}
+        {onClose && <CloseButton onClose={onClose} />}
       </div>
-    </div>
+
+      <div className="p-5">{grid}</div>
+
+      {!readOnly && (
+        <div className="sticky bottom-0 flex gap-2 border-t border-line bg-gray-50 px-5 py-4">
+          <button
+            type="button"
+            onClick={() => {
+              setFrom(null)
+              setTill(null)
+            }}
+            disabled={!from}
+            className="btn btn-ghost flex-1"
+          >
+            Clear
+          </button>
+          <button
+            type="button"
+            onClick={confirm}
+            disabled={!from || !till}
+            className="btn btn-primary flex-1"
+          >
+            {from && till ? "Use these dates" : "Pick two days"}
+          </button>
+        </div>
+      )}
+    </Sheet>
   )
 }
 

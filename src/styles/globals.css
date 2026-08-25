@@ -159,6 +159,16 @@
   --radius-2xl: 10px;
   --radius-3xl: 12px;
 
+  /* --- Motion: three curves, and nothing else ---
+     The built-in CSS easings are too weak to read as intentional. --ease-out
+     is for anything entering or leaving (it moves at the instant the eye is
+     watching), --ease-in-out for something travelling across the screen, and
+     --ease-press for the 100ms acknowledgement of a click. Nothing here uses
+     ease-in: starting slow is what makes an interface feel sluggish. */
+  --ease-out:    cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-press:  cubic-bezier(0.2, 0, 0, 1);
+
   /* --- Elevation: hairlines first, shadow as a whisper --- */
   --shadow-2xs: 0 1px 1px rgb(36 28 24 / 0.03);
   --shadow-xs:  0 1px 2px rgb(36 28 24 / 0.04);
@@ -414,9 +424,16 @@
     line-height: 1;
     border: 1px solid transparent;
     cursor: pointer;
-    transition: background-color .18s ease, color .18s ease, border-color .18s ease;
+    transition:
+      background-color .18s ease,
+      color .18s ease,
+      border-color .18s ease,
+      transform .16s var(--ease-press);
     white-space: nowrap;
   }
+  /* The press is the only feedback that arrives before the network does, so
+     every button gets it. Subtle on purpose — 3% is felt, not seen. */
+  .btn:active:not(:disabled) { transform: scale(0.97); }
   .btn:disabled { opacity: .5; cursor: not-allowed; }
 
   /* Three weights of action, so a screen holding several of them still reads
@@ -541,6 +558,9 @@
   background: var(--color-surface);
   padding: 12px 14px;
   min-height: auto;
+  /* The progress bar is a child at the bottom edge; without this it draws
+     past the rounded corners and the toast reads as a broken rectangle. */
+  overflow: hidden;
 }
 .Toastify__toast-body { padding: 0; margin: 0; align-items: flex-start; }
 .Toastify__close-button { color: var(--color-ink-mute); opacity: 1; align-self: center; }

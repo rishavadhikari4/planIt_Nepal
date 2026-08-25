@@ -110,11 +110,21 @@ const Header = () => {
         }`}
       >
         {/* Wordmark */}
+        {/* Over the hero photograph the wordmark has to invert with the rest of
+            the bar — crimson on ink is a wordmark nobody can read. */}
         <Link to="/" className="group flex shrink-0 items-baseline gap-2 no-underline">
-          <span className="font-display t-heading font-semibold text-crimson-deep">
+          <span
+            className={`font-display t-heading font-semibold transition-colors duration-300 ${
+              overHero ? "text-white" : "text-crimson-deep"
+            }`}
+          >
             PlanIt
           </span>
-          <span className="font-mono t-caption font-medium uppercase tracking-[0.22em] text-brass-deep">
+          <span
+            className={`font-mono t-caption font-medium uppercase tracking-[0.22em] transition-colors duration-300 ${
+              overHero ? "text-brass-lift" : "text-brass-deep"
+            }`}
+          >
             Nepal
           </span>
         </Link>

@@ -9,6 +9,7 @@ import { AuthContext } from "../../context/AuthContext"
 import { useCart } from "../../context/CartContext"
 import { getAllVenues } from "../../services/venues"
 import { getAllStudios } from "../../services/studios"
+import PaymentMark from "../../components/ui/PaymentMark"
 import {
   EASE,
   Reveal,
@@ -29,6 +30,7 @@ const STEPS = [
   {
     step: "01",
     label: "Venue",
+    cta: "venues",
     path: "/venues",
     headline: "Where it happens",
     body: "Banquet halls, garden lawns, party palaces and conference floors. Availability shows by date, so you book the room and the day in one move.",
@@ -37,6 +39,7 @@ const STEPS = [
   {
     step: "02",
     label: "Catering",
+    cta: "catering",
     path: "/cuisines",
     headline: "What everyone eats",
     body: "Build the menu dish by dish — Newari khaja sets, veg and non-veg thalis, continental spreads. Priced per plate, counted against your headcount.",
@@ -45,6 +48,7 @@ const STEPS = [
   {
     step: "03",
     label: "Studio",
+    cta: "studios",
     path: "/studios",
     headline: "Who records it",
     body: "Photo and video teams with published rates and sample work, booked against the same dates as your venue.",
@@ -62,6 +66,42 @@ const OCCASIONS = [
   ["Corporate", "Conferences, launches, annual dinners"],
   ["Anniversaries", "Milestones that deserve the good room"],
 ]
+
+/*
+ * A section opens with its title on the left and the one sentence that
+ * qualifies it on the right, sharing a baseline. Setting the heading alone
+ * against a 1280px container left half the page empty on every section — the
+ * sentence was always there, stacked underneath, doing nothing for the
+ * measure.
+ */
+const SectionHead = ({ eyebrow, title, body, tone = "ink" }) => (
+  <Stagger className="grid gap-7 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,38ch)] lg:items-end lg:gap-16">
+    <div>
+      <Item
+        as="p"
+        className={
+          tone === "light"
+            ? "inline-flex items-center gap-3 t-overline text-white/50"
+            : "eyebrow"
+        }
+      >
+        {tone === "light" && <span className="h-px w-7 bg-brass" />}
+        {eyebrow}
+      </Item>
+      <Item as="h2" className={`mt-5 t-display ${tone === "light" ? "text-white" : ""}`}>
+        {title}
+      </Item>
+    </div>
+    {body && (
+      <Item
+        as="p"
+        className={`t-body lg:pb-2 ${tone === "light" ? "text-white/60" : "text-ink-soft"}`}
+      >
+        {body}
+      </Item>
+    )}
+  </Stagger>
+)
 
 const Home = () => {
   const navigate = useNavigate()
@@ -122,7 +162,7 @@ const Home = () => {
           Full-bleed photography with the headline over it. The previous
           version put a small type block beside a small picture and left a
           void between them; an event planner has to lead with the room. */}
-      <section className="relative isolate h-[86vh] min-h-[560px] w-full overflow-hidden bg-crimson-deep">
+      <section className="relative isolate flex h-[88vh] min-h-[580px] w-full overflow-hidden bg-crimson-deep">
         {hero ? (
           <motion.div
             className="absolute inset-0"
@@ -141,11 +181,16 @@ const Home = () => {
           <div className="absolute inset-0 bg-crimson-deep" />
         )}
 
-        {/* Weighted low and left so the type sits on the darkest part. */}
-        <div className="absolute inset-0 bg-gradient-to-t from-crimson-deep via-crimson-deep/55 to-crimson-deep/10" />
-        <div className="absolute inset-0 bg-gradient-to-r from-crimson-deep/80 via-crimson-deep/25 to-transparent" />
+        {/* Three scrims, each doing one job: the vertical one seats the type,
+            the horizontal one keeps the left column dark whatever photograph
+            the API hands us, and the top one buys the header its contrast.
+            The inventory is real, so the hero cannot be art-directed — the
+            gradients have to survive a badly lit hall. */}
+        <div className="absolute inset-0 bg-gradient-to-t from-crimson-deep via-crimson-deep/60 to-crimson-deep/15" />
+        <div className="absolute inset-0 bg-gradient-to-r from-crimson-deep/85 via-crimson-deep/35 to-transparent" />
+        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-crimson-deep/70 to-transparent" />
 
-        <div className="relative mx-auto flex h-full max-w-7xl flex-col justify-end px-5 pb-14 sm:px-6 sm:pb-20 lg:px-8">
+        <div className="relative mx-auto flex h-full w-full max-w-7xl flex-col justify-end px-5 pb-28 sm:px-6 sm:pb-32 lg:px-8">
           <motion.p
             className="t-overline text-brass-lift"
             initial={reduced ? false : { opacity: 0 }}
@@ -174,15 +219,15 @@ const Home = () => {
               availability across Nepal.
             </p>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <Magnetic>
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+              <Magnetic className="w-full sm:w-auto">
                 {isAuthenticated && isCustomer ? (
-                  <button onClick={() => setShowRecommendations(true)} className="btn btn-accent px-7">
+                  <button onClick={() => setShowRecommendations(true)} className="btn btn-accent w-full px-7 sm:w-auto">
                     <Sparkles className="h-4 w-4" strokeWidth={2} />
                     Plan my event
                   </button>
                 ) : (
-                  <button onClick={() => navigate("/venues")} className="btn btn-accent group px-7">
+                  <button onClick={() => navigate("/venues")} className="btn btn-accent group w-full px-7 sm:w-auto">
                     Start with a venue
                     <ArrowRight
                       className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
@@ -193,7 +238,7 @@ const Home = () => {
               </Magnetic>
               <button
                 onClick={() => navigate("/cuisines")}
-                className="btn border-white/30 bg-transparent text-white transition-colors duration-300 hover:border-white/60 hover:bg-white/10"
+                className="btn w-full border-white/30 bg-transparent text-white transition-colors duration-300 hover:border-white/60 hover:bg-white/10 sm:w-auto"
               >
                 Browse catering
               </button>
@@ -219,82 +264,82 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ---------- The plan card, lifted onto the fold ---------- */}
-      <section className="relative z-10 mx-auto -mt-16 max-w-7xl px-5 sm:px-6 lg:px-8">
-        <div className="grid gap-6 lg:grid-cols-[1fr_420px] lg:items-end">
-          <div className="hidden lg:block" />
-          <motion.div
-            initial={reduced ? false : { opacity: 0, y: 28 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: EASE, delay: 1.1 }}
-          >
-            <div className="card overflow-hidden shadow-xl">
-              <div className="flex items-baseline justify-between border-b border-line px-5 py-4">
-                <h2 className="t-overline text-ink-mute">Your plan</h2>
-                <span className="amount t-caption text-ink-mute">{filled} of 3 chosen</span>
-              </div>
+      {/* ---------- The plan, as a rail across the fold ----------
+          This used to be a card floating in the right-hand column, which left
+          two thirds of the fold empty and got cut in half by the bottom of the
+          viewport. The three decisions are equal in weight, so they get equal
+          columns, and the rail spans the measure it sits in. */}
+      <section className="relative z-20 mx-auto -mt-16 max-w-7xl px-5 sm:-mt-20 sm:px-6 lg:px-8">
+        <motion.div
+          initial={reduced ? false : { opacity: 0, y: 26 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, ease: EASE, delay: 1.15 }}
+          className="card overflow-hidden shadow-[var(--shadow-lg)]"
+        >
+          <div className="flex items-baseline justify-between border-b border-line px-5 py-3.5">
+            <h2 className="t-overline text-ink-mute">Your plan</h2>
+            <span className="amount t-caption text-ink-mute">{filled} of 3 chosen</span>
+          </div>
 
-              <div className="divide-y divide-line">
-                {STEPS.map((step) => {
-                  const chosen = slotFor(step)
-                  return (
-                    <button
-                      key={step.step}
-                      onClick={() => navigate(step.path)}
-                      className="group flex w-full items-center gap-4 px-5 py-4 text-left transition-colors duration-300 hover:bg-gray-50"
-                    >
-                      <span
-                        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border t-caption transition-colors duration-300 ${
-                          chosen
-                            ? "border-crimson bg-crimson text-white"
-                            : "border-line-strong font-mono text-ink-mute group-hover:border-brass group-hover:text-brass-deep"
-                        }`}
-                      >
-                        {chosen ? <Check className="h-3.5 w-3.5" strokeWidth={2.5} /> : step.step}
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block t-body font-semibold text-ink">{step.label}</span>
-                        <span
-                          className={`block truncate t-small ${chosen ? "text-ink-soft" : "text-ink-mute"}`}
-                        >
-                          {chosen || "Nothing chosen yet"}
-                        </span>
-                      </span>
-                      <ArrowUpRight
-                        className="h-4 w-4 shrink-0 text-line-strong transition-all duration-300 group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-brass"
-                        strokeWidth={2}
-                      />
-                    </button>
-                  )
-                })}
-              </div>
-
-              <div className="border-t border-line bg-gray-50 px-5 py-4">
-                <div className="flex items-baseline justify-between">
-                  <span className="t-small text-ink-soft">Running total</span>
-                  <span className="amount t-heading text-ink">Rs {total.toLocaleString("en-IN")}</span>
-                </div>
+          <div className="grid divide-y divide-line lg:grid-cols-[repeat(3,minmax(0,1fr))_minmax(0,300px)] lg:divide-x lg:divide-y-0">
+            {STEPS.map((step) => {
+              const chosen = slotFor(step)
+              return (
                 <button
-                  onClick={() => navigate(cartItems.length ? "/cart" : "/venues")}
-                  className="btn btn-primary group mt-4 w-full"
+                  key={step.step}
+                  onClick={() => navigate(step.path)}
+                  className="group flex items-center gap-4 px-5 py-5 text-left transition-colors duration-300 hover:bg-gray-50"
                 >
-                  {cartItems.length ? "Review and pay" : "Start with a venue"}
-                  <ArrowRight
-                    className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+                  <span
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border t-caption transition-colors duration-300 ${
+                      chosen
+                        ? "border-crimson bg-crimson text-white"
+                        : "border-line-strong font-mono text-ink-mute group-hover:border-brass group-hover:text-brass-deep"
+                    }`}
+                  >
+                    {chosen ? <Check className="h-3.5 w-3.5" strokeWidth={2.5} /> : step.step}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block t-body font-semibold text-ink">{step.label}</span>
+                    <span
+                      className={`block truncate t-small ${chosen ? "text-ink-soft" : "text-ink-mute"}`}
+                    >
+                      {chosen || "Nothing chosen yet"}
+                    </span>
+                  </span>
+                  <ArrowUpRight
+                    className="h-4 w-4 shrink-0 text-line-strong transition-all duration-300 group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-brass"
                     strokeWidth={2}
                   />
                 </button>
+              )
+            })}
+
+            <div className="flex flex-col justify-center gap-3 bg-gray-50 px-5 py-5">
+              <div className="flex items-baseline justify-between gap-4">
+                <span className="t-small text-ink-soft">Running total</span>
+                <span className="amount t-heading text-ink">Rs {total.toLocaleString("en-IN")}</span>
               </div>
+              <button
+                onClick={() => navigate(cartItems.length ? "/cart" : "/venues")}
+                className="btn btn-primary group w-full"
+              >
+                {cartItems.length ? "Review and pay" : "Start with a venue"}
+                <ArrowRight
+                  className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+                  strokeWidth={2}
+                />
+              </button>
             </div>
-          </motion.div>
-        </div>
+          </div>
+        </motion.div>
       </section>
 
       {/* ---------- Live inventory band ---------- */}
       {band.length > 0 && (
         <div className="relative mt-16 border-y border-line bg-surface py-6 sm:mt-20">
-          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-20 bg-gradient-to-r from-paper to-transparent sm:w-32" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-20 bg-gradient-to-l from-paper to-transparent sm:w-32" />
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-20 bg-gradient-to-r from-surface to-transparent sm:w-32" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-20 bg-gradient-to-l from-surface to-transparent sm:w-32" />
 
           <Marquee speed={34} gap="1.25rem" className="px-2">
             {band.map((item) => (
@@ -321,23 +366,25 @@ const Home = () => {
       )}
 
       {/* ======================= Occasions ======================= */}
-      <section className="mx-auto max-w-7xl px-5 py-20 sm:px-6 sm:py-28 lg:px-8">
-        <Stagger className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-start lg:gap-20">
-          <div>
-            <Item as="p" className="eyebrow">
-              What we run
-            </Item>
-            <Item as="h2" className="mt-5 t-display">
+      <section className="mx-auto max-w-7xl px-5 py-18 sm:px-6 sm:py-24 lg:px-8">
+        <SectionHead
+          eyebrow="What we run"
+          title={
+            <>
               Every occasion that
               <br />
               <span className="t-turn">fills a room.</span>
-            </Item>
-            <Item as="p" className="mt-6 max-w-[38ch] t-body text-ink-soft">
-              Two hundred events since 2020, from eighty-guest pasni to nine-hundred-guest
-              receptions. The list below is what we book most.
-            </Item>
+            </>
+          }
+          body="Two hundred events since 2020, from eighty-guest pasni to nine-hundred-guest receptions. The list below is what we book most."
+        />
 
-            <Item className="mt-10 flex gap-10 border-t border-line pt-8">
+        <Stagger className="mt-14 grid gap-10 lg:grid-cols-[minmax(0,0.62fr)_minmax(0,1fr)] lg:items-start lg:gap-20">
+          {/* The figures stay in view while the list scrolls past them, which
+              is the only reason this column needs to be sticky — it is short
+              and the list is long. */}
+          <Item className="lg:sticky lg:top-28">
+            <div className="grid grid-cols-2 gap-8 border-t border-line py-8 lg:border-b">
               <div>
                 <p className="amount t-display text-crimson">
                   <CountUp to={200} suffix="+" />
@@ -350,31 +397,25 @@ const Home = () => {
                 </p>
                 <p className="mt-1 t-caption text-ink-mute">Holds your dates</p>
               </div>
-            </Item>
+            </div>
 
-            {/* The list opposite runs longer than this column; a photograph
-                carries the rest of the height rather than leaving a void. */}
             {occasionImage && (
-              <Item className="mt-10 hidden lg:block">
-                <Parallax distance={20}>
-                  <div className="plate aspect-[4/5] w-full">
-                    <ImageReveal
-                      src={occasionImage}
-                      className="h-full w-full"
-                      imgClassName="transition-transform duration-[1600ms] ease-out hover:scale-[1.04]"
-                    />
-                  </div>
-                </Parallax>
-              </Item>
+              <div className="plate mt-8 hidden aspect-[4/3] w-full lg:block">
+                <ImageReveal
+                  src={occasionImage}
+                  className="h-full w-full"
+                  imgClassName="transition-transform duration-[1600ms] ease-out hover:scale-[1.04]"
+                />
+              </div>
             )}
-          </div>
+          </Item>
 
           <Item as="ul" className="divide-y divide-line border-y border-line">
             {OCCASIONS.map(([name, detail], i) => (
               <li key={name}>
                 <button
                   onClick={() => navigate("/contact")}
-                  className="group flex w-full items-baseline gap-6 py-5 text-left"
+                  className="group flex w-full items-baseline gap-6 py-6 text-left"
                 >
                   <span className="amount w-7 shrink-0 t-caption font-semibold text-brass-deep">
                     {String(i + 1).padStart(2, "0")}
@@ -398,15 +439,18 @@ const Home = () => {
 
       {/* ======================= The three steps ======================= */}
       <section className="border-t border-line bg-surface">
-        <div className="mx-auto max-w-7xl px-5 py-20 sm:px-6 sm:py-28 lg:px-8">
-          <Reveal className="max-w-2xl">
-            <p className="eyebrow">How a booking works</p>
-            <h2 className="mt-5 t-display">
-              Three decisions, in the
-              <br />
-              <span className="t-turn">order they happen.</span>
-            </h2>
-          </Reveal>
+        <div className="mx-auto max-w-7xl px-5 py-18 sm:px-6 sm:py-24 lg:px-8">
+          <SectionHead
+            eyebrow="How a booking works"
+            title={
+              <>
+                Three decisions, in the
+                <br />
+                <span className="t-turn">order they happen.</span>
+              </>
+            }
+            body="One order holds all three. Nothing is charged until you confirm, and the dates you pick are held against every supplier at once."
+          />
 
           <div className="mt-14 space-y-14 sm:mt-16 sm:space-y-16">
             {STEPS.map((step, i) => {
@@ -422,7 +466,7 @@ const Home = () => {
                     <Parallax distance={26}>
                       <button
                         onClick={() => navigate(step.path)}
-                        aria-label={`Browse ${step.label.toLowerCase()}`}
+                        aria-label={`Browse ${step.cta}`}
                         className="plate group block aspect-[4/3] w-full sm:aspect-[4/3]"
                       >
                         {image ? (
@@ -455,7 +499,7 @@ const Home = () => {
                         onClick={() => navigate(step.path)}
                         className="group relative mt-8 inline-flex items-center gap-2 pb-1.5 t-body font-semibold text-ink"
                       >
-                        Browse {step.label.toLowerCase()}
+                        Browse {step.cta}
                         <ArrowRight
                           className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1.5"
                           strokeWidth={2}
@@ -490,57 +534,48 @@ const Home = () => {
         )}
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-crimson-deep via-crimson-deep/85 to-crimson-deep/55" />
 
-        <div className="mx-auto max-w-7xl px-5 py-20 sm:px-6 sm:py-28 lg:px-8">
-          <Stagger className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
-            <div>
-              <Item as="p" className="inline-flex items-center gap-3 t-overline text-white/50">
-                <span className="h-px w-7 bg-brass" />
-                Paying
-              </Item>
-              <Item as="h2" className="mt-5 font-display t-display text-white">
+        <div className="mx-auto max-w-7xl px-5 py-18 sm:px-6 sm:py-24 lg:px-8">
+          <SectionHead
+            tone="light"
+            eyebrow="Paying"
+            title={
+              <>
                 Pay the way you
                 <br />
                 <span className="t-turn">already pay.</span>
-              </Item>
-              <Item as="p" className="mt-6 max-w-[40ch] t-body text-white/60">
-                Hold your dates with 25% down, settle in full up front, or pay in cash once the day
-                is over. Your booking confirms the moment the payment clears.
-              </Item>
-            </div>
+              </>
+            }
+            body="Hold your dates with 25% down, settle in full up front, or pay in cash once the day is over. Your booking confirms the moment the payment clears."
+          />
 
-            <Item as="ul" className="divide-y divide-white/10 border-y border-white/10">
-              {[
-                { name: "Khalti", dot: "#8B5FBF", detail: "Khalti wallet, mobile banking, connectIPS and cards." },
-                { name: "Fonepay", dot: "#E8536A", detail: "Straight from your bank account over the Fonepay network." },
-                { name: "Cash after service", dot: "#DCC369", detail: "Confirm now, hand over payment once the day is done." },
-              ].map((m) => (
-                <li key={m.name} className="group flex items-start gap-4 py-6">
-                  <span
-                    className="mt-2 h-2.5 w-2.5 shrink-0 rounded-full transition-transform duration-500 group-hover:scale-150"
-                    style={{ background: m.dot }}
-                    aria-hidden
-                  />
-                  <span>
-                    <span className="block t-lead font-semibold text-white">{m.name}</span>
-                    <span className="mt-1 block t-small text-white/55">{m.detail}</span>
-                  </span>
-                </li>
-              ))}
-            </Item>
+          {/* Each method carries its own mark. A coloured dot standing in for
+              a logo is the tell of a site that has not actually integrated
+              the gateway — these are the gateways' own. */}
+          <Stagger as="ul" className="mt-14 grid gap-px overflow-hidden rounded-lg bg-white/10 sm:grid-cols-3">
+            {[
+              { id: "khalti", name: "Khalti", detail: "Wallet, mobile banking, connectIPS and cards." },
+              { id: "fonepay", name: "Fonepay", detail: "Straight from your bank over the Fonepay network." },
+              { id: "cash", name: "Cash after service", detail: "Confirm now, hand it over once the day is done." },
+            ].map((m) => (
+              <Item as="li" key={m.id} className="bg-crimson-deep/60 p-7">
+                <PaymentMark id={m.id} />
+                <p className="mt-5 t-lead font-semibold text-white">{m.name}</p>
+                <p className="mt-1.5 t-small leading-relaxed text-white/55">{m.detail}</p>
+              </Item>
+            ))}
           </Stagger>
         </div>
       </section>
 
-      {/* ======================= Reviews ======================= */}
-      <section className="bg-surface">
-        <div className="mx-auto max-w-6xl px-5 py-20 sm:px-6 sm:py-28 lg:px-8">
-          <Review />
-        </div>
-      </section>
+      {/* ======================= Reviews =======================
+          Review carries its own section chrome, because it removes itself
+          entirely when there is nothing published — a wrapper here would
+          leave an empty band behind it. */}
+      <Review />
 
       {/* ======================= Contact ======================= */}
       <section className="border-t border-line">
-        <div className="mx-auto max-w-7xl px-5 py-20 sm:px-6 sm:py-28 lg:px-8">
+        <div className="mx-auto max-w-7xl px-5 py-18 sm:px-6 sm:py-24 lg:px-8">
           <Stagger className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
             <div>
               <Item as="p" className="eyebrow">
@@ -556,7 +591,7 @@ const Home = () => {
                 menus and studios that are actually available on it.
               </Item>
 
-              <Item className="mt-10 divide-y divide-line border-y border-line">
+              <Item className="mt-9 divide-y divide-line border-y border-line">
                 {[
                   { Icon: Mail, label: "Email", value: "contact@planitnepal.com", href: "mailto:contact@planitnepal.com" },
                   { Icon: Phone, label: "Phone", value: "+977 987 654 3345", href: "tel:+9779876543345" },

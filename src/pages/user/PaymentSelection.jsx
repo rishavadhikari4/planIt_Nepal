@@ -6,6 +6,7 @@ import { AuthContext } from "../../context/AuthContext"
 import { CartContext } from "../../context/CartContext"
 import { startPayment, getPaymentMethods } from "../../services/payments"
 import { getOrderById } from "../../services/orders"
+import PaymentMark from "../../components/ui/PaymentMark"
 
 /* Two decisions, kept apart: how much you are paying now, and what you are
    paying with. The old screen fired the payment the instant you touched an
@@ -16,13 +17,11 @@ const GATEWAYS = [
   {
     id: "khalti",
     name: "Khalti",
-    dot: "#5C2D91",
     detail: "Khalti wallet, mobile banking, connectIPS or a card.",
   },
   {
     id: "fonepay",
     name: "Fonepay",
-    dot: "#C8102E",
     detail: "Straight from your bank account over the Fonepay network.",
   },
 ]
@@ -244,18 +243,15 @@ function PaymentSelection() {
                           selected ? "bg-crimson-50" : "bg-surface hover:bg-gray-50"
                         }`}
                       >
-                        <span className="flex w-full items-center gap-2.5">
-                          <span
-                            className="h-2.5 w-2.5 shrink-0 rounded-full"
-                            style={{ background: g.dot }}
-                            aria-hidden
-                          />
-                          <span className="t-body font-semibold text-ink">{g.name}</span>
+                        <span className="flex w-full items-center gap-3">
+                          {/* You are about to be handed to this company, so
+                              you should recognise it before you press pay. */}
+                          <PaymentMark id={g.id} />
                           {selected && (
                             <Check className="ml-auto h-4 w-4 text-crimson" strokeWidth={2.5} />
                           )}
                         </span>
-                        <span className="mt-2 t-small leading-relaxed text-ink-soft">
+                        <span className="mt-3 t-small leading-relaxed text-ink-soft">
                           {available ? g.detail : "Not available right now."}
                         </span>
                       </button>
