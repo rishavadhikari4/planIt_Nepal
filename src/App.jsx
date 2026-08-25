@@ -51,6 +51,7 @@ const Adminstudios = lazy(() => import('./pages/admin/StudioManagement'));
 const AdminCuisines = lazy(() => import('./pages/admin/CuisineManagement'));
 const AdminVenues = lazy(() => import('./pages/admin/VenueManagement'));
 const AdminContact = lazy(() => import('./pages/admin/ContactManagement'));
+const AdminAvailability = lazy(() => import('./pages/admin/AvailabilityCalendar'));
 const AdminOrderList = lazy(() => import('./pages/admin/OrderManagement'));
 const OrderDetails = lazy(() => import('./pages/admin/OrderDetails'));
 const ContactDetails = lazy(() => import('./pages/admin/ContactDetails'));
@@ -121,6 +122,7 @@ function AppContent() {
     '/admin-cuisines',
     '/admin-venues',
     '/admin-contact',
+    '/admin-availability',
     '/admin-studios/edit',
     '/admin-venues/edit',
     '/admin-cuisines/edit',
@@ -180,6 +182,7 @@ function AppContent() {
           <Route path="/admin-cuisines" element={<AdminCuisines />} />
           <Route path="/admin-venues" element={<AdminVenues />} />
           <Route path="/admin-contact" element={<AdminContact />} />
+          <Route path="/admin-availability" element={<AdminAvailability />} />
           <Route path="/admin-contact/:contactId" element={<ContactDetails/>}/>
           
           {/* Admin Edit Routes */}

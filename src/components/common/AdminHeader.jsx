@@ -2,7 +2,7 @@ import { useContext, useState, useEffect } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { AuthContext } from "../../context/AuthContext"
 import { toast } from "react-toastify"
-import { Menu, X, LayoutGrid, MapPin, UtensilsCrossed, Camera, Receipt, Inbox, LogOut } from "lucide-react"
+import { Menu, X, LayoutGrid, MapPin, UtensilsCrossed, Camera, Receipt, Inbox, LogOut, CalendarDays } from "lucide-react"
 
 const LINKS = [
   { path: "/admin", label: "Dashboard", icon: LayoutGrid, exact: true },
@@ -10,6 +10,7 @@ const LINKS = [
   { path: "/admin-venues", label: "Venues", icon: MapPin },
   { path: "/admin-cuisines", label: "Catering", icon: UtensilsCrossed },
   { path: "/admin-studios", label: "Studios", icon: Camera },
+  { path: "/admin-availability", label: "Availability", icon: CalendarDays },
   { path: "/admin-contact", label: "Enquiries", icon: Inbox },
 ]
 

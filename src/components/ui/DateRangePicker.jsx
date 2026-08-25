@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import Sheet, { CloseButton } from "./Sheet"
+import { toBS, formatBoth, BS_MONTHS } from "../../utils/nepaliDate"
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -15,8 +16,9 @@ const startOfDay = (d) => {
   return copy
 }
 
-const fmt = (d) =>
-  d ? d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : null
+/* Both calendars, because the date was agreed in one and stored in the
+   other. A family told "12 Mangsir" has to be able to see they picked it. */
+const fmt = (d) => (d ? formatBoth(d) : null)
 
 const nights = (from, till) =>
   Math.max(1, Math.round((startOfDay(till) - startOfDay(from)) / 86400000))
@@ -88,6 +90,17 @@ const DateRangePicker = ({
   // A hovered day previews the range before it is committed.
   const rangeEnd = till || (from && hovered && hovered > from ? hovered : null)
 
+  /* A Gregorian month straddles two BS months, so the heading names both when
+     they differ — otherwise half the grid would sit under the wrong label. */
+  const bsFirst = toBS(new Date(year, monthIndex, 1))
+  const bsLast = toBS(new Date(year, monthIndex + 1, 0))
+  const bsHeading =
+    bsFirst && bsLast
+      ? bsFirst.month === bsLast.month
+        ? `${BS_MONTHS[bsFirst.month - 1]} ${bsFirst.year}`
+        : `${BS_MONTHS[bsFirst.month - 1]}–${BS_MONTHS[bsLast.month - 1]} ${bsLast.year}`
+      : null
+
   const grid = (
     <>
       <div className="flex items-center justify-between">
@@ -99,9 +112,12 @@ const DateRangePicker = ({
         >
           <ChevronLeft className="h-4 w-4" strokeWidth={2} />
         </button>
-        <p className="t-body font-semibold text-ink">
-          {MONTHS[monthIndex]} <span className="amount font-normal text-ink-mute">{year}</span>
-        </p>
+        <div className="text-center">
+          <p className="t-body font-semibold text-ink">
+            {MONTHS[monthIndex]} <span className="amount font-normal text-ink-mute">{year}</span>
+          </p>
+          {bsHeading && <p className="t-caption text-ink-mute">{bsHeading}</p>}
+        </div>
         <button
           type="button"
           onClick={() => shiftMonth(1)}
@@ -152,13 +168,9 @@ const DateRangePicker = ({
                     ? "In the past"
                     : undefined
               }
-              aria-label={date.toLocaleDateString("en-GB", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              })}
+              aria-label={formatBoth(date)}
               aria-pressed={Boolean(isFrom || isTill)}
-              className={`relative mx-auto flex h-10 w-10 items-center justify-center t-small transition-colors
+              className={`relative mx-auto flex h-11 w-11 flex-col items-center justify-center leading-none t-small transition-colors
                 ${inRange ? "bg-crimson-50" : ""}
                 ${isFrom ? "rounded-l-md" : ""}
                 ${isTill ? "rounded-r-md" : ""}
@@ -171,6 +183,20 @@ const DateRangePicker = ({
                 }`}
             >
               <span className="amount">{i + 1}</span>
+              {/* The BS day, kept quiet: the grid is Gregorian, this is the
+                  cross-reference for someone working in Bikram Sambat. */}
+              {(() => {
+                const bs = toBS(date)
+                return bs ? (
+                  <span
+                    className={`amount mt-0.5 text-[9px] ${
+                      isFrom || isTill ? "text-white/70" : isDisabled ? "text-line-strong" : "text-ink-mute"
+                    }`}
+                  >
+                    {bs.day}
+                  </span>
+                ) : null
+              })()}
               {booking && readOnly && (
                 <span className="absolute bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-red-500" />
               )}
