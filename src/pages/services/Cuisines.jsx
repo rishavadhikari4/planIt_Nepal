@@ -169,7 +169,7 @@ const Cuisines = () => {
           searchTerm={searchTerm}
           onSearchTermChange={setSearchTerm}
           onSearch={() => load(1)}
-          placeholder="Search dishes by name or ingredient"
+          placeholder="Search dishes"
           sortValue={sort}
           onSortChange={setSort}
           sortOptions={SORTS}

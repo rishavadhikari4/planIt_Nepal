@@ -41,7 +41,7 @@ export const CatalogToolbar = ({
   children,
 }) => (
   <section className="sticky top-16 z-30 -mx-5 border-b border-line bg-paper/85 px-5 py-4 backdrop-blur-[10px] sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-    <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+    <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
       <div className="relative flex-1">
         <Search
           className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-mute"
@@ -89,30 +89,37 @@ export const CatalogToolbar = ({
 )
 
 /** A number range reads as two fields with one label, not two orphan inputs. */
-export const RangeFilter = ({ label, value, onChange, minPlaceholder = "Min", maxPlaceholder = "Max" }) => (
-  <div className="flex items-center gap-1.5" role="group" aria-label={label}>
+export const RangeFilter = ({ label, value, onChange }) => (
+  <div
+    className="flex items-center gap-2 rounded-md border border-line-strong bg-surface pl-3 transition-colors focus-within:border-crimson"
+    role="group"
+    aria-label={label}
+  >
+    {/* The label sits outside the inputs so the placeholders stay short enough
+        to actually read — "Price mi" was being truncated before. */}
+    <span className="shrink-0 t-caption text-ink-mute">{label}</span>
     <input
       type="number"
       inputMode="numeric"
       min="0"
-      placeholder={`${label} ${minPlaceholder.toLowerCase()}`}
+      placeholder="min"
       value={value.min}
       onChange={(e) => onChange({ ...value, min: e.target.value })}
-      className="field amount w-[7.5rem]"
-      aria-label={`${label} ${minPlaceholder.toLowerCase()}`}
+      className="amount h-[44px] w-20 border-0 bg-transparent p-0 text-ink outline-none placeholder:text-ink-mute"
+      aria-label={`Minimum ${label.toLowerCase()}`}
     />
-    <span className="text-ink-mute" aria-hidden>
+    <span className="text-line-strong" aria-hidden>
       –
     </span>
     <input
       type="number"
       inputMode="numeric"
       min="0"
-      placeholder={maxPlaceholder.toLowerCase()}
+      placeholder="max"
       value={value.max}
       onChange={(e) => onChange({ ...value, max: e.target.value })}
-      className="field amount w-[6rem]"
-      aria-label={`${label} ${maxPlaceholder.toLowerCase()}`}
+      className="amount h-[44px] w-20 border-0 bg-transparent p-0 pr-3 text-ink outline-none placeholder:text-ink-mute"
+      aria-label={`Maximum ${label.toLowerCase()}`}
     />
   </div>
 )

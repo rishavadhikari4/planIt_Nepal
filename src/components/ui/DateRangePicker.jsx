@@ -205,11 +205,6 @@ const DateRangePicker = ({
           {title}
         </h3>
         {grid}
-        {bookedDates.length === 0 && (
-          <p className="mt-4 t-small text-ink-mute">
-            Nothing is booked here yet — every date is free.
-          </p>
-        )}
       </div>
     )
   }

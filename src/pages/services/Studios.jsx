@@ -116,7 +116,7 @@ const Studios = () => {
           searchTerm={searchTerm}
           onSearchTermChange={setSearchTerm}
           onSearch={() => load(1)}
-          placeholder="Search studios by name or service"
+          placeholder="Search studios"
           sortValue={sort}
           onSortChange={setSort}
           sortOptions={SORTS}

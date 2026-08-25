@@ -112,53 +112,69 @@ const Home = () => {
 
   const hero = band[0]
   const payingImage = band[2]?.src || band[1]?.src || hero?.src
+  const occasionImage = band[1]?.src || band[0]?.src
   const stepImage = (i) =>
     i === 0 ? venues[0]?.venueImage : i === 2 ? studios[0]?.studioImage : venues[1]?.venueImage
 
   return (
     <div className="bg-paper">
-      {/* ======================= Hero ======================= */}
-      <section className="relative">
-        <div className="mx-auto max-w-7xl px-5 pt-16 sm:px-6 sm:pt-24 lg:px-8">
+      {/* ======================= Hero =======================
+          Full-bleed photography with the headline over it. The previous
+          version put a small type block beside a small picture and left a
+          void between them; an event planner has to lead with the room. */}
+      <section className="relative isolate h-[86vh] min-h-[560px] w-full overflow-hidden bg-crimson-deep">
+        {hero ? (
+          <motion.div
+            className="absolute inset-0"
+            style={reduced ? undefined : { y: heroY, scale: heroScale }}
+          >
+            <motion.img
+              src={hero.src}
+              alt=""
+              initial={reduced ? false : { scale: 1.18, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 2, ease: EASE }}
+              className="h-full w-full object-cover"
+            />
+          </motion.div>
+        ) : (
+          <div className="absolute inset-0 bg-crimson-deep" />
+        )}
+
+        {/* Weighted low and left so the type sits on the darkest part. */}
+        <div className="absolute inset-0 bg-gradient-to-t from-crimson-deep via-crimson-deep/55 to-crimson-deep/10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-crimson-deep/80 via-crimson-deep/25 to-transparent" />
+
+        <div className="relative mx-auto flex h-full max-w-7xl flex-col justify-end px-5 pb-14 sm:px-6 sm:pb-20 lg:px-8">
           <motion.p
-            className="eyebrow"
+            className="t-overline text-brass-lift"
             initial={reduced ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.7, delay: 0.15 }}
+            transition={{ duration: 0.8, delay: 0.35 }}
           >
             Weddings &amp; events · Nepal
           </motion.p>
 
-          {/* The emotional line first, the concrete promise underneath it. An
-              event planner sells the day; the ordering is what sells the tool. */}
           <RevealLines
             as="h1"
             inView={false}
-            delay={0.28}
-            className="mt-8 max-w-[13ch] t-hero"
+            delay={0.5}
+            className="mt-6 max-w-[14ch] t-hero text-white"
             lines={["Some days you", "only get once."]}
           />
 
-          <span className="thread-draw mt-9 block h-px w-28 bg-brass" />
-
-          <div className="mt-9 grid gap-8 sm:grid-cols-[minmax(0,46ch)_auto] sm:items-end sm:justify-between sm:gap-12">
-            <motion.p
-              className="t-lead text-ink-soft"
-              initial={reduced ? false : { opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, ease: EASE, delay: 0.72 }}
-            >
+          <motion.div
+            className="mt-8 grid max-w-4xl gap-7 sm:grid-cols-[minmax(0,44ch)_auto] sm:items-end sm:gap-12"
+            initial={reduced ? false : { opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: EASE, delay: 1 }}
+          >
+            <p className="t-lead text-white/75">
               The venue, the food and the camera — arranged on one order, with real prices and real
-              availability. Hold your dates with a quarter down and settle with Khalti, Fonepay, or
-              cash after the day itself.
-            </motion.p>
+              availability across Nepal.
+            </p>
 
-            <motion.div
-              className="flex flex-wrap items-center gap-3"
-              initial={reduced ? false : { opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, ease: EASE, delay: 0.84 }}
-            >
+            <div className="flex flex-wrap items-center gap-3">
               <Magnetic>
                 {isAuthenticated && isCustomer ? (
                   <button onClick={() => setShowRecommendations(true)} className="btn btn-accent px-7">
@@ -175,180 +191,138 @@ const Home = () => {
                   </button>
                 )}
               </Magnetic>
-              <button onClick={() => navigate("/cuisines")} className="btn btn-ghost">
+              <button
+                onClick={() => navigate("/cuisines")}
+                className="btn border-white/30 bg-transparent text-white transition-colors duration-300 hover:border-white/60 hover:bg-white/10"
+              >
                 Browse catering
               </button>
-            </motion.div>
-          </div>
-        </div>
-
-        {/* ---------- The plate, and the plan card beside it ---------- */}
-        <div className="mx-auto max-w-7xl px-5 pt-14 sm:px-6 sm:pt-20 lg:px-8">
-          <div className="grid gap-6 lg:grid-cols-[1.45fr_1fr] lg:items-start lg:gap-8">
-            <motion.div style={reduced ? undefined : { opacity: heroFade }}>
-              {hero ? (
-                <button
-                  onClick={() => navigate(hero.to)}
-                  className="plate group block aspect-[4/3] w-full sm:aspect-[16/10]"
-                  aria-label={`View ${hero.label}`}
-                >
-                  <motion.div
-                    className="h-full w-full"
-                    style={reduced ? undefined : { y: heroY, scale: heroScale }}
-                  >
-                    <ImageReveal
-                      eager
-                      src={hero.src}
-                      className="h-full w-full"
-                      imgClassName="transition-transform duration-[1400ms] ease-out group-hover:scale-[1.04]"
-                      delay={0.45}
-                    />
-                  </motion.div>
-
-                  <span className="absolute inset-x-0 bottom-0 z-10 flex items-end justify-between gap-4 bg-gradient-to-t from-crimson-deep/90 via-crimson-deep/40 to-transparent p-5 pt-20 text-left sm:p-7 sm:pt-28">
-                    <span className="min-w-0">
-                      <span className="t-overline text-brass-lift">Now on PlanIt</span>
-                      <span className="mt-2 block truncate font-display t-title text-white">
-                        {hero.label}
-                      </span>
-                      {hero.sub && (
-                        <span className="mt-0.5 block truncate t-small text-white/60">{hero.sub}</span>
-                      )}
-                    </span>
-                    <ArrowUpRight
-                      className="hidden h-5 w-5 shrink-0 text-white/60 transition-all duration-300 group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-brass-lift sm:block"
-                      strokeWidth={1.75}
-                    />
-                  </span>
-                </button>
-              ) : (
-                <div className="plate flex aspect-[4/3] w-full items-center justify-center bg-crimson-deep sm:aspect-[16/10]">
-                  <p className="font-display t-display text-white/12">PlanIt Nepal</p>
-                </div>
-              )}
-            </motion.div>
-
-            {/* ---------- The plan card: the signature ---------- */}
-            <motion.div
-              initial={reduced ? false : { opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, ease: EASE, delay: 0.6 }}
-            >
-              <div className="card overflow-hidden">
-                <div className="flex items-baseline justify-between border-b border-line px-5 py-4">
-                  <h2 className="t-overline text-ink-mute">Your plan</h2>
-                  <span className="amount t-caption text-ink-mute">{filled} of 3 chosen</span>
-                </div>
-
-                <div className="divide-y divide-line">
-                  {STEPS.map((step, i) => {
-                    const chosen = slotFor(step)
-                    return (
-                      <motion.button
-                        key={step.step}
-                        onClick={() => navigate(step.path)}
-                        initial={reduced ? false : { opacity: 0, x: -12 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.7, ease: EASE, delay: 0.8 + i * 0.1 }}
-                        className="group flex w-full items-center gap-4 px-5 py-5 text-left transition-colors duration-300 hover:bg-gray-50"
-                      >
-                        <span
-                          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border t-caption transition-colors duration-300 ${
-                            chosen
-                              ? "border-crimson bg-crimson text-white"
-                              : "border-line-strong font-mono text-ink-mute group-hover:border-brass group-hover:text-brass-deep"
-                          }`}
-                        >
-                          {chosen ? <Check className="h-3.5 w-3.5" strokeWidth={2.5} /> : step.step}
-                        </span>
-
-                        <span className="min-w-0 flex-1">
-                          <span className="block t-body font-semibold text-ink">{step.label}</span>
-                          <span
-                            className={`block truncate t-small ${chosen ? "text-ink-soft" : "text-ink-mute"}`}
-                          >
-                            {chosen || "Nothing chosen yet"}
-                          </span>
-                        </span>
-
-                        <ArrowUpRight
-                          className="h-4 w-4 shrink-0 text-line-strong transition-all duration-300 group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-brass"
-                          strokeWidth={2}
-                        />
-                      </motion.button>
-                    )
-                  })}
-                </div>
-
-                <div className="border-t border-line bg-gray-50 px-5 py-4">
-                  <div className="flex items-baseline justify-between">
-                    <span className="t-small text-ink-soft">Running total</span>
-                    <span className="amount t-heading text-ink">
-                      Rs {total.toLocaleString("en-IN")}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => navigate(cartItems.length ? "/cart" : "/venues")}
-                    className="btn btn-primary group mt-4 w-full"
-                  >
-                    {cartItems.length ? "Review and pay" : "Start with a venue"}
-                    <ArrowRight
-                      className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
-                      strokeWidth={2}
-                    />
-                  </button>
-                  <p className="mt-3 text-center t-caption text-ink-mute">
-                    Nothing is charged until you choose how to pay.
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-
-        {/* ---------- Live inventory band ---------- */}
-        {band.length > 0 && (
-          <motion.div
-            initial={reduced ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1.2, delay: 1 }}
-            className="relative mt-20 border-y border-line bg-surface py-5 sm:mt-28"
-          >
-            <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-paper to-transparent sm:w-28" />
-            <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-paper to-transparent sm:w-28" />
-
-            <Marquee speed={38} gap="1rem" className="px-2">
-              {band.map((item) => (
-                <button
-                  key={item.label}
-                  onClick={() => navigate(item.to)}
-                  className="group relative h-40 w-64 shrink-0 overflow-hidden rounded-lg border border-line sm:h-48 sm:w-80"
-                >
-                  <img
-                    src={item.src}
-                    alt=""
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-110"
-                  />
-                  <span className="absolute inset-0 bg-crimson-deep/0 transition-colors duration-500 group-hover:bg-crimson-deep/25" />
-                  <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-crimson-deep/85 to-transparent p-3 text-left">
-                    <span className="block truncate t-small font-semibold text-white">
-                      {item.label}
-                    </span>
-                    {item.sub && (
-                      <span className="block truncate t-caption text-white/70">{item.sub}</span>
-                    )}
-                  </span>
-                </button>
-              ))}
-            </Marquee>
+            </div>
           </motion.div>
-        )}
+
+          {hero && (
+            <motion.button
+              onClick={() => navigate(hero.to)}
+              initial={reduced ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 1.4 }}
+              className="group mt-10 inline-flex w-fit items-center gap-2.5 border-t border-white/20 pt-4 text-left t-caption text-white/50 transition-colors duration-300 hover:text-white/80"
+            >
+              <span className="t-overline">Pictured</span>
+              <span className="t-small text-white/80">{hero.label}</span>
+              <ArrowUpRight
+                className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                strokeWidth={2}
+              />
+            </motion.button>
+          )}
+        </div>
       </section>
+
+      {/* ---------- The plan card, lifted onto the fold ---------- */}
+      <section className="relative z-10 mx-auto -mt-16 max-w-7xl px-5 sm:px-6 lg:px-8">
+        <div className="grid gap-6 lg:grid-cols-[1fr_420px] lg:items-end">
+          <div className="hidden lg:block" />
+          <motion.div
+            initial={reduced ? false : { opacity: 0, y: 28 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: EASE, delay: 1.1 }}
+          >
+            <div className="card overflow-hidden shadow-xl">
+              <div className="flex items-baseline justify-between border-b border-line px-5 py-4">
+                <h2 className="t-overline text-ink-mute">Your plan</h2>
+                <span className="amount t-caption text-ink-mute">{filled} of 3 chosen</span>
+              </div>
+
+              <div className="divide-y divide-line">
+                {STEPS.map((step) => {
+                  const chosen = slotFor(step)
+                  return (
+                    <button
+                      key={step.step}
+                      onClick={() => navigate(step.path)}
+                      className="group flex w-full items-center gap-4 px-5 py-4 text-left transition-colors duration-300 hover:bg-gray-50"
+                    >
+                      <span
+                        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border t-caption transition-colors duration-300 ${
+                          chosen
+                            ? "border-crimson bg-crimson text-white"
+                            : "border-line-strong font-mono text-ink-mute group-hover:border-brass group-hover:text-brass-deep"
+                        }`}
+                      >
+                        {chosen ? <Check className="h-3.5 w-3.5" strokeWidth={2.5} /> : step.step}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block t-body font-semibold text-ink">{step.label}</span>
+                        <span
+                          className={`block truncate t-small ${chosen ? "text-ink-soft" : "text-ink-mute"}`}
+                        >
+                          {chosen || "Nothing chosen yet"}
+                        </span>
+                      </span>
+                      <ArrowUpRight
+                        className="h-4 w-4 shrink-0 text-line-strong transition-all duration-300 group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-brass"
+                        strokeWidth={2}
+                      />
+                    </button>
+                  )
+                })}
+              </div>
+
+              <div className="border-t border-line bg-gray-50 px-5 py-4">
+                <div className="flex items-baseline justify-between">
+                  <span className="t-small text-ink-soft">Running total</span>
+                  <span className="amount t-heading text-ink">Rs {total.toLocaleString("en-IN")}</span>
+                </div>
+                <button
+                  onClick={() => navigate(cartItems.length ? "/cart" : "/venues")}
+                  className="btn btn-primary group mt-4 w-full"
+                >
+                  {cartItems.length ? "Review and pay" : "Start with a venue"}
+                  <ArrowRight
+                    className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+                    strokeWidth={2}
+                  />
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ---------- Live inventory band ---------- */}
+      {band.length > 0 && (
+        <div className="relative mt-16 border-y border-line bg-surface py-6 sm:mt-20">
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-20 bg-gradient-to-r from-paper to-transparent sm:w-32" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-20 bg-gradient-to-l from-paper to-transparent sm:w-32" />
+
+          <Marquee speed={34} gap="1.25rem" className="px-2">
+            {band.map((item) => (
+              <button
+                key={item.label}
+                onClick={() => navigate(item.to)}
+                className="group relative h-52 w-72 shrink-0 overflow-hidden rounded-lg border border-line sm:h-64 sm:w-96"
+              >
+                <img
+                  src={item.src}
+                  alt=""
+                  loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-[1100ms] ease-out group-hover:scale-110"
+                />
+                <span className="absolute inset-0 bg-crimson-deep/0 transition-colors duration-500 group-hover:bg-crimson-deep/25" />
+                <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-crimson-deep/90 to-transparent p-4 pt-12 text-left">
+                  <span className="block truncate t-body font-semibold text-white">{item.label}</span>
+                  {item.sub && <span className="block truncate t-caption text-white/65">{item.sub}</span>}
+                </span>
+              </button>
+            ))}
+          </Marquee>
+        </div>
+      )}
 
       {/* ======================= Occasions ======================= */}
       <section className="mx-auto max-w-7xl px-5 py-20 sm:px-6 sm:py-28 lg:px-8">
-        <Stagger className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
+        <Stagger className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-start lg:gap-20">
           <div>
             <Item as="p" className="eyebrow">
               What we run
@@ -377,6 +351,22 @@ const Home = () => {
                 <p className="mt-1 t-caption text-ink-mute">Holds your dates</p>
               </div>
             </Item>
+
+            {/* The list opposite runs longer than this column; a photograph
+                carries the rest of the height rather than leaving a void. */}
+            {occasionImage && (
+              <Item className="mt-10 hidden lg:block">
+                <Parallax distance={20}>
+                  <div className="plate aspect-[4/5] w-full">
+                    <ImageReveal
+                      src={occasionImage}
+                      className="h-full w-full"
+                      imgClassName="transition-transform duration-[1600ms] ease-out hover:scale-[1.04]"
+                    />
+                  </div>
+                </Parallax>
+              </Item>
+            )}
           </div>
 
           <Item as="ul" className="divide-y divide-line border-y border-line">
@@ -418,7 +408,7 @@ const Home = () => {
             </h2>
           </Reveal>
 
-          <div className="mt-16 space-y-16 sm:mt-24 sm:space-y-28">
+          <div className="mt-14 space-y-14 sm:mt-16 sm:space-y-16">
             {STEPS.map((step, i) => {
               const image = stepImage(i)
               const flip = i % 2 === 1
@@ -426,14 +416,14 @@ const Home = () => {
                 <Stagger
                   key={step.step}
                   as="article"
-                  className="grid items-center gap-8 sm:gap-12 lg:grid-cols-2 lg:gap-20"
+                  className="grid items-center gap-8 sm:gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16"
                 >
                   <Item className={flip ? "lg:order-2" : ""}>
                     <Parallax distance={26}>
                       <button
                         onClick={() => navigate(step.path)}
                         aria-label={`Browse ${step.label.toLowerCase()}`}
-                        className="plate group block aspect-[5/4] w-full"
+                        className="plate group block aspect-[4/3] w-full sm:aspect-[4/3]"
                       >
                         {image ? (
                           <ImageReveal
@@ -551,7 +541,7 @@ const Home = () => {
       {/* ======================= Contact ======================= */}
       <section className="border-t border-line">
         <div className="mx-auto max-w-7xl px-5 py-20 sm:px-6 sm:py-28 lg:px-8">
-          <Stagger className="grid gap-12 lg:grid-cols-2 lg:gap-20">
+          <Stagger className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
             <div>
               <Item as="p" className="eyebrow">
                 Talk to us

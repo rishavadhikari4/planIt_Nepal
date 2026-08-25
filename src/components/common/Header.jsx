@@ -40,6 +40,15 @@ const Header = () => {
   const onProfile = pathname.startsWith("/user-profile")
   const onCart = pathname === "/cart"
 
+  /* Home opens on a full-bleed photograph, so there the bar overlays the image
+     (fixed) and is transparent until you scroll. Everywhere else it is a normal
+     sticky bar in the flow — otherwise a fixed header would sit on top of the
+     first line of every other page. */
+  const heroRoute =
+    pathname === "/" ||
+    /^\/(venues|studios)\/[^/]+$/.test(pathname)
+  const overHero = heroRoute && !lifted
+
   const cartCount = cartItems.reduce(
     (n, item) => n + (item.type === "dish" ? item.quantity || 1 : 1),
     0,
@@ -87,13 +96,17 @@ const Header = () => {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full bg-paper/85 backdrop-blur-[10px] transition-[border-color,box-shadow] duration-500 ${
-        lifted ? "border-b border-line shadow-[var(--shadow-sm)]" : "border-b border-transparent"
+      className={`${heroRoute ? "fixed" : "sticky"} top-0 z-50 w-full transition-[background-color,border-color,box-shadow,backdrop-filter] duration-500 ${
+        overHero
+          ? "border-b border-transparent bg-transparent"
+          : lifted
+            ? "border-b border-line bg-paper/85 shadow-[var(--shadow-sm)] backdrop-blur-[10px]"
+            : "border-b border-line bg-paper"
       }`}
     >
       <div
         className={`mx-auto flex max-w-7xl items-center gap-4 px-5 transition-[height] duration-500 sm:px-6 lg:px-8 ${
-          lifted ? "h-16" : "h-20"
+          overHero ? "h-20" : "h-16"
         }`}
       >
         {/* Wordmark */}
@@ -115,12 +128,20 @@ const Header = () => {
               aria-current={isActive(path) ? "page" : undefined}
               className={`relative px-3 py-2 t-small font-medium no-underline transition-colors duration-300 ${
                 isActive(path)
-                  ? "text-ink"
-                  : "text-ink-mute hover:text-ink"
+                  ? overHero
+                    ? "text-white"
+                    : "text-ink"
+                  : overHero
+                    ? "text-white/60 hover:text-white"
+                    : "text-ink-mute hover:text-ink"
               }`}
             >
               {step && (
-                <span className="mr-1.5 font-mono t-caption tracking-widest text-line-strong">
+                <span
+                  className={`mr-1.5 font-mono t-caption tracking-widest ${
+                    overHero ? "text-white/35" : "text-line-strong"
+                  }`}
+                >
                   {step}
                 </span>
               )}
@@ -142,10 +163,12 @@ const Header = () => {
             to="/cart"
             onClick={guardCart}
             aria-label={`Cart, ${cartCount} ${cartCount === 1 ? "item" : "items"}`}
-            className={`relative flex h-10 items-center gap-2 rounded-md px-3 no-underline transition-colors ${
-              onCart
-                ? "bg-gray-100 text-ink"
-                : "text-ink-soft hover:bg-gray-100 hover:text-ink"
+            className={`relative flex h-10 items-center gap-2 rounded-md px-3 no-underline transition-colors duration-300 ${
+              overHero
+                ? "text-white/75 hover:bg-white/10 hover:text-white"
+                : onCart
+                  ? "bg-gray-100 text-ink"
+                  : "text-ink-soft hover:bg-gray-100 hover:text-ink"
             }`}
           >
             <ShoppingBag className="h-[18px] w-[18px]" strokeWidth={1.75} />
@@ -167,7 +190,9 @@ const Header = () => {
                 className={`flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border transition-colors ${
                   onProfile || accountOpen
                     ? "border-crimson bg-crimson text-white"
-                    : "border-line-strong bg-white text-ink-soft hover:border-ink-mute"
+                    : overHero
+                      ? "border-white/35 bg-white/10 text-white hover:border-white/70"
+                      : "border-line-strong bg-white text-ink-soft hover:border-ink-mute"
                 }`}
               >
                 {user.profileImage ? (
@@ -216,7 +241,14 @@ const Header = () => {
               </AnimatePresence>
             </div>
           ) : (
-            <Link to="/login" className="btn btn-primary ml-1 h-10 no-underline">
+            <Link
+              to="/login"
+              className={`btn ml-1 h-10 no-underline ${
+                overHero
+                  ? "border-white/35 bg-white/10 text-white backdrop-blur-sm hover:border-white/70 hover:bg-white/20"
+                  : "btn-primary"
+              }`}
+            >
               Log in
             </Link>
           )}
@@ -227,7 +259,9 @@ const Header = () => {
             onClick={() => setMenuOpen((v) => !v)}
             aria-expanded={menuOpen}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
-            className="ml-1 flex h-10 w-10 items-center justify-center rounded-md text-ink-soft hover:bg-gray-100 lg:hidden"
+            className={`ml-1 flex h-10 w-10 items-center justify-center rounded-md transition-colors duration-300 lg:hidden ${
+              overHero ? "text-white hover:bg-white/10" : "text-ink-soft hover:bg-gray-100"
+            }`}
           >
             {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>

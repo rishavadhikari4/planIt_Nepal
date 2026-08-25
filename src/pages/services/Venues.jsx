@@ -122,7 +122,7 @@ const Venues = () => {
           searchTerm={searchTerm}
           onSearchTermChange={setSearchTerm}
           onSearch={() => load(1)}
-          placeholder="Search venues by name or area"
+          placeholder="Search venues"
           sortValue={sort}
           onSortChange={setSort}
           sortOptions={SORTS}
