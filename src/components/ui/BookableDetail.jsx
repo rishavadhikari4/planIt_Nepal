@@ -6,6 +6,7 @@ import { toast } from "react-toastify"
 import { useCart } from "../../context/CartContext"
 import { useFavorites } from "../../context/FavoritesContext"
 import DateRangePicker from "./DateRangePicker"
+import ItemReviews from "./ItemReviews"
 import { EASE, Reveal, Stagger, Item, Magnetic } from "./Motion"
 import { img, SIZES } from "../../utils/image"
 
@@ -279,6 +280,7 @@ const BookableDetail = ({
               </div>
             </Reveal>
 
+            <ItemReviews itemType={noun} itemId={id} itemName={item.name} />
           </div>
 
           {/* ---------- Booking panel ---------- */}
