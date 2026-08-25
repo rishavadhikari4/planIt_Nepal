@@ -25,6 +25,7 @@ import StudioDetails from './pages/services/StudioDetails';
 import Cart from './pages/user/Cart';
 import UserProfile from './pages/user/Profile';
 import PaymentSelection from './pages/user/PaymentSelection';
+import PaymentCallback from './pages/user/PaymentCallback';
 import OrderSuccess from './pages/user/OrderSuccess';
 
 // Admin pages
@@ -117,6 +118,8 @@ function AppContent() {
           <Route path="/login/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:resetToken" element={<ResetPassword />} />
           <Route path="/user-profile/:id" element={<UserProfile />} />
+          {/* Khalti and Fonepay both return the customer here. */}
+          <Route path="/payment/callback" element={<PaymentCallback />} />
           <Route path="/payment/:orderId" element={<PaymentSelection />} />
           <Route path="/order-success" element={<OrderSuccess />} />
 

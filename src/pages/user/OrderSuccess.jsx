@@ -1,260 +1,208 @@
-import React, { useEffect, useState } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { FaCheckCircle, FaSpinner, FaArrowRight } from 'react-icons/fa'
-import { MdEmail, MdPhone, MdLocationOn, MdSchedule } from 'react-icons/md'
+import { useContext, useEffect, useState } from "react"
+import { useNavigate, useLocation } from "react-router-dom"
+import { motion } from "framer-motion"
+import { ArrowRight, Check, Mail, Phone } from "lucide-react"
+import { AuthContext } from "../../context/AuthContext"
+
+const rs = (n) => `Rs ${Number(n || 0).toLocaleString("en-IN")}`
+
+const PAYMENT_LABEL = {
+  cash_after_service: "Cash after service",
+  advance_payment: "Advance payment",
+  full_payment: "Paid in full",
+}
+
+const PROVIDER_LABEL = { khalti: "Khalti", fonepay: "Fonepay", cash: "Cash" }
 
 function OrderSuccess() {
   const navigate = useNavigate()
-  const location = useLocation()
-  const [countdown, setCountdown] = useState(5)
-  const [orderData, setOrderData] = useState(null)
+  const { state } = useLocation()
+  const { user } = useContext(AuthContext)
+  const [data, setData] = useState(null)
 
-  // Get order data from location state
   useEffect(() => {
-    if (location.state?.orderData) {
-      setOrderData(location.state.orderData)
-    }
-  }, [location.state])
+    if (state?.orderData) setData(state.orderData)
+  }, [state])
 
-  // Countdown timer
-  useEffect(() => {
-    if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000)
-      return () => clearTimeout(timer)
-    } else {
-      navigate('/', {
-        state: {
-          message: 'Order confirmed successfully!',
-          orderId: orderData?.orderId || orderData?.order?._id,
-          showSuccessMessage: true
-        }
-      })
-    }
-  }, [countdown, navigate, orderData])
+  const order = data?.order
+  const orderId = data?.orderId || order?._id
+  const paid = order?.paidAmount || 0
+  const remaining = order?.remainingAmount ?? (order ? order.totalAmount - paid : 0)
+  const cash = order?.paymentType === "cash_after_service"
 
-  const handleGoToDashboard = () => {
-    navigate('/', {
-      state: {
-        message: 'Order confirmed successfully!',
-        orderId: orderData?.orderId || orderData?.order?._id,
-        showSuccessMessage: true
-      }
-    })
+  const goToOrders = () => {
+    const id = user?._id || user?.id
+    navigate(id ? `/user-profile/${id}` : "/")
   }
 
-  const getPaymentTypeText = (paymentType) => {
-    switch (paymentType) {
-      case 'cash_after_service':
-        return 'Cash After Service'
-      case 'advance_payment':
-        return 'Advance Payment (25%)'
-      case 'full_payment':
-        return 'Full Payment'
-      default:
-        return 'Payment Pending'
-    }
-  }
+  /* What actually happens next depends on how they paid. Saying "we'll call
+     you" to someone who owes nothing is noise; saying nothing to someone who
+     owes Rs 90,000 on the day is worse. */
+  const next = cash
+    ? [
+        ["Confirmation email", "Your booking details are on the way to your inbox."],
+        ["We call to confirm", "A planner rings within 24 hours to run through the details."],
+        ["Pay on completion", `${rs(order?.totalAmount)} is collected once the event is done.`],
+      ]
+    : remaining > 0
+      ? [
+          ["Receipt emailed", "Your payment receipt and booking details are on the way."],
+          ["Dates are held", "Your venue and studio dates are locked in against this order."],
+          ["Balance after the event", `${rs(remaining)} is collected once the event is done.`],
+        ]
+      : [
+          ["Receipt emailed", "Your payment receipt and booking details are on the way."],
+          ["Dates are held", "Your venue and studio dates are locked in against this order."],
+          ["Nothing left to pay", "The order is settled in full."],
+        ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 flex items-center justify-center p-4">
-      <motion.div
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: "spring", duration: 0.6 }}
-        className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8 max-w-2xl w-full text-center"
-      >
-        {/* Success Icon */}
+    <div className="min-h-screen bg-paper">
+      <div className="mx-auto max-w-3xl px-5 py-16 sm:px-6 sm:py-24 lg:px-8">
         <motion.div
-          initial={{ scale: 0, rotate: -180 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ delay: 0.2, type: "spring", duration: 0.8 }}
-          className="mb-6"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
         >
-          <div className="w-20 h-20 mx-auto bg-gradient-to-r from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-lg">
-            <FaCheckCircle className="text-4xl text-white" />
-          </div>
-        </motion.div>
+          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-pine">
+            <Check className="h-5 w-5 text-white" strokeWidth={2.5} />
+          </span>
 
-        {/* Success Message */}
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.4 }}
-        >
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent mb-2">
-            🎉 Order Confirmed Successfully!
+          <h1 className="mt-7 text-[36px] sm:text-[44px]">
+            {cash ? "Your booking is confirmed." : "Payment received."}
           </h1>
-          <p className="text-gray-600 text-lg mb-6">
-            Thank you for choosing us for your special day!
+          <p className="mt-4 max-w-[52ch] text-[16.5px] leading-relaxed text-ink-soft">
+            {cash
+              ? "Everything on this order is held for you. We collect payment once the event is over."
+              : remaining > 0
+                ? "Your dates are held. The balance is collected after the event."
+                : "Everything is settled — nothing more to pay."}
           </p>
         </motion.div>
 
-        {/* Order Details */}
-        {orderData && (
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl p-6 mb-6 text-left"
-          >
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">Order Summary</h3>
-            
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-blue-600 font-bold text-sm">#</span>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Order ID</p>
-                    <p className="font-mono text-sm font-semibold">
-                      #{(orderData.orderId || orderData.order?._id)?.slice(-8).toUpperCase()}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                    <span className="text-green-600 font-bold text-sm">Rs </span>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Total Amount</p>
-                    <p className="text-lg font-bold text-green-600">
-                     Rs {(orderData.order?.totalAmount || orderData.totalAmount)?.toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                    <span className="text-purple-600 font-bold text-sm">💳</span>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Payment Method</p>
-                    <p className="text-sm font-semibold">
-                      {getPaymentTypeText(orderData.order?.paymentType || orderData.paymentType)}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                    <MdSchedule className="text-orange-600 text-sm" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Order Date</p>
-                    <p className="text-sm font-semibold">
-                      {new Date().toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* What happens next */}
+        {/* ---------------- The receipt ---------------- */}
         <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 mb-6"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.08, ease: "easeOut" }}
+          className="card mt-12 overflow-hidden"
         >
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center justify-center">
-            <span className="mr-2">✨</span>
-            What happens next?
-          </h3>
-          <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-700">
-            <div className="flex items-start space-x-3">
-              <MdEmail className="text-blue-600 mt-1 flex-shrink-0" />
-              <div>
-                <p className="font-medium">Email Confirmation</p>
-                <p className="text-xs">Order details sent to your email</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-3">
-              <MdPhone className="text-green-600 mt-1 flex-shrink-0" />
-              <div>
-                <p className="font-medium">Team Contact</p>
-                <p className="text-xs">Our team will call you within 24 hours</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-3">
-              <MdSchedule className="text-purple-600 mt-1 flex-shrink-0" />
-              <div>
-                <p className="font-medium">Order Tracking</p>
-                <p className="text-xs">Monitor progress in your profile</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-3">
-              <MdLocationOn className="text-orange-600 mt-1 flex-shrink-0" />
-              <div>
-                <p className="font-medium">Service Delivery</p>
-                <p className="text-xs">On-time delivery as scheduled</p>
-              </div>
-            </div>
+          <div className="flex items-baseline justify-between border-b border-line px-5 py-4">
+            <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-mute">
+              Receipt
+            </h2>
+            <span className="amount text-[12px] text-ink-mute">
+              {orderId ? `#${orderId.slice(-8).toUpperCase()}` : "—"}
+            </span>
           </div>
+
+          <dl className="divide-y divide-line">
+            {[
+              ["Order total", rs(order?.totalAmount)],
+              [
+                "Paid",
+                cash ? "Nothing yet" : rs(paid),
+              ],
+              [
+                cash ? "Due after the event" : "Remaining",
+                cash ? rs(order?.totalAmount) : remaining > 0 ? rs(remaining) : "Rs 0",
+              ],
+              [
+                "Method",
+                data?.provider
+                  ? PROVIDER_LABEL[data.provider] || data.provider
+                  : PAYMENT_LABEL[order?.paymentType] || "—",
+              ],
+              [
+                "Date",
+                new Date().toLocaleDateString("en-GB", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                }),
+              ],
+              ...(order?.paymentTransactionId
+                ? [["Transaction", order.paymentTransactionId]]
+                : []),
+            ].map(([label, value]) => (
+              <div key={label} className="flex items-baseline justify-between gap-4 px-5 py-3.5">
+                <dt className="text-[14px] text-ink-soft">{label}</dt>
+                <dd className="amount truncate text-[14.5px] text-ink">{value}</dd>
+              </div>
+            ))}
+          </dl>
+
+          {order?.items?.length > 0 && (
+            <div className="border-t border-line px-5 py-4">
+              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-mute">
+                Booked
+              </p>
+              <ul className="mt-3 space-y-1.5">
+                {order.items.map((item, i) => (
+                  <li
+                    key={item._id || i}
+                    className="flex items-baseline justify-between gap-4 text-[14px]"
+                  >
+                    <span className="truncate text-ink">
+                      {item.name}
+                      <span className="text-ink-mute"> · {item.itemType}</span>
+                    </span>
+                    <span className="amount shrink-0 text-ink-soft">
+                      {rs(item.price * item.quantity)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </motion.div>
 
-        {/* Action Buttons */}
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 1.0 }}
-          className="space-y-4"
-        >
-          <button
-            onClick={handleGoToDashboard}
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
-          >
-            <span>Go to Dashboard</span>
-            <FaArrowRight className="ml-2" />
+        {/* ---------------- What happens next ---------------- */}
+        <section className="mt-12">
+          <h2 className="eyebrow">What happens next</h2>
+          <ol className="mt-6 divide-y divide-line border-y border-line">
+            {next.map(([title, body], i) => (
+              <li key={title} className="flex gap-4 py-4">
+                <span className="amount w-6 shrink-0 pt-0.5 text-[12px] font-semibold text-marigold-deep">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span>
+                  <span className="block text-[15px] font-semibold text-ink">{title}</span>
+                  <span className="mt-0.5 block text-[14px] leading-relaxed text-ink-soft">{body}</span>
+                </span>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <div className="mt-10 flex flex-wrap gap-3">
+          <button onClick={goToOrders} className="btn btn-primary">
+            View this order
+            <ArrowRight className="h-4 w-4" strokeWidth={2} />
           </button>
+          <button onClick={() => navigate("/")} className="btn btn-ghost">
+            Back to home
+          </button>
+        </div>
 
-          <div className="text-center">
-            <p className="text-sm text-gray-600 mb-2">
-              Automatically redirecting to dashboard in
-            </p>
-            <div className="flex items-center justify-center space-x-2">
-              <motion.div
-                key={countdown}
-                initial={{ scale: 1.2 }}
-                animate={{ scale: 1 }}
-                className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold"
-              >
-                {countdown}
-              </motion.div>
-              <span className="text-sm text-gray-600">seconds</span>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Support Info */}
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 1.2 }}
-          className="mt-6 pt-6 border-t border-gray-200"
-        >
-          <p className="text-xs text-gray-500 mb-2">Need help with your order?</p>
-          <div className="flex justify-center space-x-4 text-xs">
-            <a href="mailto:support@weddingplanner.com" className="text-blue-600 hover:text-blue-700 transition-colors">
-              📧 Email Support
-            </a>
-            <span className="text-gray-300">•</span>
-            <a href="tel:+1234567890" className="text-blue-600 hover:text-blue-700 transition-colors">
-              📞 Call Support
-            </a>
-          </div>
-        </motion.div>
-      </motion.div>
+        <div className="mt-14 flex flex-wrap gap-x-8 gap-y-3 border-t border-line pt-6 text-[13.5px]">
+          <span className="text-ink-mute">Something wrong with this order?</span>
+          <a
+            href="mailto:contact@planitnepal.com"
+            className="inline-flex items-center gap-1.5 text-pine no-underline hover:underline"
+          >
+            <Mail className="h-3.5 w-3.5" strokeWidth={1.75} />
+            contact@planitnepal.com
+          </a>
+          <a
+            href="tel:+9779876543345"
+            className="inline-flex items-center gap-1.5 text-pine no-underline hover:underline"
+          >
+            <Phone className="h-3.5 w-3.5" strokeWidth={1.75} />
+            +977 987 654 3345
+          </a>
+        </div>
+      </div>
     </div>
   )
 }

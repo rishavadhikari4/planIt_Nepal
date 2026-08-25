@@ -1,365 +1,355 @@
-import React, { useState, useContext, useEffect } from 'react'
-import { useNavigate, useParams, useLocation } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { FaCreditCard, FaMoneyBill, FaArrowLeft, FaCheckCircle, FaSpinner } from 'react-icons/fa'
-import { CartContext } from '../../context/CartContext'
-import { AuthContext } from '../../context/AuthContext'
-import { toast } from 'react-toastify'
-import { startPayment } from '../../services/payments'
-import { getOrderById } from '../../services/orders'
+import { useState, useContext, useEffect } from "react"
+import { useNavigate, useParams } from "react-router-dom"
+import { ArrowLeft, ArrowRight, Check, ShieldCheck } from "lucide-react"
+import { toast } from "react-toastify"
+import { AuthContext } from "../../context/AuthContext"
+import { CartContext } from "../../context/CartContext"
+import { startPayment, getPaymentMethods } from "../../services/payments"
+import { getOrderById } from "../../services/orders"
+
+/* Two decisions, kept apart: how much you are paying now, and what you are
+   paying with. The old screen fired the payment the instant you touched an
+   option — here nothing leaves until you press the one button that names the
+   exact amount. */
+
+const GATEWAYS = [
+  {
+    id: "khalti",
+    name: "Khalti",
+    dot: "#5C2D91",
+    detail: "Khalti wallet, mobile banking, connectIPS or a card.",
+  },
+  {
+    id: "fonepay",
+    name: "Fonepay",
+    dot: "#C8102E",
+    detail: "Straight from your bank account over the Fonepay network.",
+  },
+]
+
+const rs = (n) => `Rs ${Number(n || 0).toLocaleString("en-IN")}`
 
 function PaymentSelection() {
   const navigate = useNavigate()
   const { orderId } = useParams()
-  const location = useLocation()
   const { clearCart } = useContext(CartContext)
   const { user } = useContext(AuthContext)
-  
-  const [selectedPayment, setSelectedPayment] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [orderData, setOrderData] = useState(null)
-  const [fetchingOrder, setFetchingOrder] = useState(true)
 
-  // Always fetch order details from API using orderService
+  const [order, setOrder] = useState(null)
+  const [loadingOrder, setLoadingOrder] = useState(true)
+  const [methods, setMethods] = useState({ khalti: true, fonepay: true, cash: true })
+  const [amountChoice, setAmountChoice] = useState("full")
+  const [gateway, setGateway] = useState("khalti")
+  const [submitting, setSubmitting] = useState(false)
+
   useEffect(() => {
-    const fetchOrderDetails = async () => {
+    let live = true
+    ;(async () => {
       try {
-        if (!orderId) {
-          throw new Error('No order ID provided')
+        const [fetched, available] = await Promise.all([
+          getOrderById(orderId),
+          getPaymentMethods().catch(() => null),
+        ])
+        if (!live) return
+        if (!fetched) throw new Error("Order not found")
+        setOrder(fetched)
+        if (available) {
+          setMethods(available)
+          // Default to a gateway this deployment can actually reach.
+          setGateway(available.khalti ? "khalti" : available.fonepay ? "fonepay" : "khalti")
         }
-
-        const order = await getOrderById(orderId)
-        if (order) {
-          setOrderData(order)
-        } else {
-          throw new Error('Order not found')
-        }
-      } catch (error) {
-        console.error('Error fetching order:', error)
-        toast.error('Failed to load order details')
+      } catch {
+        if (live) toast.error("We couldn't load this order. Open it again from your cart.")
       } finally {
-        setFetchingOrder(false)
+        if (live) setLoadingOrder(false)
       }
+    })()
+    return () => {
+      live = false
     }
+  }, [orderId])
 
-    fetchOrderDetails()
-  }, [orderId, navigate])
+  const total = order?.totalAmount || 0
+  const advance = Math.round(total * 0.25)
+  const dueNow = amountChoice === "full" ? total : amountChoice === "advance" ? advance : 0
 
-  // Calculate totals from order data
-  const totalAmount = orderData?.totalAmount || 0
-  const advanceAmount = Math.round(totalAmount * 0.25)
+  const OPTIONS = [
+    {
+      id: "full",
+      title: "Pay in full",
+      detail: "Settle the whole order now. Nothing is owed on the day.",
+      due: total,
+      note: "Nothing left to pay",
+    },
+    {
+      id: "advance",
+      title: "Pay 25% now",
+      detail: "Holds your dates. The rest is collected after the event.",
+      due: advance,
+      note: `${rs(total - advance)} after the event`,
+    },
+    {
+      id: "cash",
+      title: "Cash after service",
+      detail: "Confirm the booking now, hand over payment once it's done.",
+      due: 0,
+      note: `${rs(total)} on completion`,
+    },
+  ].filter((o) => o.id !== "cash" || methods.cash)
 
-  const handlePaymentSelection = async (paymentType) => {
+  const handleConfirm = async () => {
     if (!user) {
-      toast.error('Please login to continue')
-      navigate('/login')
-      return
+      toast.info("Log in to complete this payment.")
+      return navigate("/login")
     }
 
-    if (!orderId) {
-      toast.error('Order ID missing!')
-      return
-    }
-
-    setLoading(true)
-    setSelectedPayment(paymentType)
-
+    setSubmitting(true)
     try {
-      let paymentAmount = null
-
-      if (paymentType === 'full') {
-        paymentAmount = 'full_payment'
-      } else if (paymentType === 'advance') {
-        paymentAmount = '25_percent'
+      if (amountChoice === "cash") {
+        const res = await startPayment(orderId, "cash")
+        if (!res.success) throw new Error(res.message)
+        clearCart()
+        toast.success("Order confirmed. We'll collect payment after the event.")
+        return navigate("/order-success", {
+          state: {
+            orderData: { orderId: res.order._id, order: res.order, paymentType: "cash_after_service" },
+          },
+        })
       }
-      // For cash payment, paymentAmount remains null
 
-      console.log('Starting payment:', { orderId, paymentAmount })
-      
-      const response = await startPayment(orderId, paymentAmount)
+      const paymentAmount = amountChoice === "full" ? "full_payment" : "25_percent"
+      const res = await startPayment(orderId, gateway, paymentAmount)
+      if (!res.success || !res.redirectUrl) throw new Error(res.message || "Payment could not be started")
 
-      if (response.success) {
-        if (paymentType === 'cash') {
-          // For cash payment after service - redirect to success page
-          toast.success('Order confirmed! Payment will be collected after service. 🎉')
-          clearCart()
-          
-          // Redirect to OrderSuccess page with order data
-          navigate('/order-success', { 
-            state: { 
-              orderData: {
-                orderId: response.order._id,
-                order: response.order,
-                paymentType: 'cash_after_service',
-                totalAmount: response.order.totalAmount,
-                message: 'Order confirmed successfully!'
-              }
-            }
-          })
-        } else {
-          // For Stripe payments
-          if (response.sessionUrl && response.sessionId) {
-            toast.success('Redirecting to secure payment gateway...', {
-              autoClose: 2000
-            })
-            
-            localStorage.setItem('stripe_session_id', response.sessionId)
-            localStorage.setItem('payment_type', paymentType)
-            localStorage.setItem('order_id', orderId)
-            
-            clearCart()
-            
-            setTimeout(() => {
-              window.location.href = response.sessionUrl
-            }, 2000)
-          } else {
-            throw new Error('Payment session not created properly')
-          }
-        }
-      } else {
-        throw new Error(response.message || 'Failed to start payment')
-      }
+      // The callback page needs to know which order and gateway it is confirming.
+      sessionStorage.setItem("pendingPayment", JSON.stringify({ orderId, provider: gateway }))
+      clearCart()
+      window.location.href = res.redirectUrl
     } catch (error) {
-      console.error('Payment error:', error)
-      toast.error(error.response?.data?.message || error.message || 'Payment failed. Please try again.')
-    } finally {
-      setLoading(false)
-      setSelectedPayment('')
+      toast.error(
+        error.response?.data?.message || error.message || "The payment couldn't be started. Try again.",
+      )
+      setSubmitting(false)
     }
   }
 
-  // Loading state while fetching order
-  if (fetchingOrder) {
+  if (loadingOrder) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50 flex items-center justify-center">
-        <div className="text-center">
-          <FaSpinner className="animate-spin text-4xl text-purple-600 mx-auto mb-4" />
-          <p className="text-gray-600">Loading order details...</p>
+      <div className="flex min-h-[70vh] items-center justify-center bg-paper">
+        <div className="flex items-center gap-3 text-ink-mute">
+          <span className="loader" />
+          <span className="text-[14px]">Loading your order…</span>
         </div>
       </div>
     )
   }
 
+  const gatewayNeeded = amountChoice !== "cash"
+  const chosenGateway = GATEWAYS.find((g) => g.id === gateway)
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        {/* Header */}
-        <motion.div
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className="flex items-center mb-8"
-        >
-          <button
-            onClick={() => navigate('/')}
-            className="mr-4 p-2 rounded-full bg-white/40 backdrop-blur-sm border border-white/20 hover:bg-white/60 transition-all duration-300"
-            disabled={loading}
-          >
-            <FaArrowLeft className="w-5 h-5 text-gray-700" />
-          </button>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-            Complete Payment for Draft Order
-          </h1>
-        </motion.div>
+    <div className="min-h-screen bg-paper">
+      <div className="mx-auto max-w-6xl px-5 py-10 sm:px-6 sm:py-14 lg:px-8">
+        <button onClick={() => navigate("/cart")} className="btn btn-quiet -ml-2.5 mb-8">
+          <ArrowLeft className="h-4 w-4" strokeWidth={2} />
+          Back to cart
+        </button>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Payment Options */}
-          <motion.div
-            initial={{ x: -20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            className="lg:col-span-2"
-          >
-            <div className="bg-white/40 backdrop-blur-lg border border-white/20 rounded-3xl p-6 shadow-xl">
-              <h2 className="text-xl font-semibold text-gray-800 mb-6">Choose Payment Option</h2>
-              
-              <div className="space-y-4">
-                {/* Full Payment */}
-                <motion.div
-                  whileHover={{ scale: loading ? 1 : 1.02 }}
-                  whileTap={{ scale: loading ? 1 : 0.98 }}
-                  className={`p-6 rounded-2xl border-2 transition-all duration-300 ${
-                    loading ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
-                  } ${
-                    selectedPayment === 'full' 
-                      ? 'border-purple-400 bg-purple-50/50' 
-                      : 'border-white/30 bg-white/20 hover:border-purple-300'
-                  }`}
-                  onClick={() => !loading && handlePaymentSelection('full')}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className="p-3 bg-green-100 rounded-xl">
-                        <FaCreditCard className="w-6 h-6 text-green-600" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-800">Full Payment</h3>
-                        <p className="text-gray-600 text-sm">Pay complete amount now via card</p>
-                        <p className="text-green-600 font-medium">💳 Secure Stripe checkout</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-lg font-bold text-gray-800">Rs {totalAmount.toLocaleString()}</p>
-                      <p className="text-sm text-green-600">Complete payment</p>
-                    </div>
-                  </div>
-                  {loading && selectedPayment === 'full' && (
-                    <div className="mt-4 flex items-center justify-center text-purple-600">
-                      <FaSpinner className="animate-spin mr-2" />
-                      <span>Creating payment session...</span>
-                    </div>
-                  )}
-                </motion.div>
+        <p className="eyebrow">Checkout</p>
+        <h1 className="mt-5 text-[34px] sm:text-[42px]">How would you like to pay?</h1>
+        <p className="mt-4 max-w-[52ch] text-[16px] leading-relaxed text-ink-soft">
+          Your order is held as a draft until this is done. Nothing is charged until you press
+          confirm.
+        </p>
 
-                {/* Advance Payment */}
-                <motion.div
-                  whileHover={{ scale: loading ? 1 : 1.02 }}
-                  whileTap={{ scale: loading ? 1 : 0.98 }}
-                  className={`p-6 rounded-2xl border-2 transition-all duration-300 ${
-                    loading ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
-                  } ${
-                    selectedPayment === 'advance'
-                      ? 'border-purple-400 bg-purple-50/50'
-                      : 'border-white/30 bg-white/20 hover:border-purple-300'
-                  }`}
-                  onClick={() => !loading && handlePaymentSelection('advance')}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className="p-3 bg-blue-100 rounded-xl">
-                        <FaCreditCard className="w-6 h-6 text-blue-600" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-800">Advance Payment (25%)</h3>
-                        <p className="text-gray-600 text-sm">Pay 25% now, rest after service</p>
-                        <p className="text-blue-600 font-medium">💳 Secure your booking</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-lg font-bold text-gray-800">Rs {advanceAmount.toLocaleString()}</p>
-                      <p className="text-sm text-gray-600">Remaining:Rs {(totalAmount - advanceAmount).toLocaleString()}</p>
-                    </div>
-                  </div>
-                  {loading && selectedPayment === 'advance' && (
-                    <div className="mt-4 flex items-center justify-center text-purple-600">
-                      <FaSpinner className="animate-spin mr-2" />
-                      <span>Creating payment session...</span>
-                    </div>
-                  )}
-                </motion.div>
+        <div className="mt-12 grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14">
+          {/* ---------------- Decisions ---------------- */}
+          <div>
+            {/* Step 1 — amount */}
+            <section>
+              <h2 className="flex items-center gap-3 font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-mute">
+                <span className="thread" />
+                Step 1 · How much now
+              </h2>
 
-                {/* Cash After Service */}
-                <motion.div
-                  whileHover={{ scale: loading ? 1 : 1.02 }}
-                  whileTap={{ scale: loading ? 1 : 0.98 }}
-                  className={`p-6 rounded-2xl border-2 transition-all duration-300 ${
-                    loading ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
-                  } ${
-                    selectedPayment === 'cash'
-                      ? 'border-purple-400 bg-purple-50/50'
-                      : 'border-white/30 bg-white/20 hover:border-purple-300'
-                  }`}
-                  onClick={() => !loading && handlePaymentSelection('cash')}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className="p-3 bg-orange-100 rounded-xl">
-                        <FaMoneyBill className="w-6 h-6 text-orange-600" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-800">Cash After Service</h3>
-                        <p className="text-gray-600 text-sm">Pay when service is completed</p>
-                        <p className="text-orange-600 font-medium">💰 No advance required</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-lg font-bold text-gray-800">Rs {totalAmount.toLocaleString()}</p>
-                      <p className="text-sm text-gray-600">Pay after service</p>
-                    </div>
-                  </div>
-                  {loading && selectedPayment === 'cash' && (
-                    <div className="mt-4 flex items-center justify-center text-purple-600">
-                      <FaSpinner className="animate-spin mr-2" />
-                      <span>Confirming your order...</span>
-                    </div>
-                  )}
-                </motion.div>
+              <div
+                role="radiogroup"
+                aria-label="How much to pay now"
+                className="mt-5 grid gap-px overflow-hidden rounded-lg border border-line bg-line"
+              >
+                {OPTIONS.map((option) => {
+                  const selected = amountChoice === option.id
+                  return (
+                    <button
+                      key={option.id}
+                      role="radio"
+                      aria-checked={selected}
+                      onClick={() => setAmountChoice(option.id)}
+                      disabled={submitting}
+                      className={`flex items-start gap-4 p-5 text-left transition-colors disabled:opacity-60 ${
+                        selected ? "bg-pine-50" : "bg-surface hover:bg-gray-50"
+                      }`}
+                    >
+                      <span
+                        className={`mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-2 ${
+                          selected ? "border-pine bg-pine" : "border-line-strong"
+                        }`}
+                      >
+                        {selected && <Check className="h-2.5 w-2.5 text-white" strokeWidth={4} />}
+                      </span>
+
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-[15.5px] font-semibold text-ink">{option.title}</span>
+                        <span className="mt-1 block text-[13.5px] leading-relaxed text-ink-soft">
+                          {option.detail}
+                        </span>
+                      </span>
+
+                      <span className="shrink-0 text-right">
+                        <span className="amount block text-[17px] font-semibold text-ink">
+                          {option.due ? rs(option.due) : "Rs 0"}
+                        </span>
+                        <span className="mt-0.5 block text-[12px] text-ink-mute">{option.note}</span>
+                      </span>
+                    </button>
+                  )
+                })}
               </div>
+            </section>
 
-              {/* Security Notice */}
-              <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-200">
-                <div className="flex items-center space-x-2 text-blue-700">
-                  <FaCheckCircle className="w-4 h-4" />
-                  <span className="font-medium text-sm">Secure Payment Processing</span>
-                </div>
-                <p className="text-xs text-blue-600 mt-1">
-                  All card payments are processed securely through Stripe. Your payment information is never stored on our servers.
-                </p>
-              </div>
-            </div>
-          </motion.div>
+            {/* Step 2 — gateway */}
+            {gatewayNeeded && (
+              <section className="mt-10">
+                <h2 className="flex items-center gap-3 font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-mute">
+                  <span className="thread" />
+                  Step 2 · What you're paying with
+                </h2>
 
-          {/* Order Summary */}
-          <motion.div
-            initial={{ x: 20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            className="lg:col-span-1"
-          >
-            <div className="bg-white/40 backdrop-blur-lg border border-white/20 rounded-3xl p-6 shadow-xl sticky top-8">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Order Summary</h3>
-              
-              <div className="space-y-3 mb-4">
-                <div className="p-3 bg-white/30 rounded-lg">
-                  <p className="text-sm text-gray-600">Order ID</p>
-                  <p className="font-mono text-xs">#{orderId?.slice(-8)}</p>
+                <div
+                  role="radiogroup"
+                  aria-label="Payment method"
+                  className="mt-5 grid gap-px overflow-hidden rounded-lg border border-line bg-line sm:grid-cols-2"
+                >
+                  {GATEWAYS.map((g) => {
+                    const available = methods[g.id]
+                    const selected = gateway === g.id && available
+                    return (
+                      <button
+                        key={g.id}
+                        role="radio"
+                        aria-checked={selected}
+                        disabled={!available || submitting}
+                        onClick={() => setGateway(g.id)}
+                        className={`flex flex-col items-start p-5 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+                          selected ? "bg-pine-50" : "bg-surface hover:bg-gray-50"
+                        }`}
+                      >
+                        <span className="flex w-full items-center gap-2.5">
+                          <span
+                            className="h-2.5 w-2.5 shrink-0 rounded-full"
+                            style={{ background: g.dot }}
+                            aria-hidden
+                          />
+                          <span className="text-[15.5px] font-semibold text-ink">{g.name}</span>
+                          {selected && (
+                            <Check className="ml-auto h-4 w-4 text-pine" strokeWidth={2.5} />
+                          )}
+                        </span>
+                        <span className="mt-2 text-[13.5px] leading-relaxed text-ink-soft">
+                          {available ? g.detail : "Not available right now."}
+                        </span>
+                      </button>
+                    )
+                  })}
                 </div>
+              </section>
+            )}
 
-                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <span className="w-2 h-2 bg-yellow-500 rounded-full"></span>
-                    <p className="text-sm font-medium text-yellow-800">Draft Order</p>
-                  </div>
-                  <p className="text-xs text-yellow-700">
-                    This order is currently in draft status. Complete payment to confirm your booking.
-                  </p>
-                </div>
-                
-                {/* Show order items if available */}
-                {orderData?.items && (
-                  <div className="space-y-2 max-h-32 overflow-y-auto">
-                    {orderData.items.map((item, index) => (
-                      <div key={index} className="flex justify-between text-sm p-2 bg-white/20 rounded">
-                        <div>
-                          <span className="text-gray-700 font-medium">{item.name}</span>
-                          <p className="text-xs text-gray-600">Qty: {item.quantity}</p>
-                          <p className="text-xs text-gray-600 capitalize">{item.itemType}</p>
-                        </div>
-                        <span className="font-medium">Rs {(item.price * item.quantity).toLocaleString()}</span>
-                      </div>
-                    ))}
-                  </div>
+            {/* Confirm */}
+            <div className="mt-10 border-t border-line pt-8">
+              <button
+                onClick={handleConfirm}
+                disabled={submitting || (gatewayNeeded && !methods[gateway])}
+                className="btn btn-accent h-13 w-full py-4 text-[15.5px]"
+              >
+                {submitting ? (
+                  <>
+                    <span className="loader h-4 w-4 border-white/40 border-t-white" />
+                    {amountChoice === "cash" ? "Confirming your order…" : `Opening ${chosenGateway?.name}…`}
+                  </>
+                ) : amountChoice === "cash" ? (
+                  <>
+                    Confirm order, pay later
+                    <ArrowRight className="h-4 w-4" strokeWidth={2} />
+                  </>
+                ) : (
+                  <>
+                    Pay {rs(dueNow)} with {chosenGateway?.name}
+                    <ArrowRight className="h-4 w-4" strokeWidth={2} />
+                  </>
                 )}
-                
-                <div className="flex justify-between border-t pt-3 font-bold text-lg">
-                  <span className="text-gray-800">Total Amount</span>
-                  <span className="text-purple-600">Rs {totalAmount.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between text-sm text-gray-600">
-                  <span>25% Advance Option</span>
-                  <span>Rs {advanceAmount.toLocaleString()}</span>
-                </div>
+              </button>
+
+              <p className="mt-4 flex items-start gap-2 text-[12.5px] leading-relaxed text-ink-mute">
+                <ShieldCheck className="mt-px h-4 w-4 shrink-0" strokeWidth={1.75} />
+                {gatewayNeeded
+                  ? `You'll finish on ${chosenGateway?.name}'s own secure page and come straight back here. We never see or store your wallet, bank or card details.`
+                  : "Your booking is confirmed straight away. Our team calls to arrange collection after the event."}
+              </p>
+            </div>
+          </div>
+
+          {/* ---------------- Order slip ---------------- */}
+          <aside className="lg:sticky lg:top-24 lg:self-start">
+            <div className="card overflow-hidden">
+              <div className="flex items-baseline justify-between border-b border-line px-5 py-4">
+                <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-mute">
+                  Order
+                </h2>
+                <span className="amount text-[12px] text-ink-mute">
+                  #{orderId?.slice(-8).toUpperCase()}
+                </span>
               </div>
 
-              <div className="mt-6 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl">
-                <h4 className="font-medium text-gray-800 mb-2">✨ What's Included:</h4>
-                <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• Secure payment processing</li>
-                  <li>• Instant order confirmation</li>
-                  <li>• Email receipt & details</li>
-                  <li>• 24/7 customer support</li>
-                  <li>• Order tracking in profile</li>
-                </ul>
+              <ul className="divide-y divide-line">
+                {order?.items?.map((item, i) => (
+                  <li key={item._id || i} className="flex items-baseline gap-3 px-5 py-3.5">
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[14px] text-ink">{item.name}</span>
+                      <span className="block text-[12px] capitalize text-ink-mute">
+                        {item.itemType}
+                        {item.quantity > 1 && ` · ${item.quantity}`}
+                      </span>
+                    </span>
+                    <span className="amount shrink-0 text-[13.5px] text-ink-soft">
+                      {rs(item.price * item.quantity)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="space-y-2.5 border-t border-line px-5 py-4">
+                <div className="flex items-baseline justify-between">
+                  <span className="text-[14px] text-ink-soft">Order total</span>
+                  <span className="amount text-[15px] text-ink">{rs(total)}</span>
+                </div>
+                <div className="flex items-baseline justify-between border-t border-line pt-2.5">
+                  <span className="text-[14.5px] font-semibold text-ink">Due now</span>
+                  <span className="amount text-[22px] font-semibold text-pine">{rs(dueNow)}</span>
+                </div>
+                {dueNow !== total && (
+                  <p className="text-[12.5px] text-ink-mute">
+                    {rs(total - dueNow)} is collected after the event.
+                  </p>
+                )}
               </div>
             </div>
-          </motion.div>
+
+            <p className="mt-5 text-[12.5px] leading-relaxed text-ink-mute">
+              A receipt and the full booking details go to your email as soon as this is confirmed.
+              You can track the order any time from your profile.
+            </p>
+          </aside>
         </div>
       </div>
     </div>

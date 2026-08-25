@@ -446,9 +446,19 @@ const OrdersComponent = ({ user }) => {
                             <p className="font-semibold text-orange-600">Rs {order.remainingAmount?.toLocaleString()}</p>
                           </div>
                         </div>
-                        {order.stripePaymentIntentId && (
+                        {(order.paymentTransactionId || order.stripePaymentIntentId) && (
                           <div className="mt-3 pt-3 border-t border-gray-200">
-                            <p className="text-gray-600 text-xs">Payment ID: {order.stripePaymentIntentId}</p>
+                            <p className="text-gray-600 text-xs">
+                              {order.paymentProvider === 'khalti'
+                                ? 'Khalti'
+                                : order.paymentProvider === 'fonepay'
+                                  ? 'Fonepay'
+                                  : 'Payment'}{' '}
+                              transaction:{' '}
+                              <span className="font-mono">
+                                {order.paymentTransactionId || order.stripePaymentIntentId}
+                              </span>
+                            </p>
                           </div>
                         )}
                       </div>

@@ -515,10 +515,19 @@ const OrderDetails = () => {
                     </div>
                   </div>
 
-                  {order.stripePaymentIntentId && (
+                  {order.paymentProvider && (
                     <div>
-                      <span className="block text-sm font-medium text-gray-600 mb-1">Stripe Payment ID</span>
-                      <p className="text-gray-800 font-mono text-sm">{order.stripePaymentIntentId}</p>
+                      <span className="block text-sm font-medium text-gray-600 mb-1">Paid with</span>
+                      <p className="text-gray-800 text-sm capitalize">{order.paymentProvider}</p>
+                    </div>
+                  )}
+
+                  {(order.paymentTransactionId || order.stripePaymentIntentId) && (
+                    <div>
+                      <span className="block text-sm font-medium text-gray-600 mb-1">Transaction ID</span>
+                      <p className="text-gray-800 font-mono text-sm break-all">
+                        {order.paymentTransactionId || order.stripePaymentIntentId}
+                      </p>
                     </div>
                   )}
                 </div>

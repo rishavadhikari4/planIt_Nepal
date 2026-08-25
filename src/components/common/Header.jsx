@@ -1,372 +1,234 @@
 import { useContext, useState, useRef, useEffect } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { ShoppingCart, User,MessageCircle, Camera,ChefHat, Landmark, House } from "lucide-react"
+import { ShoppingBag, User, Menu, X, LogOut, ClipboardList } from "lucide-react"
 import { AuthContext } from "../../context/AuthContext"
 import { useCart } from "../../context/CartContext"
 import { toast } from "react-toastify"
 
+/* The three things you book, in the order you book them. The numbers are not
+   decoration — a venue fixes the date, catering follows the venue, the studio
+   follows both. */
+const NAV = [
+  { path: "/", label: "Home" },
+  { path: "/venues", label: "Venues", step: "01" },
+  { path: "/cuisines", label: "Catering", step: "02" },
+  { path: "/studios", label: "Studios", step: "03" },
+  { path: "/contact", label: "About" },
+]
+
 const Header = () => {
   const location = useLocation()
   const navigate = useNavigate()
-  const { isAuthenticated, user } = useContext(AuthContext)
+  const { isAuthenticated, user, logout } = useContext(AuthContext)
   const { cartItems } = useCart()
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 })
-  const dropdownRef = useRef(null)
-  const navRef = useRef(null)
-  const linkRefs = useRef({})
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [accountOpen, setAccountOpen] = useState(false)
+  const accountRef = useRef(null)
 
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
-  const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen)
+  const { pathname } = location
+  const onProfile = pathname.startsWith("/user-profile")
+  const onCart = pathname === "/cart"
 
-  const navItems = [
-    ...(isAuthenticated ? [] : [{ path: "/login", label: "Login", icon: User }]),
-    { path: "/", label: "Home", icon: House },
-    { path: "/venues", label: "Venues", icon: Landmark },
-    { path: "/cuisines", label: "Catering", icon: ChefHat },
-    { path: "/studios", label: "Studios", icon: Camera },
-    { path: "/contact", label: "About Us", icon: MessageCircle }
-  ]
+  const cartCount = cartItems.reduce(
+    (n, item) => n + (item.type === "dish" ? item.quantity || 1 : 1),
+    0,
+  )
 
-  const isProfilePath = location.pathname.startsWith('/user-profile')
-  const isCartPath = location.pathname === '/cart'
-
-  const cartItemCount = cartItems.reduce((total, item) => {
-    if (item.type === 'dish') {
-      return total + (item.quantity || 1)
-    } else {
-      return total + 1
-    }
-  }, 0)
-
-  const updateIndicator = (targetPath) => {
-    const targetRef = linkRefs.current[targetPath]
-    if (targetRef && navRef.current) {
-      const navRect = navRef.current.getBoundingClientRect()
-      const targetRect = targetRef.getBoundingClientRect()
-      
-      setIndicatorStyle({
-        left: targetRect.left - navRect.left,
-        width: targetRect.width,
-        opacity: 1
-      })
-    }
-  }
+  // Close the transient surfaces on navigation.
+  useEffect(() => {
+    setMenuOpen(false)
+    setAccountOpen(false)
+  }, [pathname])
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (isProfilePath) {
-        updateIndicator('profile')
-      } else if (isCartPath) {
-        updateIndicator('cart')
-      } else {
-        updateIndicator(location.pathname)
-      }
-    }, 100)
-    
-    return () => clearTimeout(timer)
-  }, [location.pathname, isProfilePath, isCartPath])
-
-  const handleMouseEnter = (path) => {
-    updateIndicator(path)
-  }
-
-  const handleMouseLeave = () => {
-    if (isProfilePath) {
-      updateIndicator('profile')
-    } else if (isCartPath) {
-      updateIndicator('cart')
-    } else {
-      updateIndicator(location.pathname)
+    const onClickAway = (e) => {
+      if (accountRef.current && !accountRef.current.contains(e.target)) setAccountOpen(false)
     }
-  }
-
-  const handleCartClick = (e) => {
-    setIsMenuOpen(false)
-    if (!isAuthenticated) {
-      e.preventDefault()
-      toast.info("Please log in to view your cart.")
-      setTimeout(() => {
-        navigate("/login")
-      }, 1000)
-    }
-  }
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false)
+    const onEsc = (e) => {
+      if (e.key === "Escape") {
+        setAccountOpen(false)
+        setMenuOpen(false)
       }
     }
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
+    document.addEventListener("mousedown", onClickAway)
+    document.addEventListener("keydown", onEsc)
+    return () => {
+      document.removeEventListener("mousedown", onClickAway)
+      document.removeEventListener("keydown", onEsc)
+    }
   }, [])
 
-  const handleProfileClick = () => {
-    if (user) {
-      const userId = user._id || user.id;
-      
-      if (userId) {
-        navigate(`/user-profile/${userId}`)
-      } else {
-        navigate('/user-profile')
-      }
-      setIsDropdownOpen(false)
-      setIsMenuOpen(false)
-    } else {
-      toast.error("User profile not available")
+  const guardCart = (e) => {
+    if (!isAuthenticated) {
+      e.preventDefault()
+      toast.info("Log in to see your cart.")
+      navigate("/login")
     }
   }
 
+  const goToProfile = () => {
+    const id = user?._id || user?.id
+    if (id) navigate(`/user-profile/${id}`)
+    else toast.error("Your profile isn't available right now. Try logging in again.")
+  }
+
+  const isActive = (path) => (path === "/" ? pathname === "/" : pathname.startsWith(path))
+
   return (
-    <header className="sticky top-0 z-50 w-full bg-gradient-to-r from-purple-600/80 via-purple-800/70 to-pink-800/80 shadow-2xl backdrop-blur-md">
-      <nav className="container mx-auto flex justify-between items-center px-2 sm:px-4 lg:px-6 xl:px-8 py-2 sm:py-3">
-        {/* Logo */}
-        <Link
-          to="/"
-          className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold bg-gradient-to-r from-white to-pink-100 bg-clip-text text-transparent no-underline hover:scale-105 transition-transform duration-300 flex-shrink-0"
-        >
-          <span className="hidden sm:inline">PlanIt Nepal</span>
-          <span className="sm:hidden">PlanIt</span>
+    <header className="sticky top-0 z-50 w-full border-b border-line bg-paper/95 backdrop-blur-[6px]">
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-5 sm:px-6 lg:px-8">
+        {/* Wordmark */}
+        <Link to="/" className="group flex shrink-0 items-baseline gap-2 no-underline">
+          <span className="font-display text-[22px] font-semibold tracking-[-0.03em] text-pine-deep">
+            PlanIt
+          </span>
+          <span className="font-mono text-[10px] font-medium uppercase tracking-[0.22em] text-marigold-deep">
+            Nepal
+          </span>
         </Link>
 
-        {/* Hamburger Menu Button - Show on smaller screens and landscape mobile */}
-        <button
-          className="relative w-6 h-6 sm:w-8 sm:h-8 lg:hidden focus:outline-none group"
-          onClick={toggleMenu}
-          aria-label="Toggle menu"
-        >
-          <span
-            className={`block absolute h-0.5 w-full bg-white rounded-full transform transition-all duration-300 ease-in-out group-hover:bg-pink-200 ${
-              isMenuOpen ? "rotate-45 top-2.5 sm:top-3.5" : "top-1.5 sm:top-2"
-            }`}
-          ></span>
-          <span
-            className={`block absolute h-0.5 w-full bg-white rounded-full transition-all duration-300 ease-in-out group-hover:bg-pink-200 ${
-              isMenuOpen ? "opacity-0" : "top-2.5 sm:top-4"
-            }`}
-          ></span>
-          <span
-            className={`block absolute h-0.5 w-full bg-white rounded-full transform transition-all duration-300 ease-in-out group-hover:bg-pink-200 ${
-              isMenuOpen ? "-rotate-45 top-2.5 sm:top-3.5" : "top-3.5 sm:top-6"
-            }`}
-          ></span>
-        </button>
+        {/* Desktop navigation. The marigold thread marks where you are. */}
+        <nav className="ml-6 hidden items-center gap-1 lg:flex">
+          {NAV.map(({ path, label, step }) => (
+            <Link
+              key={path}
+              to={path}
+              aria-current={isActive(path) ? "page" : undefined}
+              className={`relative px-3 py-2 text-[14.5px] font-medium no-underline transition-colors ${
+                isActive(path)
+                  ? "text-ink"
+                  : "text-ink-mute hover:text-ink"
+              }`}
+            >
+              {step && (
+                <span className="mr-1.5 font-mono text-[10px] tracking-widest text-line-strong">
+                  {step}
+                </span>
+              )}
+              {label}
+              {isActive(path) && (
+                <span className="absolute inset-x-3 -bottom-px block h-0.5 bg-marigold" />
+              )}
+            </Link>
+          ))}
+        </nav>
 
-        {/* Navigation Links */}
-        <div
-          className={`flex lg:flex-row flex-col items-center lg:items-center lg:static absolute top-full left-0 right-0
-  lg:bg-transparent bg-white/95 border-t border-white/20 lg:border-none
-  shadow-xl lg:shadow-none lg:gap-1 xl:gap-2 2xl:gap-4 gap-3 p-4 lg:p-0 transition-all duration-500 ease-in-out
-  max-h-[calc(100vh-60px)] overflow-y-auto lg:max-h-none lg:overflow-visible
-  ${isMenuOpen ? "flex opacity-100 translate-y-0" : "hidden lg:flex opacity-0 lg:opacity-100 -translate-y-4 lg:translate-y-0"}`}
-        >
-          {/* Desktop Navigation with Flowing Indicator */}
-          <div 
-            ref={navRef}
-            className="hidden lg:flex relative items-center gap-1 xl:gap-2 2xl:gap-4"
-            onMouseLeave={handleMouseLeave}
+        <div className="ml-auto flex items-center gap-1.5">
+          {/* Cart */}
+          <Link
+            to="/cart"
+            onClick={guardCart}
+            aria-label={`Cart, ${cartCount} ${cartCount === 1 ? "item" : "items"}`}
+            className={`relative flex h-10 items-center gap-2 rounded-md px-3 no-underline transition-colors ${
+              onCart
+                ? "bg-gray-100 text-ink"
+                : "text-ink-soft hover:bg-gray-100 hover:text-ink"
+            }`}
           >
-            {/* Flowing Background Indicator */}
-            <div
-              className="absolute top-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full shadow-lg z-0"
-              style={{
-                left: `${indicatorStyle.left}px`,
-                width: `${indicatorStyle.width}px`,
-                height: '100%',
-                opacity: indicatorStyle.opacity,
-                transform: 'translateZ(0)',
-                transition: 'all 0.6s cubic-bezier(0.23, 1, 0.32, 1)',
-              }}
-            />
-            
-            {navItems.map(({ path, label, icon: Icon }) => (
+            <ShoppingBag className="h-[18px] w-[18px]" strokeWidth={1.75} />
+            {cartCount > 0 && (
+              <span className="amount rounded-full bg-marigold-deep px-1.5 py-px text-[11px] font-semibold text-white">
+                {cartCount > 99 ? "99+" : cartCount}
+              </span>
+            )}
+          </Link>
+
+          {/* Account */}
+          {isAuthenticated && user ? (
+            <div className="relative" ref={accountRef}>
+              <button
+                type="button"
+                onClick={() => setAccountOpen((v) => !v)}
+                aria-expanded={accountOpen}
+                aria-haspopup="menu"
+                className={`flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border transition-colors ${
+                  onProfile || accountOpen
+                    ? "border-pine bg-pine text-white"
+                    : "border-line-strong bg-white text-ink-soft hover:border-ink-mute"
+                }`}
+              >
+                {user.profileImage ? (
+                  <img src={user.profileImage} alt="" className="h-full w-full object-cover" />
+                ) : user.name ? (
+                  <span className="text-[13px] font-semibold">{user.name.charAt(0).toUpperCase()}</span>
+                ) : (
+                  <User className="h-[18px] w-[18px]" strokeWidth={1.75} />
+                )}
+              </button>
+
+              {accountOpen && (
+                <div
+                  role="menu"
+                  className="card absolute right-0 top-12 w-56 overflow-hidden p-1 shadow-lg"
+                >
+                  <div className="border-b border-line px-3 py-2.5">
+                    <p className="truncate text-[13.5px] font-semibold text-ink">
+                      {user.name || "Your account"}
+                    </p>
+                    <p className="truncate font-mono text-[11px] text-ink-mute">{user.email}</p>
+                  </div>
+                  <button
+                    role="menuitem"
+                    onClick={goToProfile}
+                    className="flex w-full items-center gap-2.5 rounded px-3 py-2 text-left text-[13.5px] text-ink-soft hover:bg-gray-100 hover:text-ink"
+                  >
+                    <ClipboardList className="h-4 w-4" strokeWidth={1.75} />
+                    Profile and orders
+                  </button>
+                  <button
+                    role="menuitem"
+                    onClick={() => logout()}
+                    className="flex w-full items-center gap-2.5 rounded px-3 py-2 text-left text-[13.5px] text-red-600 hover:bg-red-50"
+                  >
+                    <LogOut className="h-4 w-4" strokeWidth={1.75} />
+                    Log out
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link to="/login" className="btn btn-primary ml-1 h-10 no-underline">
+              Log in
+            </Link>
+          )}
+
+          {/* Mobile menu toggle */}
+          <button
+            type="button"
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-expanded={menuOpen}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            className="ml-1 flex h-10 w-10 items-center justify-center rounded-md text-ink-soft hover:bg-gray-100 lg:hidden"
+          >
+            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile sheet */}
+      {menuOpen && (
+        <div className="border-t border-line bg-surface lg:hidden">
+          <nav className="mx-auto max-w-7xl px-3 py-2">
+            {NAV.map(({ path, label, step }) => (
               <Link
                 key={path}
                 to={path}
-                ref={(el) => linkRefs.current[path] = el}
-                onClick={() => setIsMenuOpen(false)}
-                onMouseEnter={() => handleMouseEnter(path)}
-                className={`relative z-10 text-sm lg:text-base xl:text-lg px-2 lg:px-3 xl:px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 whitespace-nowrap flex items-center gap-1.5 ${
-                  location.pathname === path
-                    ? "text-white font-bold"
-                    : "text-white/90 hover:text-white"
+                className={`flex items-center gap-3 rounded-md px-3 py-3 text-[15px] no-underline ${
+                  isActive(path)
+                    ? "bg-gray-100 font-semibold text-ink"
+                    : "text-ink-soft"
                 }`}
               >
-                {Icon && <Icon className="w-4 h-4 lg:w-4 lg:h-4 xl:w-5 xl:h-5 flex-shrink-0" />}
-                <span className="hidden xl:inline">{label}</span>
-                <span className="xl:hidden">{label.split(' ')[0]}</span>
+                <span className="w-6 font-mono text-[10px] tracking-widest text-line-strong">
+                  {step || ""}
+                </span>
+                {label}
+                {isActive(path) && <span className="thread ml-auto" />}
               </Link>
             ))}
-
-            {/* Cart Icon - Desktop */}
-            <Link
-              to="/cart"
-              ref={(el) => linkRefs.current['cart'] = el}
-              onClick={handleCartClick}
-              onMouseEnter={() => handleMouseEnter('cart')}
-              className={`relative z-10 p-2 lg:p-3 rounded-full transition-all duration-300 transform hover:scale-110 ${
-                isCartPath
-                  ? "text-white font-bold"
-                  : "text-white/90 hover:text-white"
-              }`}
-            >
-              <ShoppingCart className="w-4 h-4 lg:w-5 lg:h-5 xl:w-6 xl:h-6" />
-              
-              {/* Cart Item Count Badge */}
-              {cartItemCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[16px] lg:min-w-[20px] h-4 lg:h-5 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1 lg:px-1.5 shadow-lg animate-pulse">
-                  {cartItemCount > 99 ? '99+' : cartItemCount}
-                </span>
-              )}
-              
-              {/* Pulse indicator when cart is empty */}
-              {cartItemCount === 0 && (
-                <span className="absolute -top-1 -right-1 w-2 lg:w-3 h-2 lg:h-3 bg-pink-400/50 rounded-full"></span>
-              )}
-            </Link>
-
-            {/* User Profile - Desktop */}
-            {isAuthenticated && user && (
-              <div className="relative inline-block" ref={dropdownRef}>
-                <button
-                  onClick={handleProfileClick}
-                  onMouseEnter={() => handleMouseEnter('profile')}
-                  ref={(el) => linkRefs.current['profile'] = el}
-                  className={`relative z-10 w-8 h-8 lg:w-10 lg:h-10 xl:w-12 xl:h-12 rounded-full bg-gradient-to-r from-white/20 to-pink-200/30 backdrop-blur-sm overflow-hidden cursor-pointer flex items-center justify-center select-none transition-all duration-300 transform hover:scale-110 hover:shadow-xl border-2 focus:outline-none focus:ring-2 focus:ring-white/50 ${
-                    isProfilePath
-                      ? "border-white/50 shadow-xl"
-                      : "border-white/30"
-                  }`}
-                  type="button"
-                  aria-label="User profile"
-                >
-                  {user.profileImage ? (
-                    <img
-                      src={user.profileImage}
-                      alt={`${user.name || 'User'} profile`}
-                      className="w-full h-full object-cover rounded-full"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'flex';
-                      }}
-                    />
-                  ) : null}
-                  
-                  <div 
-                    className={`w-full h-full flex items-center justify-center ${user.profileImage ? 'hidden' : 'flex'}`}
-                  >
-                    {user.name ? (
-                      <span className={`font-bold text-sm lg:text-lg xl:text-xl ${isProfilePath ? 'text-white' : 'text-white'}`}>
-                        {user.name.charAt(0).toUpperCase()}
-                      </span>
-                    ) : (
-                      <User className={`w-3 h-3 lg:w-5 lg:h-5 xl:w-6 xl:h-6 ${isProfilePath ? 'text-white' : 'text-white'}`} />
-                    )}
-                  </div>
-                </button>
-
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 opacity-0 hover:opacity-20 transition-opacity duration-300 -z-10 blur-md"></div>
-              </div>
-            )}
-          </div>
-
-          {/* Mobile/Tablet Navigation (Landscape and Portrait) */}
-          <div className="lg:hidden flex flex-col items-center gap-2 sm:gap-3 w-full max-w-sm mx-auto">
-            {/* Grid layout for landscape mobile screens */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 w-full sm:hidden landscape:grid landscape:grid-cols-3 landscape:gap-2">
-              {navItems.map(({ path, label, icon: Icon }) => (
-                <Link
-                  key={path}
-                  to={path}
-                  onClick={() => setIsMenuOpen(false)}
-                  className={`text-xs px-2 py-1.5 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 text-center flex flex-col items-center gap-1 ${
-                    location.pathname === path
-                      ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg font-bold"
-                      : "text-gray-700 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:text-white hover:shadow-lg"
-                  }`}
-                >
-                  {Icon && <Icon className="w-4 h-4 flex-shrink-0" />}
-                  <span className="text-xs leading-tight">{label.split(' ')[0]}</span>
-                </Link>
-              ))}
-            </div>
-
-            {/* Standard mobile layout for portrait */}
-            <div className="hidden sm:flex flex-col gap-3 w-full landscape:hidden">
-              {navItems.map(({ path, label, icon: Icon }) => (
-                <Link
-                  key={path}
-                  to={path}
-                  onClick={() => setIsMenuOpen(false)}
-                  className={`text-sm sm:text-base px-4 py-3 rounded-full font-medium transition-all duration-300 transform hover:scale-105 text-center flex items-center justify-center gap-2 ${
-                    location.pathname === path
-                      ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg font-bold"
-                      : "text-gray-700 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:text-white hover:shadow-lg"
-                  }`}
-                >
-                  {Icon && <Icon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />}
-                  <span>{label}</span>
-                </Link>
-              ))}
-            </div>
-
-            {/* Mobile Cart and Profile Section */}
-            <div className="flex items-center justify-center gap-3 sm:gap-4 w-full pt-2 border-t border-gray-200/50">
-              {/* Mobile Cart Link */}
-              <Link
-                to="/cart"
-                onClick={handleCartClick}
-                className={`text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 flex items-center gap-1 sm:gap-2 relative ${
-                  isCartPath
-                    ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg font-bold"
-                    : "text-gray-700 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:text-white hover:shadow-lg"
-                }`}
-              >
-                <div className="relative">
-                  <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-                  {/* Mobile Cart Count Badge */}
-                  {cartItemCount > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-[14px] sm:min-w-[18px] h-3 sm:h-4 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1 shadow-lg">
-                      {cartItemCount > 99 ? '99+' : cartItemCount}
-                    </span>
-                  )}
-                </div>
-                <span className="hidden sm:inline">Cart</span>
-                <span className="sm:hidden">({cartItemCount})</span>
-              </Link>
-
-              {/* Mobile Profile Link */}
-              {isAuthenticated && user && (
-                <button
-                  onClick={handleProfileClick}
-                  className={`text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 flex items-center gap-1 sm:gap-2 ${
-                    isProfilePath
-                      ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg font-bold"
-                      : "text-gray-700 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:text-white hover:shadow-lg"
-                  }`}
-                >
-                  {user.profileImage ? (
-                    <img
-                      src={user.profileImage}
-                      alt="Profile"
-                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-full object-cover flex-shrink-0"
-                    />
-                  ) : (
-                    <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
-                      <span className="text-xs text-white font-bold">
-                        {user.name?.charAt(0).toUpperCase() || 'U'}
-                      </span>
-                    </div>
-                  )}
-                  <span>Profile</span>
-                </button>
-              )}
-            </div>
-          </div>
+          </nav>
         </div>
-      </nav>
+      )}
     </header>
   )
 }

@@ -1,185 +1,118 @@
-"use client"
-
-import { useContext, useState } from "react"
+import { useContext, useState, useEffect } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { AuthContext } from "../../context/AuthContext"
 import { toast } from "react-toastify"
-import { motion, AnimatePresence } from "framer-motion"
-import {
-  Crown,
-  Menu,
-  X,
-  Home,
-  MapPin,
-  UtensilsCrossed,
-  MessageSquare,
-  LogOut,
-  Bell,
-  Camera
-} from "lucide-react"
+import { Menu, X, LayoutGrid, MapPin, UtensilsCrossed, Camera, Receipt, Inbox, LogOut } from "lucide-react"
+
+const LINKS = [
+  { path: "/admin", label: "Dashboard", icon: LayoutGrid, exact: true },
+  { path: "/admin-orders", label: "Orders", icon: Receipt },
+  { path: "/admin-venues", label: "Venues", icon: MapPin },
+  { path: "/admin-cuisines", label: "Catering", icon: UtensilsCrossed },
+  { path: "/admin-studios", label: "Studios", icon: Camera },
+  { path: "/admin-contact", label: "Enquiries", icon: Inbox },
+]
 
 const AdminHeader = () => {
-  const location = useLocation()
+  const { pathname } = useLocation()
   const navigate = useNavigate()
-  const {  isAdmin, adminLogout } = useContext(AuthContext)
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { isAdmin, adminLogout } = useContext(AuthContext)
+  const [menuOpen, setMenuOpen] = useState(false)
 
-  const toggleMenu = () => setIsMenuOpen((prev) => !prev)
-
-  const navLinks = [
-    { path: "/admin", label: "Dashboard", icon: Home },
-    { path: "/admin-venues", label: "Venues", icon: MapPin },
-    { path: "/admin-cuisines", label: "Catering", icon: UtensilsCrossed },
-    { path: "/admin-studios", label: "studios", icon: Camera },
-    { path: "/admin-contact", label: "Contact", icon: MessageSquare },
-  ]
+  useEffect(() => setMenuOpen(false), [pathname])
 
   const handleLogout = () => {
-    if (isAdmin) {
-      adminLogout()
-      toast.success("Logged out successfully")
-      navigate("/")
-    } else {
-      toast.info("You are not authorized")
-    }
-    setIsMenuOpen(false)
+    if (!isAdmin) return toast.info("You are not signed in as an admin.")
+    adminLogout()
+    toast.success("Signed out.")
+    navigate("/")
   }
 
+  const isActive = (link) => (link.exact ? pathname === link.path : pathname.startsWith(link.path))
+
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-xl border-b border-gray-200/50 shadow-sm">
-      <nav className="container mx-auto px-4 lg:px-6">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link to="/admin" className="flex items-center space-x-3 group">
-            <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
-              <Crown className="w-6 h-6 text-white" />
-            </div>
-            <div className="hidden sm:block">
-              <h1 className="text-xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-                Admin Panel
-              </h1>
-              <p className="text-xs text-gray-500">PlanIt Nepal</p>
-            </div>
+    /* The staff side runs on ink rather than paper — you always know which
+       side of the product you are standing on. */
+    <header className="sticky top-0 z-50 w-full border-b border-pine-deep bg-pine-deep">
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-5 sm:px-6 lg:px-8">
+        <Link to="/admin" className="flex shrink-0 items-baseline gap-2 no-underline">
+          <span className="font-display text-[20px] font-semibold tracking-[-0.03em] text-white">PlanIt</span>
+          <span className="font-mono text-[10px] font-medium uppercase tracking-[0.22em] text-marigold-lift">
+            Staff
+          </span>
+        </Link>
+
+        <nav className="ml-6 hidden items-center gap-0.5 lg:flex">
+          {LINKS.map((link) => (
+            <Link
+              key={link.path}
+              to={link.path}
+              aria-current={isActive(link) ? "page" : undefined}
+              className={`relative flex items-center gap-2 px-3 py-2 text-[14px] font-medium no-underline transition-colors ${
+                isActive(link) ? "text-white" : "text-white/60 hover:text-white"
+              }`}
+            >
+              <link.icon className="h-4 w-4" strokeWidth={1.75} />
+              {link.label}
+              {isActive(link) && (
+                <span className="absolute inset-x-3 -bottom-[9px] block h-0.5 bg-marigold" />
+              )}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="ml-auto flex items-center gap-2">
+          <Link
+            to="/"
+            className="hidden text-[13.5px] text-white/60 no-underline hover:text-white lg:block"
+          >
+            View site
           </Link>
-
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-1">
-            {navLinks.map((link) => {
-              const IconComponent = link.icon
-              const isActive = location.pathname === link.path
-
-              return (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className={`
-                    relative flex items-center space-x-2 px-4 py-2 rounded-xl
-                    transition-all duration-200 group
-                    ${
-                      isActive
-                        ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg"
-                        : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                    }
-                  `}
-                >
-                  <IconComponent className="w-4 h-4" />
-                  <span className="font-medium text-sm">{link.label}</span>
-
-                  {/* Active indicator */}
-                  {isActive && (
-                    <motion.div
-                      className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-white rounded-full"
-                      layoutId="activeIndicator"
-                    />
-                  )}
-                </Link>
-              )
-            })}
-          </div>
-
-          {/* Right Side Actions */}
-          <div className="flex items-center space-x-3">
-            {/* Desktop Logout Button */}
-            {isAdmin && (
-              <button
-                onClick={handleLogout}
-                className="hidden lg:flex items-center space-x-2 px-4 py-2 rounded-xl text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200 group"
-              >
-                <LogOut className="w-4 h-4" />
-                <span className="font-medium text-sm">Logout</span>
-              </button>
-            )}
-
-            {/* Mobile menu toggle */}
+          {isAdmin && (
             <button
-              onClick={toggleMenu}
-              className="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors"
+              onClick={handleLogout}
+              className="hidden h-9 items-center gap-2 rounded-md px-3 text-[13.5px] font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white lg:flex"
             >
-              {isMenuOpen ? <X className="w-5 h-5 text-gray-600" /> : <Menu className="w-5 h-5 text-gray-600" />}
+              <LogOut className="h-4 w-4" strokeWidth={1.75} />
+              Sign out
             </button>
-          </div>
-        </div>
-
-        {/* Mobile Navigation */}
-        <AnimatePresence>
-          {isMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
-              className="lg:hidden border-t border-gray-200/50 py-4"
-            >
-              <div className="space-y-2">
-                {navLinks.map((link) => {
-                  const IconComponent = link.icon
-                  const isActive = location.pathname === link.path
-
-                  return (
-                    <Link
-                      key={link.path}
-                      to={link.path}
-                      onClick={() => setIsMenuOpen(false)}
-                      className={`
-                        flex items-center space-x-3 px-4 py-3 rounded-xl
-                        transition-all duration-200
-                        ${
-                          isActive
-                            ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg"
-                            : "text-gray-700 hover:bg-gray-100"
-                        }
-                      `}
-                    >
-                      <div
-                        className={`
-                        w-8 h-8 rounded-lg flex items-center justify-center
-                        ${isActive ? "bg-white/20" : "bg-gray-200"}
-                      `}
-                      >
-                        <IconComponent className="w-4 h-4" />
-                      </div>
-                      <span className="font-medium">{link.label}</span>
-                    </Link>
-                  )
-                })}
-
-                {/* Mobile Logout */}
-                { isAdmin && (
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200"
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
-                      <LogOut className="w-4 h-4 text-red-600" />
-                    </div>
-                    <span className="font-medium">Logout</span>
-                  </button>
-                )}
-              </div>
-            </motion.div>
           )}
-        </AnimatePresence>
-      </nav>
+          <button
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-expanded={menuOpen}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            className="flex h-10 w-10 items-center justify-center rounded-md text-white/80 hover:bg-white/10 lg:hidden"
+          >
+            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
+      </div>
+
+      {menuOpen && (
+        <div className="border-t border-white/10 px-3 py-2 lg:hidden">
+          {LINKS.map((link) => (
+            <Link
+              key={link.path}
+              to={link.path}
+              className={`flex items-center gap-3 rounded-md px-3 py-3 text-[15px] no-underline ${
+                isActive(link) ? "bg-white/10 font-semibold text-white" : "text-white/70"
+              }`}
+            >
+              <link.icon className="h-4 w-4" strokeWidth={1.75} />
+              {link.label}
+            </Link>
+          ))}
+          {isAdmin && (
+            <button
+              onClick={handleLogout}
+              className="flex w-full items-center gap-3 rounded-md px-3 py-3 text-left text-[15px] text-red-300"
+            >
+              <LogOut className="h-4 w-4" strokeWidth={1.75} />
+              Sign out
+            </button>
+          )}
+        </div>
+      )}
     </header>
   )
 }
