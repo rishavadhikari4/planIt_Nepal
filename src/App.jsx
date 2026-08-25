@@ -73,6 +73,7 @@ const RouteFallback = () => (
 // Contexts
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { FavoritesProvider } from './context/FavoritesContext';
 
 /* Routes fade through each other rather than cutting. The wrapper also resets
    scroll on navigation — react-router keeps the old position otherwise, which
@@ -141,6 +142,7 @@ function AppContent() {
   return (
     <AuthProvider>
       <CartProvider>
+      <FavoritesProvider>
       <ScrollProgress />
       {!shouldHideHeader && !shouldShowAdminHeader && <Header />}
       {shouldShowAdminHeader && <AdminHeader />}
@@ -213,6 +215,7 @@ function AppContent() {
           draggable
           theme="light"
         />
+      </FavoritesProvider>
       </CartProvider>
     </AuthProvider>
   );

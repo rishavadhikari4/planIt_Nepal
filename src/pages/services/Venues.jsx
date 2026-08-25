@@ -13,7 +13,9 @@ import {
   Pagination,
   rs,
 } from "../../components/ui/Catalog"
+import { useFavorites } from "../../context/FavoritesContext"
 import Sheet, { useLingering } from "../../components/ui/Sheet"
+import { img, SIZES } from "../../utils/image"
 
 const SORTS = [
   { value: "createdAt-desc", label: "Newest first" },
@@ -33,10 +35,10 @@ const Venues = () => {
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
   const [searching, setSearching] = useState(false)
+  const { isFavorite, toggle: toggleFavorite } = useFavorites()
   const [preview, setPreview] = useState(null)
   // Keeps the panel populated through its exit animation.
   const shown = useLingering(preview)
-  const [favorites, setFavorites] = useState(new Set())
 
   const [searchTerm, setSearchTerm] = useState("")
   const [price, setPrice] = useState({ min: "", max: "" })
@@ -96,13 +98,6 @@ const Venues = () => {
     setLocation("")
     load(1, false)
   }
-
-  const toggleFavorite = (id) =>
-    setFavorites((prev) => {
-      const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
-      return next
-    })
 
   const changePage = (n) => {
     load(n)
@@ -185,7 +180,7 @@ const Venues = () => {
                       aria-label={`View ${venue.name}`}
                     >
                       <img
-                        src={venue.venueImage || "/placeholder.svg"}
+                        src={img(venue.venueImage, { w: SIZES.card }) || "/placeholder.svg"}
                         alt=""
                         loading="lazy"
                         className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.06]"
@@ -201,18 +196,18 @@ const Venues = () => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
-                        toggleFavorite(venue._id)
+                        toggleFavorite("venue", venue._id, venue.name)
                       }}
-                      aria-pressed={favorites.has(venue._id)}
+                      aria-pressed={isFavorite("venue", venue._id)}
                       aria-label={
-                        favorites.has(venue._id)
+                        isFavorite("venue", venue._id)
                           ? `Remove ${venue.name} from your shortlist`
                           : `Add ${venue.name} to your shortlist`
                       }
                       className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-surface/90 text-ink-soft transition-colors hover:text-red-600"
                     >
                       <Heart
-                        className={`h-4 w-4 ${favorites.has(venue._id) ? "fill-red-600 text-red-600" : ""}`}
+                        className={`h-4 w-4 ${isFavorite("venue", venue._id) ? "fill-red-600 text-red-600" : ""}`}
                         strokeWidth={1.75}
                       />
                     </button>

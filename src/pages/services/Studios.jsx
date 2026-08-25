@@ -13,7 +13,9 @@ import {
   Pagination,
   rs,
 } from "../../components/ui/Catalog"
+import { useFavorites } from "../../context/FavoritesContext"
 import Sheet, { useLingering } from "../../components/ui/Sheet"
+import { img, SIZES } from "../../utils/image"
 
 const SORTS = [
   { value: "createdAt-desc", label: "Newest first" },
@@ -39,10 +41,10 @@ const Studios = () => {
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
   const [searching, setSearching] = useState(false)
+  const { isFavorite, toggle: toggleFavorite } = useFavorites()
   const [preview, setPreview] = useState(null)
   // Keeps the panel populated through its exit animation.
   const shown = useLingering(preview)
-  const [favorites, setFavorites] = useState(new Set())
 
   const [searchTerm, setSearchTerm] = useState("")
   const [price, setPrice] = useState({ min: "", max: "" })
@@ -90,13 +92,6 @@ const Studios = () => {
     setLocation("")
     load(1, false)
   }
-
-  const toggleFavorite = (id) =>
-    setFavorites((prev) => {
-      const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
-      return next
-    })
 
   const changePage = (n) => {
     load(n)
@@ -180,7 +175,7 @@ const Studios = () => {
                       >
                         <span className="absolute inset-0 z-10 bg-crimson-deep/0 transition-colors duration-500 group-hover:bg-crimson-deep/15" />
                         <img
-                          src={studio.studioImage || "/placeholder.svg"}
+                          src={img(studio.studioImage, { w: SIZES.card }) || "/placeholder.svg"}
                           alt=""
                           loading="lazy"
                           className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.06]"
@@ -196,18 +191,18 @@ const Studios = () => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
-                          toggleFavorite(studio._id)
+                          toggleFavorite("studio", studio._id, studio.name)
                         }}
-                        aria-pressed={favorites.has(studio._id)}
+                        aria-pressed={isFavorite("studio", studio._id)}
                         aria-label={
-                          favorites.has(studio._id)
+                          isFavorite("studio", studio._id)
                             ? `Remove ${studio.name} from your shortlist`
                             : `Add ${studio.name} to your shortlist`
                         }
                         className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-surface/90 text-ink-soft transition-colors hover:text-red-600"
                       >
                         <Heart
-                          className={`h-4 w-4 ${favorites.has(studio._id) ? "fill-red-600 text-red-600" : ""}`}
+                          className={`h-4 w-4 ${isFavorite("studio", studio._id) ? "fill-red-600 text-red-600" : ""}`}
                           strokeWidth={1.75}
                         />
                       </button>
