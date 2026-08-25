@@ -4,8 +4,11 @@ import { motion, useReducedMotion, useScroll, useTransform, AnimatePresence } fr
 import { ArrowLeft, Calendar, Check, ChevronLeft, ChevronRight, Heart, MapPin, Star, Users, X } from "lucide-react"
 import { toast } from "react-toastify"
 import { useCart } from "../../context/CartContext"
+import { useFavorites } from "../../context/FavoritesContext"
 import DateRangePicker from "./DateRangePicker"
+import ItemReviews from "./ItemReviews"
 import { EASE, Reveal, Stagger, Item, Magnetic } from "./Motion"
+import { img, SIZES } from "../../utils/image"
 
 /*
  * Venues and studios are the same booking page with different nouns.
@@ -36,6 +39,7 @@ const BookableDetail = ({
   const navigate = useNavigate()
   const { addToCart } = useCart()
   const reduced = useReducedMotion()
+  const { isFavorite, toggle: toggleFavorite } = useFavorites()
 
   const [item, setItem] = useState(null)
   const [bookedDates, setBookedDates] = useState([])
@@ -45,7 +49,6 @@ const BookableDetail = ({
 
   const [dates, setDates] = useState(null)
   const [pickerOpen, setPickerOpen] = useState(false)
-  const [favorite, setFavorite] = useState(false)
   const [lightbox, setLightbox] = useState(null)
 
   const { scrollY } = useScroll()
@@ -130,6 +133,7 @@ const BookableDetail = ({
     )
   }
 
+  const favorite = isFavorite(noun, id)
   const rows = facts(item).filter(([, v]) => v !== undefined && v !== null && v !== "")
 
   return (
@@ -141,7 +145,7 @@ const BookableDetail = ({
           style={reduced ? undefined : { y: heroY, scale: heroScale }}
         >
           <motion.img
-            src={images[0] || "/placeholder.svg"}
+            src={img(images[0], { w: SIZES.hero }) || "/placeholder.svg"}
             alt=""
             initial={reduced ? false : { scale: 1.12, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -200,12 +204,15 @@ const BookableDetail = ({
         </div>
 
         <button
-          onClick={() => setFavorite((v) => !v)}
+          onClick={() => toggleFavorite(noun, id, item.name)}
           aria-pressed={favorite}
           aria-label={favorite ? "Remove from shortlist" : "Add to shortlist"}
           className="absolute right-5 top-24 flex h-11 w-11 items-center justify-center rounded-full border border-white/25 text-white/80 backdrop-blur-sm transition-colors duration-300 hover:border-white/50 hover:text-white sm:right-6 sm:top-28 lg:right-8"
         >
-          <Heart className={`h-4 w-4 ${favorite ? "fill-white text-white" : ""}`} strokeWidth={1.75} />
+          <Heart
+            className={`h-4 w-4 transition-transform duration-200 ${favorite ? "scale-110 fill-white text-white" : ""}`}
+            strokeWidth={1.75}
+          />
         </button>
       </section>
 
@@ -272,6 +279,8 @@ const BookableDetail = ({
                 <DateRangePicker readOnly bookedDates={bookedDates} title="This month" showLegend={false} />
               </div>
             </Reveal>
+
+            <ItemReviews itemType={noun} itemId={id} itemName={item.name} />
           </div>
 
           {/* ---------- Booking panel ---------- */}

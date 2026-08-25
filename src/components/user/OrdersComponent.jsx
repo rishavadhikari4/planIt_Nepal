@@ -1,15 +1,19 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
-import { Calendar, ChevronDown, Star } from "lucide-react"
+import { Calendar, ChevronDown, Star, XCircle } from "lucide-react"
 import { toast } from "react-toastify"
-import { getUserOrders } from "../../services/orders"
+import { getUserOrders, getCancellationQuote, cancelOrder } from "../../services/orders"
 import RatingModal from "../ui/RatingModal"
+import Sheet from "../ui/Sheet"
+import { formatBoth } from "../../utils/nepaliDate"
+import { img, SIZES } from "../../utils/image"
 
 const rs = (n) => `Rs ${Number(n || 0).toLocaleString("en-IN")}`
 
-const date = (v) =>
-  v ? new Date(v).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—"
+/* Dates read in Bikram Sambat first, because that is the calendar the
+   booking was made in, with the Gregorian date beside it. */
+const date = (v) => (v ? formatBoth(v) : "—")
 
 const FILTERS = ["all", "draft", "pending", "confirmed", "processing", "completed", "cancelled"]
 
@@ -23,6 +27,21 @@ const STATUS_TONE = {
 }
 
 const PROVIDER = { khalti: "Khalti", fonepay: "Fonepay", cash: "Cash after service" }
+
+/* Each dated line carries its own status. A venue can fall through without
+   taking the studio with it, which one word for the whole order could not
+   express. */
+const ITEM_TONE = {
+  pending: "border-orange-200 bg-orange-50 text-orange-800",
+  confirmed: "border-green-200 bg-green-50 text-green-700",
+  cancelled: "border-red-200 bg-red-50 text-red-700",
+}
+
+const REFUND_TONE = {
+  due: "border-orange-200 bg-orange-50 text-orange-800",
+  processing: "border-blue-200 bg-blue-50 text-blue-700",
+  refunded: "border-green-200 bg-green-50 text-green-700",
+}
 
 /** What the customer still owes, said plainly. */
 const paymentLine = (order) => {
@@ -42,6 +61,11 @@ const OrdersComponent = () => {
   const [search, setSearch] = useState("")
   const [rating, setRating] = useState(null) // { item, itemType }
   const [rated, setRated] = useState(new Set())
+  /* { order, quote } — the quote is fetched before the dialog opens so the
+     customer sees what they get back before deciding, not after. */
+  const [cancelling, setCancelling] = useState(null)
+  const [reason, setReason] = useState("")
+  const [confirming, setConfirming] = useState(false)
 
   useEffect(() => {
     let live = true
@@ -63,6 +87,39 @@ const OrdersComponent = () => {
 
   const canRate = (order, item) =>
     order.status?.toLowerCase() === "completed" && !rated.has(`${item.itemId}-${item.itemType}`)
+
+  /* Cancelling is only possible while there is still something to cancel. */
+  const canCancel = (order) =>
+    !["cancelled", "completed"].includes(order.status?.toLowerCase())
+
+  const startCancel = async (order) => {
+    setCancelling({ order, quote: null })
+    setReason("")
+    try {
+      const quote = await getCancellationQuote(order._id)
+      setCancelling({ order, quote })
+    } catch {
+      toast.error("We couldn't work out the refund. Try again in a moment.")
+      setCancelling(null)
+    }
+  }
+
+  const confirmCancel = async () => {
+    if (!reason.trim()) return toast.info("Tell us briefly why you're cancelling.")
+    setConfirming(true)
+    try {
+      const result = await cancelOrder(cancelling.order._id, reason.trim())
+      toast.success(result.message)
+      setOrders((current) =>
+        current.map((o) => (o._id === cancelling.order._id ? result.data.order : o)),
+      )
+      setCancelling(null)
+    } catch (error) {
+      toast.error(error.response?.data?.message || "That didn't go through.")
+    } finally {
+      setConfirming(false)
+    }
+  }
 
   const openItem = (item) => {
     const type = item.itemType?.toLowerCase()
@@ -194,7 +251,7 @@ const OrdersComponent = () => {
                         {order.items?.map((item, i) => (
                           <li key={item._id || i} className="flex gap-4 p-5">
                             <img
-                              src={item.image || "/placeholder.svg"}
+                              src={img(item.image, { w: SIZES.thumb }) || "/placeholder.svg"}
                               alt=""
                               loading="lazy"
                               className="h-16 w-16 shrink-0 rounded-md border border-line object-cover"
@@ -205,15 +262,31 @@ const OrdersComponent = () => {
                                   <p className="truncate t-body font-semibold text-ink">
                                     {item.name}
                                   </p>
-                                  <p className="mt-0.5 t-caption capitalize text-ink-mute">
-                                    {item.itemType}
-                                    {item.quantity > 1 && (
-                                      <>
-                                        {" · "}
-                                        <span className="amount">{item.quantity}</span>
-                                      </>
+                                  <p className="mt-0.5 flex flex-wrap items-center gap-2 t-caption capitalize text-ink-mute">
+                                    <span>
+                                      {item.itemType}
+                                      {item.quantity > 1 && (
+                                        <>
+                                          {" · "}
+                                          <span className="amount">{item.quantity}</span>
+                                        </>
+                                      )}
+                                    </span>
+                                    {item.bookingStatus && (
+                                      <span
+                                        className={`inline-flex items-center rounded-full border px-2 py-px t-caption font-semibold ${
+                                          ITEM_TONE[item.bookingStatus] || ITEM_TONE.pending
+                                        }`}
+                                      >
+                                        {item.bookingStatus}
+                                      </span>
                                     )}
                                   </p>
+                                  {item.statusNote && (
+                                    <p className="mt-1 t-caption leading-relaxed text-ink-soft">
+                                      {item.statusNote}
+                                    </p>
+                                  )}
                                 </div>
                                 <span className="amount shrink-0 t-small font-semibold text-ink">
                                   {rs(item.price * item.quantity)}
@@ -283,6 +356,43 @@ const OrdersComponent = () => {
                         </p>
                       )}
 
+                      {order.status === "cancelled" && (
+                        <div className="border-t border-line bg-gray-50 px-5 py-4">
+                          <p className="t-small text-ink-soft">
+                            Cancelled {date(order.cancelledAt)}
+                            {order.cancellationReason ? ` — ${order.cancellationReason}` : ""}
+                          </p>
+                          {order.refundStatus && order.refundStatus !== "none" && (
+                            <p className="mt-2 inline-flex items-center gap-2 t-caption">
+                              <span
+                                className={`inline-flex items-center rounded-full border px-2 py-px font-semibold capitalize ${
+                                  REFUND_TONE[order.refundStatus] || REFUND_TONE.due
+                                }`}
+                              >
+                                Refund {order.refundStatus}
+                              </span>
+                              {order.refundStatus === "refunded" && (
+                                <span className="amount text-ink-soft">
+                                  {rs(order.refundedAmount)} returned {date(order.refundedAt)}
+                                </span>
+                              )}
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {canCancel(order) && order.status !== "draft" && (
+                        <div className="border-t border-line px-5 py-4">
+                          <button
+                            onClick={() => startCancel(order)}
+                            className="inline-flex items-center gap-1.5 t-small font-medium text-ink-mute transition-colors hover:text-red-700"
+                          >
+                            <XCircle className="h-3.5 w-3.5" strokeWidth={1.75} />
+                            Cancel this booking
+                          </button>
+                        </div>
+                      )}
+
                       {order.status === "draft" && (
                         <div className="border-t border-line bg-gray-50 px-5 py-4">
                           <p className="t-small text-ink-soft">
@@ -305,6 +415,84 @@ const OrdersComponent = () => {
           })}
         </ul>
       )}
+
+      {/* Cancelling names the money before it asks for the decision. */}
+      <Sheet
+        open={Boolean(cancelling)}
+        onClose={() => !confirming && setCancelling(null)}
+        title="Cancel this booking"
+        heading="Cancel this booking"
+        description={cancelling ? `Order #${cancelling.order._id.slice(-8).toUpperCase()}` : ""}
+        width="max-w-md"
+      >
+        <div className="p-6">
+          {!cancelling?.quote ? (
+            <div className="flex items-center gap-3 py-6 text-ink-mute">
+              <span className="loader" />
+              <span className="t-small">Working out your refund…</span>
+            </div>
+          ) : (
+            <>
+              <dl className="divide-y divide-line border-y border-line">
+                <div className="flex items-baseline justify-between py-3">
+                  <dt className="t-small text-ink-soft">You have paid</dt>
+                  <dd className="amount t-body text-ink">{rs(cancelling.quote.paidAmount)}</dd>
+                </div>
+                <div className="flex items-baseline justify-between py-3">
+                  <dt className="t-small text-ink-soft">Comes back to you</dt>
+                  <dd className="amount t-heading font-semibold text-ink">
+                    {rs(cancelling.quote.refundAmount)}
+                  </dd>
+                </div>
+              </dl>
+
+              <p className="mt-4 t-caption leading-relaxed text-ink-mute">
+                {cancelling.quote.policy}
+                {cancelling.quote.eventDate
+                  ? ` Your event is on ${date(cancelling.quote.eventDate)}.`
+                  : ""}
+              </p>
+
+              <label htmlFor="cancel-reason" className="label mt-6">
+                Why are you cancelling?
+              </label>
+              <textarea
+                id="cancel-reason"
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                rows={3}
+                maxLength={500}
+                placeholder="The date moved, the guest list changed…"
+                className="field resize-none"
+              />
+
+              <div className="mt-7 flex justify-end gap-2">
+                <button
+                  onClick={() => setCancelling(null)}
+                  disabled={confirming}
+                  className="btn btn-ghost"
+                >
+                  Keep it
+                </button>
+                <button
+                  onClick={confirmCancel}
+                  disabled={confirming}
+                  className="btn border-red-600 bg-red-600 text-white hover:bg-red-700"
+                >
+                  {confirming ? (
+                    <>
+                      <span className="loader h-4 w-4 border-white/40 border-t-white" />
+                      Cancelling…
+                    </>
+                  ) : (
+                    "Cancel booking"
+                  )}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </Sheet>
 
       <RatingModal
         isOpen={Boolean(rating)}

@@ -1,16 +1,12 @@
-import { useEffect } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ToastContainer } from 'react-toastify';
 import { ScrollProgress } from './components/ui/Motion';
 
 // Auth pages
-import AuthSuccess from './pages/auth/AuthSuccess';
-import Register from './pages/auth/Register';
+
 import Login from './pages/auth/Login';
-import ForgotPassword from './pages/auth/ForgotPassword';
-import ResetPassword from './pages/auth/ResetPassword';
-import Welcome from './pages/auth/Welcome';
 
 // Public pages
 import Home from './pages/public/Home';
@@ -25,39 +21,61 @@ import Studios from './pages/services/Studios';
 import StudioDetails from './pages/services/StudioDetails';
 
 // User pages
-import Cart from './pages/user/Cart';
-import UserProfile from './pages/user/Profile';
-import PaymentSelection from './pages/user/PaymentSelection';
-import PaymentCallback from './pages/user/PaymentCallback';
-import OrderSuccess from './pages/user/OrderSuccess';
 
 // Admin pages
-import Admin from './pages/admin/AdminDashboard';
-import AdminLogin from './pages/admin/AdminLogin';
-import Adminstudios from './pages/admin/StudioManagement';
-import AdminCuisines from './pages/admin/CuisineManagement';
-import AdminVenues from './pages/admin/VenueManagement';
-import AdminContact from './pages/admin/ContactManagement';
-import AdminOrderList from './pages/admin/OrderManagement';
-import OrderDetails from './pages/admin/OrderDetails';
-import ContactDetails from './pages/admin/ContactDetails';
-import UserInspection from './pages/admin/UserInspection';
 
 // Common components
 import Header from './components/common/Header';
 import AdminHeader from './components/common/AdminHeader';
 
 // Form components
-import AddstudioForm from './components/forms/AddStudioForm';
-import AddVenueForm from './components/forms/AddVenueForm';
-import AddCuisineForm from './components/forms/AddCuisineForm';
-import EditVenue from './components/forms/EditVenueForm';
-import EditCuisines from './components/forms/EditCuisineForm';
-import Editstudio from './components/forms/EditStudioForm';
+
+/* Route-level splitting.
+   The public catalogue stays in the first chunk — it is what a visitor
+   arrives on, and a spinner there costs more than the bytes save. Everything
+   behind a login, and the whole admin section, loads on demand: it was a
+   third of a 650kB bundle that most visitors never open. */
+const AuthSuccess = lazy(() => import('./pages/auth/AuthSuccess'));
+const Register = lazy(() => import('./pages/auth/Register'));
+const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword'));
+const ResetPassword = lazy(() => import('./pages/auth/ResetPassword'));
+const Welcome = lazy(() => import('./pages/auth/Welcome'));
+const Cart = lazy(() => import('./pages/user/Cart'));
+const UserProfile = lazy(() => import('./pages/user/Profile'));
+const PaymentSelection = lazy(() => import('./pages/user/PaymentSelection'));
+const PaymentCallback = lazy(() => import('./pages/user/PaymentCallback'));
+const OrderSuccess = lazy(() => import('./pages/user/OrderSuccess'));
+const Admin = lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
+const Adminstudios = lazy(() => import('./pages/admin/StudioManagement'));
+const AdminCuisines = lazy(() => import('./pages/admin/CuisineManagement'));
+const AdminVenues = lazy(() => import('./pages/admin/VenueManagement'));
+const AdminContact = lazy(() => import('./pages/admin/ContactManagement'));
+const AdminAvailability = lazy(() => import('./pages/admin/AvailabilityCalendar'));
+const AdminOrderList = lazy(() => import('./pages/admin/OrderManagement'));
+const OrderDetails = lazy(() => import('./pages/admin/OrderDetails'));
+const ContactDetails = lazy(() => import('./pages/admin/ContactDetails'));
+const UserInspection = lazy(() => import('./pages/admin/UserInspection'));
+const AddstudioForm = lazy(() => import('./components/forms/AddStudioForm'));
+const AddVenueForm = lazy(() => import('./components/forms/AddVenueForm'));
+const AddCuisineForm = lazy(() => import('./components/forms/AddCuisineForm'));
+const EditVenue = lazy(() => import('./components/forms/EditVenueForm'));
+const EditCuisines = lazy(() => import('./components/forms/EditCuisineForm'));
+const Editstudio = lazy(() => import('./components/forms/EditStudioForm'));
+
+/* Held for a chunk that is still arriving. Deliberately quiet — a full-page
+   spinner for a fetch that usually finishes in under 200ms reads as a fault. */
+const RouteFallback = () => (
+  <div className="flex min-h-[70vh] items-center justify-center bg-paper">
+    <span className="loader" aria-label="Loading" />
+  </div>
+);
 
 // Contexts
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { FavoritesProvider } from './context/FavoritesContext';
+import { LanguageProvider } from './context/LanguageContext';
 
 /* Routes fade through each other rather than cutting. The wrapper also resets
    scroll on navigation — react-router keeps the old position otherwise, which
@@ -105,6 +123,7 @@ function AppContent() {
     '/admin-cuisines',
     '/admin-venues',
     '/admin-contact',
+    '/admin-availability',
     '/admin-studios/edit',
     '/admin-venues/edit',
     '/admin-cuisines/edit',
@@ -126,11 +145,13 @@ function AppContent() {
   return (
     <AuthProvider>
       <CartProvider>
+      <FavoritesProvider>
       <ScrollProgress />
       {!shouldHideHeader && !shouldShowAdminHeader && <Header />}
       {shouldShowAdminHeader && <AdminHeader />}
 
       <PageTransition>
+        <Suspense fallback={<RouteFallback />}>
         <Routes location={location}>
           {/* User Routes */}
           <Route path="/" element={<Home />} />
@@ -162,6 +183,7 @@ function AppContent() {
           <Route path="/admin-cuisines" element={<AdminCuisines />} />
           <Route path="/admin-venues" element={<AdminVenues />} />
           <Route path="/admin-contact" element={<AdminContact />} />
+          <Route path="/admin-availability" element={<AdminAvailability />} />
           <Route path="/admin-contact/:contactId" element={<ContactDetails/>}/>
           
           {/* Admin Edit Routes */}
@@ -182,6 +204,7 @@ function AppContent() {
           <Route path="/not-found" element={<NotFound />} />
           <Route path="*" element={<Navigate to="/not-found" replace />} />
         </Routes>
+        </Suspense>
       </PageTransition>
 
         {/* Styling lives in globals.css so toasts inherit the house type and
@@ -196,6 +219,7 @@ function AppContent() {
           draggable
           theme="light"
         />
+      </FavoritesProvider>
       </CartProvider>
     </AuthProvider>
   );
@@ -204,9 +228,11 @@ function AppContent() {
 function App() {
   return (
     <BrowserRouter future={{ v7_startTransition: true }}>
+      <LanguageProvider>
       <main>
         <AppContent />
       </main>
+      </LanguageProvider>
     </BrowserRouter>
   );
 }

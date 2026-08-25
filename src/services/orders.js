@@ -36,16 +36,45 @@ export const getUserOrders = async () => {
   }
 };
 
-export const createOrder = async (items) => {
+/* `guestCount` is optional so older callers keep working; when it is given
+   the server prices every dish per head from it. */
+export const createOrder = async (items, guestCount = null) => {
   try {
     const response = await API.post("/api/orders", {
-      items: items
+      items,
+      ...(guestCount ? { guestCount } : {}),
     });
     return response.data;
   } catch (err) {
     console.error("Error Creating Order", err);
     throw err;
   }
+};
+
+/** What cancelling would return, before anyone commits to it. */
+export const getCancellationQuote = async (orderId) => {
+  const response = await API.get(`/api/orders/${orderId}/cancellation-quote`);
+  return response.data.data;
+};
+
+export const cancelOrder = async (orderId, reason) => {
+  const response = await API.post(`/api/orders/${orderId}/cancel`, { reason });
+  return response.data;
+};
+
+/** Admin: move one line of an order without touching the rest. */
+export const updateOrderItemStatus = async (orderId, itemId, bookingStatus, note = "") => {
+  const response = await API.patch(`/api/orders/${orderId}/items/${itemId}/status`, {
+    bookingStatus,
+    note,
+  });
+  return response.data;
+};
+
+/** Admin: record that a refund has actually been paid out. */
+export const settleRefund = async (orderId, { amount, reference } = {}) => {
+  const response = await API.post(`/api/orders/${orderId}/refund`, { amount, reference });
+  return response.data;
 };
 
 export const updateOrderStatus = async (orderId, newStatus) => {

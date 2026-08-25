@@ -125,6 +125,14 @@ const STATUS_TONE = {
   blocked: "danger",
   verified: "success",
   unverified: "warning",
+  // Refunds and the enquiry queue read through the same map, so a status has
+  // one colour everywhere it appears.
+  due: "warning",
+  refunded: "success",
+  new: "info",
+  in_progress: "warning",
+  answered: "success",
+  closed: "neutral",
 }
 
 export const StatusBadge = ({ status, tone, children }) => {

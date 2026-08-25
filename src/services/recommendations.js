@@ -19,3 +19,20 @@ export const getWeddingPackageRecommendation = async (params) => {
     throw new Error(error.response?.data?.message || 'Failed to fetch recommendations');
   }
 };
+/** The six occasions this company runs, and what each one implies. */
+export const getOccasions = async () => {
+  const response = await API.get("/api/recommend/occasions");
+  return response.data.data.occasions;
+};
+
+/**
+ * One budget and a headcount, for any occasion — rather than the three
+ * separate budgets the wedding-only planner asked people to invent.
+ */
+export const getOccasionPackage = async ({ occasion, budget, guests, location, skipStudio }) => {
+  const params = new URLSearchParams({ occasion, budget, guests });
+  if (location) params.append("location", location);
+  if (skipStudio) params.append("skipStudio", "true");
+  const response = await API.get(`/api/recommend/package?${params}`);
+  return response.data.data;
+};

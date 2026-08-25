@@ -1,29 +1,95 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
+import { getServerCart, saveServerCart } from '../services/users';
 
 const CartContext = createContext();
 
-export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState([]);
+const STORAGE_KEY = "weddingCart";
 
-  // Load cart items from session storage on initialization
+/* Storage can throw outright — private windows, blocked site data — and a cart
+   that cannot be remembered is not a reason to fail the page. */
+const readLocal = () => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    const parsed = saved ? JSON.parse(saved) : null;
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
+const writeLocal = (items) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  } catch {
+    // Nothing to do: the cart still works for this session.
+  }
+};
+
+export const CartProvider = ({ children }) => {
+  /* Seeded synchronously from localStorage so the cart is correct on the
+     first paint rather than appearing empty and then filling in. */
+  const [cartItems, setCartItems] = useState(readLocal);
+  const [synced, setSynced] = useState(false);
+  const saveTimer = useRef(null);
+
+  /* On sign-in, the local cart and the stored one are merged rather than one
+     overwriting the other: someone who added a venue on their phone and a
+     studio on their laptop should end up with both. */
   useEffect(() => {
-    const savedCart = sessionStorage.getItem("weddingCart");
-    if (savedCart) {
-      try {
-        const parsedCart = JSON.parse(savedCart);
-        setCartItems(Array.isArray(parsedCart) ? parsedCart : []);
-      } catch (error) {
-        console.error("Error parsing cart from session storage:", error);
-        setCartItems([]);
-      }
+    const token = localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
+    if (!token) {
+      setSynced(false);
+      return;
     }
+
+    let live = true;
+    getServerCart()
+      .then((cart) => {
+        if (!live) return;
+        const stored = Array.isArray(cart?.items) ? cart.items : [];
+        setCartItems((local) => {
+          const merged = [...stored];
+          for (const item of local) {
+            const clash = merged.some(
+              (m) => m._id === item._id && m.type === item.type,
+            );
+            if (!clash) merged.push(item);
+          }
+          return merged;
+        });
+        if (cart?.guestCount) {
+          try {
+            localStorage.setItem("guestCount", String(cart.guestCount));
+          } catch {
+            // Ignored: the headcount is re-asked on the cart page.
+          }
+        }
+      })
+      .catch(() => {})
+      .finally(() => live && setSynced(true));
+
+    return () => {
+      live = false;
+    };
   }, []);
 
-  // Save cart items to session storage whenever cart items change
+  /* Local writes are immediate; the server write is debounced, because the
+     cart changes on every tap of a quantity stepper. */
   useEffect(() => {
-    sessionStorage.setItem("weddingCart", JSON.stringify(cartItems));
-  }, [cartItems]);
+    writeLocal(cartItems);
+
+    if (!synced) return;
+    clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      const guestCount = Number(localStorage.getItem("guestCount")) || null;
+      saveServerCart({ items: cartItems, guestCount }).catch(() => {
+        // Silent: the cart is intact locally and the next change retries.
+      });
+    }, 900);
+
+    return () => clearTimeout(saveTimer.current);
+  }, [cartItems, synced]);
 
   const addToCart = (item, bookingDates = null, silent = false, isRecommendationPackage = false) => {
     try {
@@ -175,7 +241,13 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = () => {
     setCartItems([]);
-    sessionStorage.removeItem("weddingCart");
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem("guestCount");
+    } catch {
+      // Ignored.
+    }
+    if (synced) saveServerCart({ items: [], guestCount: null }).catch(() => {});
     toast.success("Cart cleared successfully!");
   };
 

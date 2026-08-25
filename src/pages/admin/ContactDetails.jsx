@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { Mail, Phone } from "lucide-react"
+import { Mail, Phone, Send, StickyNote } from "lucide-react"
 import { toast } from "react-toastify"
-import { getContactById, deleteContactById } from "../../services/contact"
+import {
+  getContactById,
+  deleteContactById,
+  replyToContact,
+  updateContactStatus,
+} from "../../services/contact"
 import {
   AdminPage,
   BackLink,
@@ -30,6 +35,15 @@ const SUBJECT_LABELS = {
   others: "Something else",
 }
 
+/* Where an enquiry has got to. It had no state at all before, so the only way
+   to know whether someone had replied was to ask them. */
+const STATUSES = [
+  { id: "new", label: "New", tone: "border-blue-200 bg-blue-50 text-blue-700" },
+  { id: "in_progress", label: "Working on it", tone: "border-orange-200 bg-orange-50 text-orange-800" },
+  { id: "answered", label: "Answered", tone: "border-green-200 bg-green-50 text-green-700" },
+  { id: "closed", label: "Closed", tone: "border-line bg-gray-100 text-ink-soft" },
+]
+
 const budgetLabel = (value) => {
   if (!value) return "Not given"
   const fmt = (n) => Number(n).toLocaleString("en-IN")
@@ -46,6 +60,10 @@ const ContactDetails = () => {
   const [error, setError] = useState(null)
   const [confirming, setConfirming] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [reply, setReply] = useState("")
+  const [sending, setSending] = useState(false)
+  const [note, setNote] = useState("")
+  const [savingNote, setSavingNote] = useState(false)
 
   const load = async () => {
     setLoading(true)
@@ -53,7 +71,9 @@ const ContactDetails = () => {
     try {
       const res = await getContactById(contactId)
       if (res?.success === false) throw new Error(res.message)
-      setContact(res.contact || res.data || res)
+      const found = res.contact || res.data?.contact || res.data || res
+      setContact(found)
+      setNote(found?.internalNote || "")
     } catch (err) {
       setError(err.message || "This enquiry didn't load.")
     } finally {
@@ -65,6 +85,49 @@ const ContactDetails = () => {
     load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contactId])
+
+  const setStatus = async (status) => {
+    const previous = contact.status
+    setContact((current) => ({ ...current, status }))
+    try {
+      await updateContactStatus(contactId, { status })
+    } catch (err) {
+      setContact((current) => ({ ...current, status: previous }))
+      toast.error(err.response?.data?.message || "That didn't save.")
+    }
+  }
+
+  const saveNote = async () => {
+    setSavingNote(true)
+    try {
+      const result = await updateContactStatus(contactId, { internalNote: note })
+      setContact(result.data.contact)
+      toast.success("Note saved.")
+    } catch (err) {
+      toast.error(err.response?.data?.message || "The note didn't save.")
+    } finally {
+      setSavingNote(false)
+    }
+  }
+
+  const sendReply = async (event) => {
+    event.preventDefault()
+    if (reply.trim().length < 2) return toast.info("Write a reply before sending it.")
+
+    setSending(true)
+    try {
+      const result = await replyToContact(contactId, reply.trim())
+      setContact(result.data.contact)
+      setReply("")
+      // The reply is stored even when the mail fails, so say which happened.
+      if (result.warning) toast.warning(result.warning)
+      else toast.success(result.message)
+    } catch (err) {
+      toast.error(err.response?.data?.message || "The reply didn't send.")
+    } finally {
+      setSending(false)
+    }
+  }
 
   const confirmDelete = async () => {
     setDeleting(true)
@@ -103,14 +166,34 @@ const ContactDetails = () => {
       <BackLink to="/admin-contact">Back to enquiries</BackLink>
 
       <AdminHeading eyebrow="Enquiry" title={contact.name || "No name given"}>
-        <a href={replyHref} className="btn btn-accent no-underline">
+        <a href={replyHref} className="btn btn-ghost no-underline">
           <Mail className="h-4 w-4" strokeWidth={2} />
-          Reply by email
+          Open in mail app
         </a>
         <button onClick={() => setConfirming(true)} className="btn btn-ghost">
           Delete
         </button>
       </AdminHeading>
+
+      {/* The queue state, changed in one click from the record itself. */}
+      <div className="mt-6 flex flex-wrap items-center gap-2">
+        <span className="t-caption text-ink-mute">Status</span>
+        {STATUSES.map((status) => {
+          const active = (contact.status || "new") === status.id
+          return (
+            <button
+              key={status.id}
+              onClick={() => setStatus(status.id)}
+              aria-pressed={active}
+              className={`rounded-full border px-3 py-1 t-caption font-semibold transition-colors active:scale-95 ${
+                active ? status.tone : "border-line text-ink-mute hover:border-ink-mute hover:text-ink"
+              }`}
+            >
+              {status.label}
+            </button>
+          )
+        })}
+      </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_360px]">
         <DetailCard title="Their message">
@@ -123,6 +206,64 @@ const ContactDetails = () => {
               <p className="t-small text-ink-mute">No message was included.</p>
             )}
           </div>
+
+          {/* What has already been said, so the next person to open this does
+              not answer the same question twice. */}
+          {contact.replies?.length > 0 && (
+            <ul className="divide-y divide-line border-t border-line">
+              {contact.replies.map((entry, i) => (
+                <li key={entry._id || i} className="bg-gray-50 px-5 py-4">
+                  <p className="flex flex-wrap items-baseline gap-2 t-caption text-ink-mute">
+                    <span className="font-semibold text-ink-soft">
+                      {entry.sentByName || "Staff"}
+                    </span>
+                    <span>{formatDateTime(entry.sentAt)}</span>
+                    {!entry.emailed && (
+                      <span className="rounded-full border border-orange-200 bg-orange-50 px-2 py-px font-semibold text-orange-800">
+                        Not emailed
+                      </span>
+                    )}
+                  </p>
+                  <p className="mt-2 whitespace-pre-wrap t-small leading-relaxed text-ink">
+                    {entry.body}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <form onSubmit={sendReply} className="border-t border-line px-5 py-5">
+            <label htmlFor="reply" className="label">
+              Reply to {contact.name || "them"}
+            </label>
+            <textarea
+              id="reply"
+              value={reply}
+              onChange={(e) => setReply(e.target.value)}
+              rows={5}
+              maxLength={4000}
+              placeholder={`Hello ${contact.name || "there"},\n\nThanks for getting in touch about your event.`}
+              className="field resize-y"
+            />
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+              <p className="t-caption text-ink-mute">
+                Sends to <span className="amount">{contact.email}</span> and is recorded here.
+              </p>
+              <button type="submit" disabled={sending} className="btn btn-accent">
+                {sending ? (
+                  <>
+                    <span className="loader h-4 w-4 border-white/40 border-t-white" />
+                    Sending…
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4" strokeWidth={2} />
+                    Send reply
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
         </DetailCard>
 
         <div className="space-y-6">
@@ -163,6 +304,33 @@ const ContactDetails = () => {
                 ["Received", formatDateTime(contact.createdAt), true],
               ]}
             />
+          </DetailCard>
+
+          {/* Staff-only. Never reaches the customer. */}
+          <DetailCard title="Internal note">
+            <div className="px-5 py-4">
+              <textarea
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                rows={4}
+                maxLength={2000}
+                placeholder="Rang bhawan quoted, waiting on their date…"
+                className="field resize-y"
+              />
+              <div className="mt-3 flex items-center justify-between gap-3">
+                <p className="inline-flex items-center gap-1.5 t-caption text-ink-mute">
+                  <StickyNote className="h-3.5 w-3.5" strokeWidth={1.75} />
+                  Only staff see this
+                </p>
+                <button
+                  onClick={saveNote}
+                  disabled={savingNote || note === (contact.internalNote || "")}
+                  className="btn btn-ghost"
+                >
+                  {savingNote ? "Saving…" : "Save note"}
+                </button>
+              </div>
+            </div>
           </DetailCard>
         </div>
       </div>

@@ -57,3 +57,15 @@ export const deleteContactById = async(id) =>{
   }
 }
 
+
+/** Move an enquiry through the queue, or leave a staff-only note on it. */
+export const updateContactStatus = async (id, { status, internalNote }) => {
+  const response = await API.patch(`/api/contacts/form/${id}`, { status, internalNote });
+  return response.data;
+};
+
+/** Reply by email. The reply is recorded even if the mail fails to send. */
+export const replyToContact = async (id, body) => {
+  const response = await API.post(`/api/contacts/form/${id}/reply`, { body });
+  return response.data;
+};

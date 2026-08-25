@@ -23,5 +23,22 @@ export default defineConfig(({ mode }) => {
       },
     },
     base: '/',
+
+    build: {
+      rollupOptions: {
+        output: {
+          /* Split the libraries out of the app chunk. They change on an npm
+             upgrade, the app changes every deploy — sharing one file meant
+             every deploy re-downloaded React and framer-motion too. */
+          manualChunks: {
+            react: ['react', 'react-dom', 'react-router-dom'],
+            motion: ['framer-motion'],
+            icons: ['lucide-react'],
+          },
+        },
+      },
+      // The vendor chunks below are known and deliberate.
+      chunkSizeWarningLimit: 700,
+    },
   };
 });

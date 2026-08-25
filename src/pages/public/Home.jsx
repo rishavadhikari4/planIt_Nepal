@@ -10,6 +10,8 @@ import { useCart } from "../../context/CartContext"
 import { getAllVenues } from "../../services/venues"
 import { getAllStudios } from "../../services/studios"
 import PaymentMark from "../../components/ui/PaymentMark"
+import DateAvailabilitySearch from "../../components/ui/DateAvailabilitySearch"
+import { img, SIZES } from "../../utils/image"
 import {
   EASE,
   Reveal,
@@ -169,7 +171,7 @@ const Home = () => {
             style={reduced ? undefined : { y: heroY, scale: heroScale }}
           >
             <motion.img
-              src={hero.src}
+              src={img(hero.src, { w: SIZES.hero })}
               alt=""
               initial={reduced ? false : { scale: 1.18, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -335,6 +337,28 @@ const Home = () => {
         </motion.div>
       </section>
 
+      {/* ---------- What is free on a date ---------- */}
+      <section className="mx-auto mt-12 max-w-7xl px-5 sm:mt-16 sm:px-6 lg:px-8">
+        <Stagger className="grid gap-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:items-center lg:gap-16">
+          <div>
+            <Item as="p" className="eyebrow">
+              Start with the date
+            </Item>
+            <Item as="h2" className="mt-5 t-title">
+              Tell us the day.
+              <br />
+              <span className="t-turn">We&rsquo;ll show you what&rsquo;s open.</span>
+            </Item>
+            <Item as="p" className="mt-5 max-w-[40ch] t-body text-ink-soft">
+              Availability is real. Nothing shown here is already held by another booking.
+            </Item>
+          </div>
+          <Item>
+            <DateAvailabilitySearch />
+          </Item>
+        </Stagger>
+      </section>
+
       {/* ---------- Live inventory band ---------- */}
       {band.length > 0 && (
         <div className="relative mt-16 border-y border-line bg-surface py-6 sm:mt-20">
@@ -349,7 +373,7 @@ const Home = () => {
                 className="group relative h-52 w-72 shrink-0 overflow-hidden rounded-lg border border-line sm:h-64 sm:w-96"
               >
                 <img
-                  src={item.src}
+                  src={img(item.src, { w: SIZES.tile })}
                   alt=""
                   loading="lazy"
                   className="h-full w-full object-cover transition-transform duration-[1100ms] ease-out group-hover:scale-110"
@@ -522,7 +546,7 @@ const Home = () => {
       <section className="relative isolate overflow-hidden border-y border-line bg-crimson-deep text-white">
         {payingImage && (
           <motion.img
-            src={payingImage}
+            src={img(payingImage, { w: SIZES.panel })}
             alt=""
             aria-hidden
             initial={reduced ? false : { scale: 1.15 }}

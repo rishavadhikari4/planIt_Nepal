@@ -7,6 +7,7 @@ import {
   AdminHeading,
   AdminToolbar,
   FilterSelect,
+  StatusBadge,
   Table,
   Td,
   TableSkeleton,
@@ -33,6 +34,22 @@ const SUBJECTS = [
   { value: "others", label: "Something else" },
 ]
 
+/* The queue states, and what each is called on screen. */
+const STATUS_FILTERS = [
+  { value: "", label: "Any status" },
+  { value: "new", label: "New" },
+  { value: "in_progress", label: "Working on it" },
+  { value: "answered", label: "Answered" },
+  { value: "closed", label: "Closed" },
+]
+
+const STATUS_LABELS = {
+  new: "New",
+  in_progress: "Working on it",
+  answered: "Answered",
+  closed: "Closed",
+}
+
 const subjectLabel = (value) =>
   SUBJECTS.find((s) => s.value === value)?.label || value || "Not specified"
 
@@ -56,6 +73,9 @@ const AdminContact = () => {
   const [totalPages, setTotalPages] = useState(1)
   const [total, setTotal] = useState(0)
   const [subject, setSubject] = useState("")
+  /* Filtered here rather than on the server: the list is already paged and
+     the queue view is about what is still open, not about the whole history. */
+  const [status, setStatus] = useState("")
   const [search, setSearch] = useState("")
   const [pendingDelete, setPendingDelete] = useState(null)
   const [deleting, setDeleting] = useState(false)
@@ -108,13 +128,17 @@ const AdminContact = () => {
 
   // The endpoint filters by subject; the search box narrows what came back.
   const term = search.trim().toLowerCase()
-  const visible = contacts.filter(
-    (c) =>
+  const visible = contacts.filter((c) => {
+    const matchesTerm =
       !term ||
       c.name?.toLowerCase().includes(term) ||
       c.email?.toLowerCase().includes(term) ||
-      c.message?.toLowerCase().includes(term),
-  )
+      c.message?.toLowerCase().includes(term)
+    const matchesStatus = !status || (c.status || "new") === status
+    return matchesTerm && matchesStatus
+  })
+
+  const open = contacts.filter((c) => !["answered", "closed"].includes(c.status || "new")).length
 
   return (
     <AdminPage>
@@ -128,7 +152,14 @@ const AdminContact = () => {
 
       <AdminToolbar search={search} onSearch={setSearch} placeholder="Search by name, email or wording">
         <FilterSelect value={subject} onChange={setSubject} options={SUBJECTS} label="Enquiries" />
+        <FilterSelect value={status} onChange={setStatus} options={STATUS_FILTERS} label="Any status" />
       </AdminToolbar>
+
+      {open > 0 && (
+        <p className="mt-4 t-small text-ink-soft">
+          <span className="amount font-semibold text-ink">{open}</span> still waiting for a reply.
+        </p>
+      )}
 
       {error ? (
         <AdminError message={error} onRetry={() => load(page)} />
@@ -140,17 +171,18 @@ const AdminContact = () => {
               ? "Messages sent through the contact form on the site will land here."
               : "Try a different search, or widen the occasion filter."
           }
-          action={term || subject ? "Clear filters" : undefined}
+          action={term || subject || status ? "Clear filters" : undefined}
           onAction={() => {
             setSearch("")
             setSubject("")
+            setStatus("")
           }}
         />
       ) : (
         <>
-          <Table head={["From", "Occasion", "Budget", "Received", { label: "", align: "right" }]}>
+          <Table head={["From", "Occasion", "Status", "Budget", "Received", { label: "", align: "right" }]}>
             {loading ? (
-              <TableSkeleton columns={5} />
+              <TableSkeleton columns={6} />
             ) : (
               visible.map((contact) => (
                 <tr key={contact._id} className="transition-colors hover:bg-gray-50">
@@ -167,6 +199,12 @@ const AdminContact = () => {
                   </Td>
 
                   <Td className="text-ink-soft">{subjectLabel(contact.subject)}</Td>
+
+                  <Td>
+                    <StatusBadge status={contact.status || "new"}>
+                      {STATUS_LABELS[contact.status || "new"]}
+                    </StatusBadge>
+                  </Td>
 
                   <Td className="amount whitespace-nowrap text-ink-soft">
                     {budgetLabel(contact.budget)}

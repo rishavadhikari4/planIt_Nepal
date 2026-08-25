@@ -288,8 +288,8 @@ export const GalleryManager = ({
 }
 
 /** Multi-select rendered as toggles, which reads better than a native multiple. */
-export const CheckboxGroup = ({ label, options, value = [], onChange, hint }) => (
-  <fieldset>
+export const CheckboxGroup = ({ label, options, value = [], onChange, hint, disabled = false }) => (
+  <fieldset disabled={disabled} className={disabled ? "opacity-45" : undefined}>
     <legend className="label">{label}</legend>
     <div className="flex flex-wrap gap-2">
       {options.map((option) => {
@@ -301,7 +301,7 @@ export const CheckboxGroup = ({ label, options, value = [], onChange, hint }) =>
             role="checkbox"
             aria-checked={on}
             onClick={() => onChange(on ? value.filter((v) => v !== option) : [...value, option])}
-            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 t-small font-medium transition-colors ${
+            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 t-small font-medium transition-colors disabled:cursor-not-allowed ${
               on
                 ? "border-crimson bg-crimson text-white"
                 : "border-line-strong text-ink-soft hover:border-ink-mute hover:text-ink"

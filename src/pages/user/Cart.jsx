@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
-import { ArrowRight, Calendar, Minus, Plus, Trash2 } from "lucide-react"
+import { ArrowRight, Calendar, Minus, Plus, Trash2, Users } from "lucide-react"
 import { toast } from "react-toastify"
 import { useCart } from "../../context/CartContext"
 import { createOrder } from "../../services/orders"
+import { img, SIZES } from "../../utils/image"
 
 const rs = (n) => `Rs ${Number(n || 0).toLocaleString("en-IN")}`
+
+/* Cart entries have used both labels over the life of this codebase. */
+const isDish = (type) => type === "dish" || type === "cuisine"
 
 /* The cart mirrors the plan card on the home page: the same three slots, in the
    same order, so what you are assembling never changes shape as you move
@@ -21,6 +25,13 @@ const Cart = () => {
   const { cartItems, removeFromCart, fetchCartItems, updateQuantity } = useCart()
   const [loading, setLoading] = useState(true)
   const [checkingOut, setCheckingOut] = useState(false)
+  /* Catering is sold per plate, so the headcount is what the dish lines are
+     actually multiplied by. It is remembered across visits because nobody
+     wants to re-type it every time they come back to the cart. */
+  const [guests, setGuests] = useState(() => {
+    const saved = Number(localStorage.getItem("guestCount"))
+    return Number.isInteger(saved) && saved > 0 ? String(saved) : ""
+  })
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -29,7 +40,22 @@ const Cart = () => {
     Promise.resolve(fetchCartItems()).finally(() => setLoading(false))
   }, [])
 
-  const total = cartItems.reduce((sum, i) => sum + i.price * i.quantity, 0)
+  const headcount = Number(guests) > 0 ? Number(guests) : null
+
+  /* A dish line costs one plate per guest once a headcount is set; before
+     that it falls back to whatever quantity the cart holds. Venues and
+     studios are priced per booking and ignore the headcount entirely. */
+  const lineQuantity = (item) =>
+    isDish(item.type) && headcount ? headcount : item.quantity
+
+  const lineTotal = (item) => item.price * lineQuantity(item)
+  const total = cartItems.reduce((sum, i) => sum + lineTotal(i), 0)
+
+  /* The room has to hold the party. Warned about here rather than discovered
+     at checkout, where the server rejects it. */
+  const venue = cartItems.find((i) => i.type === "venue")
+  const overCapacity =
+    headcount && venue?.capacity && headcount > Number(venue.capacity) ? venue : null
 
   const handleCheckout = async () => {
     if (!localStorage.getItem("accessToken")) {
@@ -49,7 +75,7 @@ const Cart = () => {
           : {}),
       }))
 
-      const { order } = await createOrder(items)
+      const { order } = await createOrder(items, headcount)
       if (!order) throw new Error("The order could not be created")
       navigate(`/payment/${order._id}`, { state: { orderData: order } })
     } catch (error) {
@@ -125,7 +151,7 @@ const Cart = () => {
                               className="group flex gap-4 py-6"
                             >
                               <img
-                                src={item.image || "/placeholder.svg"}
+                                src={img(item.image, { w: SIZES.thumb }) || "/placeholder.svg"}
                                 alt=""
                                 className="h-24 w-24 shrink-0 rounded-md border border-line object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
                               />
@@ -141,7 +167,7 @@ const Cart = () => {
                                     )}
                                   </div>
                                   <span className="amount shrink-0 t-body font-semibold text-ink">
-                                    {rs(item.price * item.quantity)}
+                                    {rs(lineTotal(item))}
                                   </span>
                                 </div>
 
@@ -156,28 +182,39 @@ const Cart = () => {
                                 )}
 
                                 <div className="mt-4 flex items-center gap-4">
-                                  <div className="inline-flex items-center rounded-md border border-line">
-                                    <button
-                                      onClick={() =>
-                                        updateQuantity(item._id, Math.max(1, item.quantity - 1))
-                                      }
-                                      disabled={item.quantity <= 1}
-                                      aria-label={`Reduce quantity of ${item.name}`}
-                                      className="flex h-8 w-8 items-center justify-center text-ink-soft transition-colors hover:bg-gray-100 disabled:opacity-35"
-                                    >
-                                      <Minus className="h-3.5 w-3.5" strokeWidth={2} />
-                                    </button>
-                                    <span className="amount w-9 text-center t-small font-semibold">
-                                      {item.quantity}
+                                  {/* Once a headcount is set it decides how many
+                                      plates, so a per-dish stepper would be two
+                                      controls fighting over one number. */}
+                                  {isDish(item.type) && headcount ? (
+                                    <span className="inline-flex items-center gap-2 rounded-md border border-line bg-gray-50 px-3 py-1.5 t-small text-ink-soft">
+                                      <Users className="h-3.5 w-3.5" strokeWidth={1.75} />
+                                      <span className="amount font-semibold text-ink">{headcount}</span>
+                                      plates
                                     </span>
-                                    <button
-                                      onClick={() => updateQuantity(item._id, item.quantity + 1)}
-                                      aria-label={`Increase quantity of ${item.name}`}
-                                      className="flex h-8 w-8 items-center justify-center text-ink-soft transition-colors hover:bg-gray-100"
-                                    >
-                                      <Plus className="h-3.5 w-3.5" strokeWidth={2} />
-                                    </button>
-                                  </div>
+                                  ) : (
+                                    <div className="inline-flex items-center rounded-md border border-line">
+                                      <button
+                                        onClick={() =>
+                                          updateQuantity(item._id, Math.max(1, item.quantity - 1))
+                                        }
+                                        disabled={item.quantity <= 1}
+                                        aria-label={`Reduce quantity of ${item.name}`}
+                                        className="flex h-8 w-8 items-center justify-center text-ink-soft transition-colors hover:bg-gray-100 disabled:opacity-35"
+                                      >
+                                        <Minus className="h-3.5 w-3.5" strokeWidth={2} />
+                                      </button>
+                                      <span className="amount w-9 text-center t-small font-semibold">
+                                        {item.quantity}
+                                      </span>
+                                      <button
+                                        onClick={() => updateQuantity(item._id, item.quantity + 1)}
+                                        aria-label={`Increase quantity of ${item.name}`}
+                                        className="flex h-8 w-8 items-center justify-center text-ink-soft transition-colors hover:bg-gray-100"
+                                      >
+                                        <Plus className="h-3.5 w-3.5" strokeWidth={2} />
+                                      </button>
+                                    </div>
+                                  )}
 
                                   <button
                                     onClick={() => removeFromCart(item._id)}
@@ -207,16 +244,57 @@ const Cart = () => {
                   </h2>
                 </div>
 
+                {/* Headcount, above the totals it changes. */}
+                <div className="border-b border-line px-5 py-4">
+                  <label htmlFor="guests" className="label">
+                    How many guests?
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      id="guests"
+                      type="number"
+                      min="1"
+                      max="100000"
+                      inputMode="numeric"
+                      value={guests}
+                      onChange={(e) => {
+                        const next = e.target.value.replace(/[^0-9]/g, "")
+                        setGuests(next)
+                        if (next) localStorage.setItem("guestCount", next)
+                        else localStorage.removeItem("guestCount")
+                      }}
+                      placeholder="e.g. 200"
+                      className="field w-28"
+                    />
+                    <p className="t-caption leading-snug text-ink-mute">
+                      {headcount
+                        ? `Catering is charged per plate, so this sets the food total.`
+                        : `Set this and every dish is counted per head.`}
+                    </p>
+                  </div>
+                  {overCapacity && (
+                    <p role="alert" className="mt-2.5 t-caption leading-relaxed text-red-700">
+                      {overCapacity.name} holds {overCapacity.capacity}. Lower the headcount or
+                      choose a larger venue.
+                    </p>
+                  )}
+                </div>
+
                 <div className="space-y-3 px-5 py-4">
                   {GROUPS.map((group) => {
                     const items = cartItems.filter((i) => group.match(i.type))
                     if (!items.length) return null
-                    const sum = items.reduce((s, i) => s + i.price * i.quantity, 0)
+                    const sum = items.reduce((s, i) => s + lineTotal(i), 0)
                     return (
                       <div key={group.key} className="flex items-baseline justify-between t-small">
                         <span className="text-ink-soft">
                           {group.label}
-                          <span className="text-ink-mute"> · {items.length}</span>
+                          <span className="text-ink-mute">
+                            {" · "}
+                            {group.key === "catering" && headcount
+                              ? `${items.length} × ${headcount}`
+                              : items.length}
+                          </span>
                         </span>
                         <span className="amount text-ink">{rs(sum)}</span>
                       </div>
@@ -235,7 +313,7 @@ const Cart = () => {
                 <div className="border-t border-line bg-gray-50 px-5 py-4">
                   <button
                     onClick={handleCheckout}
-                    disabled={checkingOut}
+                    disabled={checkingOut || Boolean(overCapacity)}
                     className="btn btn-accent w-full py-3.5"
                   >
                     {checkingOut ? (

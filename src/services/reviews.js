@@ -20,7 +20,7 @@ export const getUnverifiedReviews = async (limit = 6) => {
   }
 };
 
-export const postReview = async ({ rating, comment }) => {
+export const postReview = async ({ rating, comment, itemType, itemId }) => {
   try {
     if (!rating) {
       throw new Error('Rating is required');
@@ -34,6 +34,13 @@ export const postReview = async ({ rating, comment }) => {
       rating: parseInt(rating),
       comment: comment.trim()
     };
+
+    /* With a subject this reviews one venue, studio or dish; without one it
+       is a review of the company, which is what the landing page sends. */
+    if (itemType && itemId) {
+      body.itemType = itemType;
+      body.itemId = itemId;
+    }
     
     const response = await API.post('/api/reviews', body, {
       headers: {
@@ -148,3 +155,23 @@ export const deleteReview = async (reviewId) => {
 };
 
 
+
+/* ------------------------------------------------------------------ *
+ * Reviews of a specific listing
+ *
+ * Ratings and reviews used to be two systems: a star score with no words on
+ * the item, and words with no subject on the company. These read the merged
+ * one.
+ * ------------------------------------------------------------------ */
+
+/** One listing's published reviews, plus the distribution behind its score. */
+export const getItemReviews = async (itemType, itemId, limit = 10) => {
+  const response = await API.get(`/api/reviews/item/${itemType}/${itemId}?limit=${limit}`);
+  return response.data.data;
+};
+
+/** What this customer has been to and has not written about yet. */
+export const getReviewableItems = async () => {
+  const response = await API.get("/api/reviews/reviewable");
+  return response.data.data.items;
+};
