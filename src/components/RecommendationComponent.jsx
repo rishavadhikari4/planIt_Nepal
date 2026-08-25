@@ -1,12 +1,13 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import { ArrowLeft, ArrowRight, Check, Star } from "lucide-react"
 import { toast } from "react-toastify"
 import { useCart } from "../context/CartContext"
-import { getWeddingPackageRecommendation } from "../services/recommendations"
+import { getOccasions, getOccasionPackage } from "../services/recommendations"
 import { Modal } from "./ui/Admin"
 import { Field, Row, CheckboxGroup } from "./ui/FormKit"
+import { img, SIZES } from "../utils/image"
 
 const rs = (n) => `Rs ${Number(n || 0).toLocaleString("en-IN")}`
 
@@ -21,16 +22,19 @@ const SERVICES = [
   "Album Design",
 ]
 
+/* One budget and a headcount, not three budgets nobody can invent. The split
+   between venue, food and studio comes from the occasion, because a pasni and
+   a corporate dinner do not spend the same money in the same places. */
 const EMPTY = {
-  venueBudget: "",
-  studioBudget: "",
-  foodBudget: "",
-  location: "",
+  occasion: "wedding",
+  budget: "",
   guestCount: "",
+  location: "",
+  skipStudio: false,
   preferredServices: [],
 }
 
-const STEPS = ["Budget", "Preferences", "Your package"]
+const STEPS = ["Occasion", "Details", "Your package"]
 
 const Rating = ({ value }) =>
   value ? (
@@ -43,7 +47,7 @@ const Rating = ({ value }) =>
 const PackageRow = ({ image, name, meta, price }) => (
   <li className="flex items-center gap-4 px-5 py-4">
     <img
-      src={image || "/placeholder.svg"}
+      src={img(image, { w: SIZES.thumb }) || "/placeholder.svg"}
       alt=""
       loading="lazy"
       className="h-14 w-14 shrink-0 rounded-md border border-line object-cover"
@@ -66,6 +70,22 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
   const [form, setForm] = useState(EMPTY)
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
+  const [occasions, setOccasions] = useState([])
+
+  /* The occasions come from the server so this list cannot drift from the one
+     the planner actually knows how to build for. */
+  useEffect(() => {
+    if (!isOpen || occasions.length) return
+    let live = true
+    getOccasions()
+      .then((list) => live && setOccasions(list))
+      .catch(() => {})
+    return () => {
+      live = false
+    }
+  }, [isOpen, occasions.length])
+
+  const chosen = occasions.find((o) => o.id === form.occasion)
 
   const set = (field, value) => setForm((prev) => ({ ...prev, [field]: value }))
 
@@ -77,28 +97,27 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
   }
 
   const fetchPackage = async () => {
+    const budget = Number(form.budget)
+    if (!Number.isFinite(budget) || budget < 10000) {
+      return toast.info("Give a total budget of at least Rs 10,000.")
+    }
+
     setLoading(true)
     try {
-      // The API wants one total; an unspecified budget falls back to a sane default.
-      const total =
-        Number(form.venueBudget || 0) + Number(form.studioBudget || 0) + Number(form.foodBudget || 0) ||
-        100000
-
-      const response = await getWeddingPackageRecommendation({
-        totalBudget: String(total),
-        venueBudget: form.venueBudget,
-        studioBudget: form.studioBudget,
-        foodBudget: form.foodBudget,
+      const data = await getOccasionPackage({
+        occasion: form.occasion,
+        budget,
+        guests: Number(form.guestCount) || chosen?.typicalGuests || 100,
         location: form.location,
-        guestCount: form.guestCount,
-        preferredServices: form.preferredServices.join(","),
+        skipStudio: form.skipStudio,
       })
-
-      if (!response.success) throw new Error(response.message)
-      setResult(response.data)
+      setResult(data)
       setStep(2)
     } catch (error) {
-      toast.error(error.message || "We couldn't build a package from that. Try widening the budget.")
+      toast.error(
+        error.response?.data?.message ||
+          "We couldn't build a package from that. Try widening the budget.",
+      )
     } finally {
       setLoading(false)
     }
@@ -149,15 +168,14 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
   }
 
   const pkg = result?.package
-  const analysis = result?.budgetAnalysis
   const insights = result?.insights
 
   return (
     <Modal
       open={isOpen}
       onClose={reset}
-      title="Build my package"
-      description="Tell us the shape of your event and we'll put a whole plan together."
+      title="Plan my event"
+      description="Tell us the occasion and the budget. We'll split it and pick the rest."
       width="max-w-2xl"
     >
       {/* Step indicator — the same numbered thread used across the product. */}
@@ -198,52 +216,63 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
             transition={{ duration: 0.22 }}
             className="space-y-5"
           >
-            <p className="t-body leading-relaxed text-ink-soft">
-              Every field here is optional. Fill in what you know and we&rsquo;ll work around the
-              rest.
-            </p>
+            <div>
+              <p className="label">What are you planning?</p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {(occasions.length ? occasions : [{ id: "wedding", label: "Wedding", note: "" }]).map(
+                  (occasion) => {
+                    const active = form.occasion === occasion.id
+                    return (
+                      <button
+                        key={occasion.id}
+                        type="button"
+                        onClick={() => set("occasion", occasion.id)}
+                        aria-pressed={active}
+                        className={`rounded-md border p-3.5 text-left transition-colors ${
+                          active
+                            ? "border-crimson bg-crimson-50"
+                            : "border-line hover:border-ink-mute"
+                        }`}
+                      >
+                        <span className="block t-small font-semibold text-ink">{occasion.label}</span>
+                        {occasion.note && (
+                          <span className="mt-0.5 block t-caption leading-snug text-ink-mute">
+                            {occasion.note}
+                          </span>
+                        )}
+                      </button>
+                    )
+                  },
+                )}
+              </div>
+            </div>
 
             <Row>
-              <Field id="venueBudget" label="Venue budget" hint="In rupees.">
+              <Field
+                id="budget"
+                label="Total budget"
+                hint="One figure. We split it across the three."
+              >
                 <input
-                  id="venueBudget"
+                  id="budget"
                   type="number"
-                  min="0"
+                  min="10000"
                   inputMode="numeric"
-                  value={form.venueBudget}
-                  onChange={(e) => set("venueBudget", e.target.value)}
-                  placeholder="80000"
+                  value={form.budget}
+                  onChange={(e) => set("budget", e.target.value)}
+                  placeholder="400000"
                   className="field amount"
                 />
               </Field>
-              <Field id="foodBudget" label="Catering budget" hint="In rupees.">
-                <input
-                  id="foodBudget"
-                  type="number"
-                  min="0"
-                  inputMode="numeric"
-                  value={form.foodBudget}
-                  onChange={(e) => set("foodBudget", e.target.value)}
-                  placeholder="60000"
-                  className="field amount"
-                />
-              </Field>
-            </Row>
-
-            <Row>
-              <Field id="studioBudget" label="Studio budget" hint="In rupees.">
-                <input
-                  id="studioBudget"
-                  type="number"
-                  min="0"
-                  inputMode="numeric"
-                  value={form.studioBudget}
-                  onChange={(e) => set("studioBudget", e.target.value)}
-                  placeholder="40000"
-                  className="field amount"
-                />
-              </Field>
-              <Field id="guestCount" label="Guests" hint="Drives the catering count.">
+              <Field
+                id="guestCount"
+                label="Guests"
+                hint={
+                  chosen?.typicalGuests
+                    ? `A ${chosen.label.toLowerCase()} is usually around ${chosen.typicalGuests}.`
+                    : "Catering is priced per plate."
+                }
+              >
                 <input
                   id="guestCount"
                   type="number"
@@ -251,7 +280,7 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
                   inputMode="numeric"
                   value={form.guestCount}
                   onChange={(e) => set("guestCount", e.target.value)}
-                  placeholder="150"
+                  placeholder={String(chosen?.typicalGuests || 150)}
                   className="field amount"
                 />
               </Field>
@@ -292,12 +321,33 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
               />
             </Field>
 
+            {/* Not every occasion wants a photographer. Dropping the studio
+                gives its share of the budget back to the venue and the food
+                rather than losing it. */}
+            <label className="flex cursor-pointer items-start gap-3 rounded-md border border-line p-4 transition-colors hover:border-ink-mute">
+              <input
+                type="checkbox"
+                checked={form.skipStudio}
+                onChange={(e) => set("skipStudio", e.target.checked)}
+                className="mt-0.5 h-4 w-4 accent-crimson"
+              />
+              <span>
+                <span className="block t-small font-semibold text-ink">
+                  No photographer needed
+                </span>
+                <span className="mt-0.5 block t-caption leading-snug text-ink-mute">
+                  Its share of the budget goes to the venue and the catering instead.
+                </span>
+              </span>
+            </label>
+
             <CheckboxGroup
               label="Studio services you want"
               options={SERVICES}
               value={form.preferredServices}
               onChange={(preferredServices) => set("preferredServices", preferredServices)}
               hint="Pick none and we'll match on price alone."
+              disabled={form.skipStudio}
             />
 
             <div className="flex justify-between gap-2 border-t border-line pt-6">
@@ -335,18 +385,20 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
                   {rs(pkg.totalPrice)}
                 </p>
               </div>
-              {analysis && (
+              {insights && (
                 <div className="text-right">
-                  {analysis.savings > 0 && (
-                    <p className="amount t-small font-semibold text-green-700">
-                      {rs(analysis.savings)} under budget
-                    </p>
-                  )}
-                  {analysis.budgetUtilization && (
-                    <p className="amount mt-0.5 t-caption text-ink-mute">
-                      {analysis.budgetUtilization}% of your budget
-                    </p>
-                  )}
+                  <p
+                    className={`amount t-small font-semibold ${
+                      insights.withinBudget ? "text-green-700" : "text-orange-800"
+                    }`}
+                  >
+                    {insights.withinBudget
+                      ? `${rs(insights.difference)} under budget`
+                      : `${rs(Math.abs(insights.difference))} over`}
+                  </p>
+                  <p className="amount mt-0.5 t-caption text-ink-mute">
+                    {insights.utilization}% of your budget
+                  </p>
                 </div>
               )}
             </div>
@@ -391,6 +443,7 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
                   meta={
                     <>
                       <span>{dish.category || "Dish"}</span>
+                      <span>per plate</span>
                       <Rating value={dish.rating} />
                     </>
                   }
@@ -398,33 +451,28 @@ const RecommendationComponent = ({ isOpen, onClose }) => {
               ))}
             </ul>
 
-            {(insights?.benefits?.length > 0 || insights?.recommendations?.length > 0) && (
-              <div className="mt-6 space-y-4">
-                {insights.benefits?.length > 0 && (
-                  <div>
-                    <p className="eyebrow">Why this works</p>
-                    <ul className="mt-3 space-y-1.5">
-                      {insights.benefits.slice(0, 3).map((benefit, i) => (
-                        <li key={i} className="t-small leading-relaxed text-ink-soft">
-                          {benefit}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+            {/* The number people actually miss: a plate price is small, and
+                two hundred of them is not. */}
+            {pkg.platePrice > 0 && (
+              <p className="mt-4 flex flex-wrap items-baseline justify-between gap-2 rounded-md border border-line bg-gray-50 px-4 py-3 t-small text-ink-soft">
+                <span>
+                  Catering: <span className="amount text-ink">{rs(pkg.platePrice)}</span> a plate ×{" "}
+                  <span className="amount text-ink">{result.guests}</span> guests
+                </span>
+                <span className="amount font-semibold text-ink">{rs(pkg.cateringTotal)}</span>
+              </p>
+            )}
 
-                {insights.recommendations?.length > 0 && (
-                  <div className="rounded-lg border border-orange-200 bg-orange-50 p-4">
-                    <p className="t-small font-semibold text-orange-800">Worth considering</p>
-                    <ul className="mt-2 space-y-1.5">
-                      {insights.recommendations.slice(0, 2).map((rec, i) => (
-                        <li key={i} className="t-small leading-relaxed text-orange-800/85">
-                          {rec}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+            {insights?.notes?.length > 0 && (
+              <div className="mt-6 rounded-lg border border-orange-200 bg-orange-50 p-4">
+                <p className="t-small font-semibold text-orange-800">Worth knowing</p>
+                <ul className="mt-2 space-y-1.5">
+                  {insights.notes.slice(0, 3).map((note, i) => (
+                    <li key={i} className="t-small leading-relaxed text-orange-800/85">
+                      {note}
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
 
