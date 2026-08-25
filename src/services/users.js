@@ -78,3 +78,17 @@ export const toggleFavorite = async (itemType, itemId) => {
   return response.data.data;
 };
 
+/* ------------------------------------------------------------------ *
+ * Cart
+ * ------------------------------------------------------------------ */
+
+export const getServerCart = async () => {
+  const response = await API.get("/api/users/me/cart");
+  return response.data.data.cart;
+};
+
+/** Replaces the stored cart. The client owns cart state; this remembers it. */
+export const saveServerCart = async ({ items, guestCount }) => {
+  const response = await API.put("/api/users/me/cart", { items, guestCount });
+  return response.data;
+};
